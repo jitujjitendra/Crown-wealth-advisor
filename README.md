@@ -1,465 +1,304 @@
-# Crown Wealth Advisor - Financial Advisory Website
+# Crown Wealth Advisor - Complete Website with Admin Panel
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
-![Status](https://img.shields.io/badge/status-production--ready-success.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
+A professional financial advisory website with a comprehensive lead management system.
 
-A modern, production-ready website for financial advisory services offering insurance, loan, and investment guidance.
-
----
+![Crown Wealth Advisor](https://img.shields.io/badge/Status-Production%20Ready-success)
+![Version](https://img.shields.io/badge/Version-2.0-blue)
 
 ## 🌟 Features
 
-### ✅ Fully Implemented
+### Public Website
+- ✅ **Golden Logo** - Updated brand color to #D4A574
+- ✅ **Contact Information** - Phone: +91-7428045423, Email: crownwealthadvisor1111@gmail.com
+- ✅ **Services Pages** - Insurance, Loans, Investments
+- ✅ **Career Pages**
+  - Bajaj Allianz Partnership Application
+  - PNB MetLife Advisor Application
+- ✅ **Claim Support Services** - Professional claim assistance with pricing packages
+- ✅ **Financial Calculators** - EMI, Loan Eligibility, Insurance Need
+- ✅ **WhatsApp Integration** - Direct chat button (+91-7428045423)
+- ✅ **Responsive Design** - Mobile-friendly across all pages
+- ✅ **SEO Optimized** - Meta tags, Schema.org markup
 
-- **Responsive Design**: Mobile-first approach with breakpoints at 1180px, 960px, 680px, and 430px
-- **Form Integration**: EmailJS/Web3Forms ready with validation and error handling
-- **SEO Optimized**: Complete meta tags, Open Graph, Twitter Cards, Schema.org structured data
-- **3 Working Calculators**:
-  - EMI Calculator (loan repayment estimation)
-  - Loan Eligibility Calculator (based on FOIR method)
-  - Insurance Need Calculator (using HLV method)
-- **Performance Optimized**: 
-  - Lazy loading images with Intersection Observer
-  - Resource hints and preconnect
-  - Web Vitals monitoring (LCP, FID, CLS)
-- **Analytics Ready**: Google Analytics 4 template with custom event tracking
-- **Accessibility**: ARIA labels, skip links, keyboard navigation
-- **404 Error Page**: Custom styled with helpful navigation
-- **Sitemap & Robots.txt**: SEO crawler configuration
-
----
+### Admin Panel (CRM System)
+- 🔐 **Secure Login** - Firebase authentication with email/password
+- 📊 **Dashboard** - Real-time statistics and lead overview
+  - Success/WIP/Rejected/Total lead counts
+  - Search and filter functionality
+  - Status-based filtering (🟢 Success, 🟠 WIP, 🔴 Rejected)
+  - Pagination (20 leads per page)
+  - Export to Excel
+- 📋 **Lead Management**
+  - View complete lead details
+  - Add comments and notes
+  - Update lead status
+  - Track lead history
+  - Delete leads with confirmation
+- 💾 **Firebase Integration**
+  - Cloud Firestore for data storage
+  - Real-time updates
+  - Secure authentication
+  - Demo mode for testing
 
 ## 📁 Project Structure
 
 ```
 Crown-wealth-advisor/
-├── index.html                          # Home page
-├── 404.html                            # Custom 404 error page
-├── sitemap.xml                         # SEO sitemap
-├── robots.txt                          # Search engine instructions
-├── README.md                           # This file
-├── SETUP_INSTRUCTIONS.md               # Detailed setup guide
-├── GOOGLE_ANALYTICS_TEMPLATE.html      # GA4 integration code
+├── admin/                          # Admin Panel
+│   ├── index.html                 # Login page
+│   ├── dashboard.html             # Lead dashboard
+│   ├── lead-details.html          # Individual lead view
+│   ├── dashboard.js               # Dashboard logic
+│   ├── lead-details.js            # Lead details logic
+│   └── admin-styles.css           # Admin panel styles
 │
 ├── assets/
 │   ├── css/
-│   │   └── styles.css                  # Main stylesheet (2016 lines, fully responsive)
+│   │   └── styles.css             # Main website styles
 │   └── js/
-│       ├── main.js                     # Core functionality
-│       ├── form-handler.js             # Form submission with EmailJS/Web3Forms
-│       └── performance.js              # Performance optimizations
+│       ├── main.js                # Website interactions
+│       ├── form-handler.js        # Form submission logic
+│       └── performance.js         # Performance optimization
 │
-└── pages/
-    ├── health-insurance.html           # Health insurance service page
-    ├── life-insurance.html             # Life insurance service page
-    ├── general-insurance.html          # General insurance service page
-    ├── home-loan.html                  # Home loan service page
-    ├── personal-loan.html              # Personal loan service page
-    ├── car-loan.html                   # Car loan service page
-    ├── loan-against-property.html      # LAP service page
-    ├── fixed-deposit.html              # Investment service page
-    ├── emi-calculator.html             # EMI calculator tool
-    ├── loan-eligibility.html           # Loan eligibility calculator (NEW)
-    ├── insurance-calculator.html       # Insurance need calculator (NEW)
-    └── blog.html                       # Blog listing page
+├── pages/                          # Website pages
+│   ├── bajaj-careers.html         # Bajaj partnership
+│   ├── pnb-careers.html           # PNB MetLife careers
+│   ├── claim-support.html         # Claim assistance services
+│   ├── health-insurance.html      # Insurance pages
+│   ├── life-insurance.html
+│   ├── general-insurance.html
+│   ├── home-loan.html             # Loan pages
+│   ├── personal-loan.html
+│   ├── car-loan.html
+│   ├── loan-against-property.html
+│   ├── fixed-deposit.html         # Investment page
+│   ├── emi-calculator.html        # Calculator tools
+│   ├── loan-eligibility.html
+│   ├── insurance-calculator.html
+│   ├── blog.html                  # Blog listing
+│   └── single-blog.html           # Blog post template
+│
+├── index.html                      # Homepage
+├── 404.html                        # Error page
+├── sitemap.xml                     # SEO sitemap
+├── robots.txt                      # Search engine rules
+├── FIREBASE_SETUP_GUIDE.md         # Complete Firebase setup
+└── README.md                       # This file
 ```
-
----
 
 ## 🚀 Quick Start
 
-### 1. **Download/Clone the Repository**
+### 1. Clone or Download
 
 ```bash
 git clone https://github.com/jitujjitendra/Crown-wealth-advisor.git
 cd Crown-wealth-advisor
 ```
 
-### 2. **Open in Browser**
+### 2. View Locally
 
-Simply open `index.html` in your browser:
-- **Chrome/Edge**: Right-click → Open with → Google Chrome
-- **Live Server**: Use VS Code Live Server extension for hot reload
+Simply open `index.html` in your browser. No build process required!
 
-### 3. **Configure for Production**
+```bash
+# Using Python
+python -m http.server 8000
 
-Before deploying, you **MUST** configure:
+# Using PHP
+php -S localhost:8000
 
-1. **Form Backend** (CRITICAL):
-   - Open `assets/js/form-handler.js`
-   - Add EmailJS credentials OR Web3Forms access key
-   - See `SETUP_INSTRUCTIONS.md` for details
-
-2. **Contact Information** (CRITICAL):
-   - Update WhatsApp number in ALL HTML files
-   - Replace `91XXXXXXXXXX` with your actual number
-   - Update email and phone in footer sections
-
-3. **Google Analytics** (Recommended):
-   - Copy code from `GOOGLE_ANALYTICS_TEMPLATE.html`
-   - Paste in `<head>` of all HTML files
-   - Replace `G-XXXXXXXXXX` with your Measurement ID
-
-4. **Domain URLs** (Before launch):
-   - Replace `https://www.crownwealthadvisor.com` in:
-     - `index.html` (meta tags)
-     - `sitemap.xml`
-     - All page meta tags
-
----
-
-## 🔧 Technologies Used
-
-- **HTML5**: Semantic markup with accessibility features
-- **CSS3**: Modern CSS with CSS Variables, Grid, Flexbox
-- **Vanilla JavaScript**: No framework dependencies, lightweight
-- **EmailJS/Web3Forms**: Form submission handling
-- **Intersection Observer API**: Image lazy loading
-- **Performance API**: Web Vitals monitoring
-- **Schema.org**: Structured data for search engines
-
----
-
-## 📊 Performance Metrics
-
-| Metric | Target | Status |
-|--------|--------|--------|
-| **First Contentful Paint (FCP)** | < 1.8s | ✅ Optimized |
-| **Largest Contentful Paint (LCP)** | < 2.5s | ✅ Monitored |
-| **Cumulative Layout Shift (CLS)** | < 0.1 | ✅ Prevented |
-| **Time to Interactive (TTI)** | < 3.8s | ✅ Lightweight JS |
-| **Total Bundle Size** | < 500KB | ✅ No frameworks |
-
----
-
-## 🎨 Design System
-
-### Color Palette
-
-```css
---color-red: #c9000b;          /* Primary brand color */
---color-red-bright: #e4141f;   /* Hover states */
---color-red-dark: #8e0007;     /* Dark accent */
---color-black: #070707;        /* Text primary */
---color-ink: #151515;          /* Text secondary */
---color-muted: #60636d;        /* Text muted */
---color-line: #e8e8e8;         /* Borders */
---color-soft: #f7f7f7;         /* Backgrounds */
---color-white: #ffffff;        /* Pure white */
+# Using Node.js http-server
+npx http-server
 ```
 
-### Typography
+Visit: `http://localhost:8000`
 
-- **Headings**: Segoe UI (system font, no web fonts needed)
-- **Body**: Segoe UI, Roboto, Arial, sans-serif
-- **Font Weights**: 700, 800, 900, 950
+### 3. Test Admin Panel (Demo Mode)
 
-### Breakpoints
+1. Open `admin/index.html` in browser
+2. Login credentials for demo:
+   - Email: `admin@crownwealthadvisor.com`
+   - Password: `demo123`
+3. Explore dashboard with sample data
 
-- **Desktop**: 1180px and above
-- **Laptop**: 960px - 1179px
-- **Tablet**: 680px - 959px
-- **Mobile**: 430px - 679px
-- **Small Mobile**: Below 430px
+## 🔧 Setup for Production
 
----
+### Step 1: Configure Firebase
 
-## 🛠️ Features Breakdown
+Follow the comprehensive guide: **[FIREBASE_SETUP_GUIDE.md](./FIREBASE_SETUP_GUIDE.md)**
 
-### 1. **Home Page**
-- Hero section with custom SVG illustration
-- 8 service cards (insurance, loans, investments)
-- Why Choose Us section (4 advantages)
-- Calculator tools showcase
-- Free consultation form
-- Blog preview (4 latest articles)
-- FAQ accordion
-- CTA strip
+Quick checklist:
+- [ ] Create Firebase project
+- [ ] Enable Authentication (Email/Password)
+- [ ] Set up Firestore database
+- [ ] Add Firebase config to 4 files
+- [ ] Create admin user
+- [ ] Test form submissions
 
-### 2. **Service Pages** (8 pages)
-- Health Insurance
-- Life Insurance
-- General Insurance
-- Home Loan
-- Personal Loan
-- Car Loan
-- Loan Against Property
-- Fixed Deposit & Investments
+### Step 2: Update Contact Info (Already Done ✅)
 
-Each includes:
-- Hero section with breadcrumb
-- Benefits grid
-- Why section
-- Consultation form
-- Consistent footer
+All files already updated with:
+- Phone/WhatsApp: +91-7428045423
+- Email: crownwealthadvisor1111@gmail.com
+- Support Hours: 10:00 AM - 6:00 PM
 
-### 3. **Calculator Tools** (3 working calculators)
+### Step 3: Deploy Website
 
-#### EMI Calculator
-- Input: Loan amount, interest rate, tenure
-- Output: Monthly EMI, total interest, total payment
-- Formula: `EMI = P × r × (1 + r)^n / ((1 + r)^n - 1)`
-
-#### Loan Eligibility Calculator
-- Input: Monthly income, existing EMIs, loan type, rate, tenure
-- Output: Max loan amount, max EMI, available income
-- Logic: FOIR-based (40-60% depending on loan type)
-
-#### Insurance Need Calculator
-- Input: Annual income, age, retirement age, liabilities, goals
-- Output: Recommended coverage, breakdown by component
-- Logic: HLV method (Human Life Value) + liabilities
-
-### 4. **Form Handling**
-- Client-side validation
-- Email/phone format checking
-- Success/error messages
-- EmailJS integration ready
-- Web3Forms fallback option
-- Form data tracking (Google Analytics)
-
-### 5. **SEO Features**
-- Semantic HTML5
-- Meta descriptions on all pages
-- Open Graph tags (Facebook/LinkedIn)
-- Twitter Card tags
-- Schema.org JSON-LD (FinancialService)
-- Canonical URLs
-- Sitemap.xml with all pages
-- Robots.txt configured
-- Image alt attributes
-- Heading hierarchy (h1 → h6)
-
-### 6. **Performance Optimizations**
-- Lazy loading images (Intersection Observer)
-- DNS prefetch for external domains
-- Preconnect for critical resources
-- Debounced scroll events
-- Web Vitals monitoring
-- CLS prevention (image dimensions)
-- Resource hints
-- No render-blocking CSS/JS
-
-### 7. **Accessibility**
-- Skip to content link
-- ARIA labels and roles
-- Keyboard navigation support
-- Focus visible states
-- Screen reader text
-- Alt text for images
-- Form labels (visible and hidden)
-- Color contrast WCAG AA compliant
-
----
-
-## 📱 Browser Support
-
-| Browser | Version | Status |
-|---------|---------|--------|
-| Chrome | 90+ | ✅ Fully Supported |
-| Firefox | 88+ | ✅ Fully Supported |
-| Safari | 14+ | ✅ Fully Supported |
-| Edge | 90+ | ✅ Fully Supported |
-| Opera | 76+ | ✅ Fully Supported |
-| Mobile Safari | 14+ | ✅ Fully Supported |
-| Chrome Mobile | 90+ | ✅ Fully Supported |
-
-**Note**: Intersection Observer not supported in IE11. Fallback loads all images immediately.
-
----
-
-## 🔐 Security Features
-
-- No inline JavaScript (except analytics)
-- No eval() usage
-- Form validation (client + server needed)
-- rel="noopener" on external links
-- HTTPS recommended for production
-- No sensitive data in localStorage
-- Input sanitization ready
-
----
-
-## 📦 Deployment Options
-
-### Option 1: GitHub Pages (Free)
+**Option A: GitHub Pages (Free)**
 ```bash
-git init
+# Push to GitHub
 git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/your-username/crown-wealth-advisor.git
-git push -u origin main
+git commit -m "Deploy Crown Wealth Advisor"
+git push origin main
 
 # Enable GitHub Pages in repository settings
 ```
 
-### Option 2: Netlify (Free)
-1. Drag and drop folder to [Netlify Drop](https://app.netlify.com/drop)
-2. Or connect GitHub repository
-3. Deploy automatically on every push
-
-### Option 3: Vercel (Free)
+**Option B: Firebase Hosting**
 ```bash
-npm install -g vercel
-vercel
+npm install -g firebase-tools
+firebase login
+firebase init hosting
+firebase deploy
 ```
 
-### Option 4: Traditional Hosting
-1. Upload files via FTP/SFTP
-2. Ensure `.htaccess` configured (if Apache)
-3. Point domain to hosting
+**Option C: Traditional Hosting**
+- Upload all files via FTP
+- Ensure index.html is in root directory
 
----
+## 📱 Key Contact Information
 
-## ✅ Pre-Launch Checklist
+- **Phone/WhatsApp**: +91-7428045423
+- **Email**: crownwealthadvisor1111@gmail.com
+- **Support Hours**: 10:00 AM - 6:00 PM (Mon-Sat)
+- **Tagline**: "All Financial Needs One Step Solution"
 
-- [ ] EmailJS/Web3Forms configured
-- [ ] All placeholder content replaced
-- [ ] WhatsApp number updated (all pages)
-- [ ] Contact details updated (footer, about)
-- [ ] Google Analytics added
-- [ ] Domain URLs updated (meta tags, sitemap)
-- [ ] Favicon generated and added
-- [ ] Social media images created (1200x630px)
-- [ ] Forms tested (desktop + mobile)
-- [ ] All calculators tested
-- [ ] All navigation links checked
-- [ ] Mobile responsiveness verified
-- [ ] Cross-browser testing done
-- [ ] Page load speed tested
-- [ ] SSL certificate installed
-- [ ] Google Search Console submitted
+## 🎨 Design Highlights
 
----
+- **Brand Color**: Golden (#D4A574) - Premium and trustworthy
+- **Primary Red**: #c9000b - Attention and action
+- **Clean Layout**: Easy to navigate
+- **Professional Forms**: Validation and user feedback
+- **Mobile Responsive**: Works on all devices
 
-## 🧪 Testing
+## 📋 Form Collection Sources
 
-### Manual Testing
+The admin panel tracks leads from:
+1. Homepage Consultation Form
+2. Bajaj Careers Application
+3. PNB MetLife Careers Application
+4. Claim Support Request Form
+5. Service-specific inquiry forms
 
-```bash
-# Test forms
-1. Fill consultation form with valid data → Should show success
-2. Leave required fields empty → Should show validation errors
-3. Enter invalid email → Should show error
-4. Enter invalid phone → Should show error
+## 🔐 Admin Panel Features
 
-# Test calculators
-1. EMI Calculator: Enter 1000000, 8.5%, 20 years → Should calculate
-2. Loan Eligibility: Enter 50000 income → Should show max loan
-3. Insurance Calculator: Enter details → Should show coverage need
+### Dashboard
+- **Statistics Cards**: Real-time count of leads by status
+- **Search**: Find leads by name, email, phone, or service
+- **Filters**: Filter by status (New, Success, WIP, Rejected)
+- **Export**: Download all leads to Excel
+- **Pagination**: Navigate through large lead lists
 
-# Test navigation
-1. Click all menu items → Should navigate correctly
-2. Test dropdown menus → Should open/close
-3. Test mobile menu → Should toggle
-4. Test breadcrumbs → Should navigate back
+### Lead Details
+- **Complete Information**: All form fields displayed
+- **Status Management**: Update lead status with visual indicators
+- **Comments System**: Add notes and track conversations
+- **History Timeline**: See all status changes and actions
+- **Delete Option**: Remove leads with confirmation
 
-# Test responsiveness
-1. Resize browser window → Content should adjust
-2. Test on mobile device → Should be usable
-3. Test landscape/portrait → Should work both ways
-```
+## 📊 Pricing Packages
 
-### Automated Testing (Optional)
+### Claim Support Services
+1. **Basic Consultation** - ₹499
+2. **Grievance Filing** - ₹2,999 (Most Popular)
+3. **Full Case Management** - ₹5,999
 
-```javascript
-// Lighthouse CI
-npm install -g @lhci/cli
-lhci autorun --collect.url=http://localhost:3000
+## 🛠️ Technologies Used
 
-// Pa11y (Accessibility)
-npm install -g pa11y
-pa11y http://localhost:3000
-```
+- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
+- **Backend**: Firebase (Firestore + Authentication + Functions)
+- **Libraries**: 
+  - SheetJS (Excel export)
+  - Firebase SDK v10.7.1
+- **Tools**: 
+  - EmailJS (email notifications)
+  - WhatsApp Business API (optional)
 
----
+## 📈 SEO & Performance
 
-## 📈 Analytics Events Tracked
+- ✅ **Page Speed**: Optimized images and lazy loading
+- ✅ **Meta Tags**: Complete Open Graph and Twitter Cards
+- ✅ **Schema Markup**: Structured data for search engines
+- ✅ **Sitemap**: All pages indexed
+- ✅ **Mobile-First**: Responsive design
+- ✅ **Accessibility**: ARIA labels and semantic HTML
 
-When Google Analytics is configured, these events are automatically tracked:
+## 🧪 Testing Checklist
 
-- **Page Views**: All page navigation
-- **Form Submissions**: All consultation forms
-- **Calculator Usage**: EMI, Loan Eligibility, Insurance calculators
-- **Outbound Links**: External link clicks
-- **WhatsApp Clicks**: Float button clicks
-- **Scroll Depth**: 25%, 50%, 75%, 100%
-- **Time on Page**: Duration before leaving
-- **404 Errors**: Page not found events
-- **Web Vitals**: LCP, FID, CLS metrics
+### Website Testing
+- [ ] All pages load correctly
+- [ ] Forms submit successfully
+- [ ] WhatsApp button works
+- [ ] Navigation links functional
+- [ ] Mobile responsive
+- [ ] Calculators work properly
 
----
+### Admin Panel Testing
+- [ ] Login with credentials
+- [ ] Dashboard displays stats
+- [ ] Search functionality works
+- [ ] Filter by status works
+- [ ] View lead details
+- [ ] Add comments
+- [ ] Update status
+- [ ] Export to Excel
+- [ ] Delete lead
 
-## 🐛 Known Issues & Limitations
+## 🔒 Security
 
-1. **Forms**: Need backend configuration to actually send emails
-2. **Blog**: Blog content is placeholder, needs actual posts
-3. **Images**: No actual images included, only CSS illustrations
-4. **Favicon**: Needs to be generated and added
-5. **Social Images**: OG image and Twitter card images need creation
+- Firebase Authentication for admin access
+- Firestore security rules implemented
+- No sensitive data in client-side code
+- HTTPS enforced in production
+- Password reset functionality
+- Session management
 
----
+## 💰 Cost Estimation
 
-## 🔄 Future Enhancements
+### Firebase Free Tier (Sufficient for 100-500 leads/month)
+- Authentication: 50,000 verifications/month
+- Firestore: 50K reads, 20K writes per day
+- Hosting: 10 GB storage, 360 MB/day
+- **Estimated Monthly Cost**: ₹0 (FREE)
 
-- [ ] Add actual blog CMS (Contentful, Strapi)
-- [ ] Implement search functionality
-- [ ] Add chat widget integration
-- [ ] Create admin dashboard
-- [ ] Add more calculators (SIP, retirement, tax)
-- [ ] Implement dark mode
-- [ ] Add print styles
-- [ ] Create PWA with service worker
-- [ ] Add multilingual support
-- [ ] Implement A/B testing
-
----
+### Additional Costs (Optional)
+- Domain name: ~₹500-1000/year
+- Email service (EmailJS Pro): $10-30/month
+- WhatsApp Business API: Varies by provider
 
 ## 📞 Support
 
-For setup issues or questions:
-1. Check `SETUP_INSTRUCTIONS.md`
-2. Review browser console for errors (F12)
-3. Verify all configuration steps completed
-4. Test on local server before deploying
+For setup assistance:
+- Email: crownwealthadvisor1111@gmail.com
+- WhatsApp: +91-7428045423
+
+For Firebase/Technical issues:
+- Refer to [FIREBASE_SETUP_GUIDE.md](./FIREBASE_SETUP_GUIDE.md)
+- Firebase Documentation: https://firebase.google.com/docs
+
+## 📝 License
+
+© 2024 Crown Wealth Advisor. All rights reserved.
+
+## 🎯 Next Steps
+
+1. ✅ **Review all pages** - Check content and design
+2. 🔧 **Configure Firebase** - Follow setup guide
+3. 🧪 **Test thoroughly** - All forms and admin features
+4. 🚀 **Deploy to production** - Choose hosting option
+5. 📣 **Start marketing** - Begin lead generation
 
 ---
 
-## 📄 License
+**Built with ❤️ for Crown Wealth Advisor**
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 👨‍💻 Developer Notes
-
-### Code Quality
-- **HTML**: Valid HTML5, W3C compliant
-- **CSS**: BEM-like naming, mobile-first
-- **JavaScript**: ES5 compatible, no transpilation needed
-- **Performance**: < 3s load time on 3G
-- **Accessibility**: WCAG 2.1 AA compliant
-
-### Maintenance
-- Regular security updates recommended
-- Test after browser updates
-- Monitor Google Analytics for issues
-- Update content quarterly
-- Review forms functionality monthly
-
----
-
-## 🎉 Credits
-
-**Developed by**: Kiro AI
-**Version**: 1.0.0
-**Last Updated**: June 19, 2026
-**Status**: Production Ready ✅
-
----
-
-**Ready to launch!** 🚀
-
-Follow the setup instructions in `SETUP_INSTRUCTIONS.md` to configure your specific details and deploy.
+*Version 2.0 - Production Ready with Full Admin CRM System*

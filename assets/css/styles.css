@@ -2,6 +2,7 @@
   --color-red: #c9000b;
   --color-red-bright: #e4141f;
   --color-red-dark: #8e0007;
+  --color-gold: #D4A574;
   --color-black: #070707;
   --color-ink: #151515;
   --color-muted: #60636d;
@@ -135,7 +136,7 @@ button {
 }
 
 .brand-mark circle {
-  fill: var(--color-red);
+  fill: var(--color-gold);
   stroke: var(--color-black);
 }
 

@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Lead Dashboard | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body class="admin-body">
+  <!-- Sidebar Navigation -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 64 42">
+          <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+          <path d="M9 35h46"></path>
+          <circle cx="13" cy="9" r="3"></circle>
+          <circle cx="32" cy="5" r="3"></circle>
+          <circle cx="51" cy="9" r="3"></circle>
+        </svg>
+        <strong>Crown Admin</strong>
+      </div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item active">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        Dashboard
+      </a>
+      <a href="../index.html" class="nav-item" target="_blank">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        View Website
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-profile">
+        <div class="profile-avatar">A</div>
+        <div class="profile-info">
+          <strong id="adminName">Admin</strong>
+          <span id="adminEmail">admin@example.com</span>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1>Lead Management Dashboard</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="refreshBtn">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+          Refresh
+        </button>
+        <button class="btn btn-primary" id="exportBtn">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export to Excel
+        </button>
+      </div>
+    </header>
+
+
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Success</span>
+          <strong class="stat-value" id="successCount">0</strong>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Work in Progress</span>
+          <strong class="stat-value" id="wipCount">0</strong>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon red">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Rejected</span>
+          <strong class="stat-value" id="rejectedCount">0</strong>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        </div>
+        <div class="stat-content">
+          <span class="stat-label">Total Leads</span>
+          <strong class="stat-value" id="totalCount">0</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+        <input type="search" id="searchInput" placeholder="Search by name, email, phone, or service...">
+      </div>
+      
+      <div class="filters">
+        <button class="filter-btn active" data-status="all">All Leads</button>
+        <button class="filter-btn status-new" data-status="new">🆕 New</button>
+        <button class="filter-btn status-success" data-status="success">🟢 Success</button>
+        <button class="filter-btn status-wip" data-status="wip">🟠 WIP</button>
+        <button class="filter-btn status-rejected" data-status="rejected">🔴 Rejected</button>
+      </div>
+    </div>
+
+
+
+    <!-- Leads Table -->
+    <div class="table-container">
+      <table class="leads-table" id="leadsTable">
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll"></th>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Service/Type</th>
+            <th>Source</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leadsTableBody">
+          <tr class="no-data">
+            <td colspan="8">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                <p>No leads found</p>
+                <small>Leads will appear here once forms are submitted</small>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination">
+      <button class="pagination-btn" id="prevBtn" disabled>Previous</button>
+      <div class="pagination-info">
+        <span id="pageInfo">Page 1 of 1</span>
+      </div>
+      <button class="pagination-btn" id="nextBtn" disabled>Next</button>
+    </div>
+  </main>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-large"></div>
+    <p>Loading leads...</p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  
+  <!-- SheetJS for Excel Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <script src="dashboard.js"></script>
+</body>
+</html>
