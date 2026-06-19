@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Working EMI calculator by Crown Wealth Advisor.">
+    <title>EMI Calculator | Crown Wealth Advisor</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="../index.html" aria-label="Crown Wealth Advisor home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 42" role="img">
+              <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+              <path d="M9 35h46"></path>
+              <circle cx="13" cy="9" r="3"></circle>
+              <circle cx="32" cy="5" r="3"></circle>
+              <circle cx="51" cy="9" r="3"></circle>
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Crown</strong>
+            <span>Wealth Advisor</span>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span class="screen-reader-text">Toggle navigation</span>
+        </button>
+
+
+        <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation" data-nav>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Insurance</button>
+              <div class="mega-dropdown">
+                <a href="health-insurance.html">Health Insurance</a>
+                <a href="life-insurance.html">Life Insurance</a>
+                <a href="general-insurance.html">General Insurance</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Loans</button>
+              <div class="mega-dropdown">
+                <a href="home-loan.html">Home Loan</a>
+                <a href="personal-loan.html">Personal Loan</a>
+                <a href="car-loan.html">Car Loan</a>
+                <a href="loan-against-property.html">Loan Against Property</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Investments</button>
+              <div class="mega-dropdown">
+                <a href="fixed-deposit.html">Fixed Deposit</a>
+                <a href="fixed-deposit.html#wealth-planning">Wealth Planning</a>
+              </div>
+            </li>
+            <li><a href="emi-calculator.html">Calculators</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="../index.html#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+
+        <a class="header-cta" href="../index.html#consultation">
+          <span>Request a Callback</span>
+          <small>We'll call you back</small>
+        </a>
+      </div>
+    </header>
+    <main class="inner-main" id="main">
+      <section class="inner-hero">
+        <div class="container inner-hero-grid">
+          <div>
+            <div class="breadcrumb"><a href="../index.html">Home</a> / <span>EMI Calculator</span></div>
+            <h1>EMI Calculator</h1>
+            <p>Estimate monthly EMI, total interest and total payment before starting a loan discussion.</p>
+          </div>
+          <aside class="hero-summary-card">
+            <h2>Use This For</h2>
+            <ul><li>Home loan planning</li><li>Personal loan comparison</li><li>Car loan budgeting</li></ul>
+          </aside>
+        </div>
+      </section>
+      <section class="section">
+        <div class="container calculator-shell">
+          <article class="emi-card content-card">
+            <h2>Calculate EMI</h2>
+            <form class="emi-form" data-emi-form>
+              <label>Loan Amount<input type="number" name="loanAmount" min="1" value="1000000" required></label>
+              <label>Interest Rate (% per year)<input type="number" name="interestRate" min="0.1" step="0.01" value="8.5" required></label>
+              <label>Loan Tenure (years)<input type="number" name="loanTenure" min="1" max="40" value="10" required></label>
+              <button class="button button-dark" type="submit">Calculate EMI</button>
+            </form>
+          </article>
+          <aside class="emi-card content-card" data-emi-result>
+            <h2>Result</h2>
+            <div class="result-list">
+              <div class="result-row"><strong>Monthly EMI</strong><span data-emi>--</span></div>
+              <div class="result-row"><strong>Total Interest</strong><span data-interest>--</span></div>
+              <div class="result-row"><strong>Total Payment</strong><span data-payment>--</span></div>
+            </div>
+            <p class="mini-note">This is an estimate only. Actual terms depend on lender assessment and official loan documents.</p>
+          </aside>
+        </div>
+      </section>
+      <section class="section faq-section" id="loan-eligibility">
+        <div class="container faq-layout">
+          <div>
+            <p class="eyebrow">Loan Planning</p>
+            <h2>Eligibility and insurance need previews</h2>
+            <p class="section-intro" id="insurance-need">Future calculator modules can expand here without changing the site structure.</p>
+          </div>
+          <div class="faq-accordion" data-accordion>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">Does this calculator guarantee loan approval?<span aria-hidden="true"></span></button>
+              <div class="faq-answer"><p>No. It only estimates EMI based on the values entered.</p></div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">Can I use it for different loan types?<span aria-hidden="true"></span></button>
+              <div class="faq-answer"><p>Yes. It can estimate EMI for any reducing-balance loan assumption.</p></div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer" id="contact">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand footer-logo" href="../index.html" aria-label="Crown Wealth Advisor home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 64 42" role="img">
+                <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+                <path d="M9 35h46"></path>
+                <circle cx="13" cy="9" r="3"></circle>
+                <circle cx="32" cy="5" r="3"></circle>
+                <circle cx="51" cy="9" r="3"></circle>
+              </svg>
+            </span>
+            <span class="brand-copy">
+              <strong>Crown</strong>
+              <span>Wealth Advisor</span>
+            </span>
+          </a>
+          <p>Your general guidance partner for insurance, loans and investment planning.</p>
+        </div>
+        <div>
+          <h2>Quick Links</h2>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#contact">Contact Us</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Our Services</h2>
+          <ul>
+            <li><a href="health-insurance.html">Health Insurance</a></li>
+            <li><a href="life-insurance.html">Life Insurance</a></li>
+            <li><a href="home-loan.html">Home Loan</a></li>
+            <li><a href="personal-loan.html">Personal Loan</a></li>
+            <li><a href="loan-against-property.html">Loan Against Property</a></li>
+            <li><a href="fixed-deposit.html">Fixed Deposit</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="emi-calculator.html">Calculators</a></li>
+            <li><a href="blog.html">Financial Guide</a></li>
+            <li><a href="blog.html">Insurance Guide</a></li>
+            <li><a href="blog.html">Loan Guide</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact Us</h2>
+          <ul class="contact-list">
+            <li>Share official phone number before launch</li>
+            <li>Share official email before launch</li>
+            <li>Service enquiries through callback form</li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>&copy; <span data-year></span> Crown Wealth Advisor. All rights reserved.</p>
+        <p>Designed for clear and responsible financial guidance.</p>
+      </div>
+    </footer>
+    <a class="whatsapp-float" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener" aria-label="Chat with Crown Wealth Advisor on WhatsApp"><span aria-hidden="true">WA</span></a>
+    <script src="../assets/js/main.js"></script>
+  </body>
+</html>

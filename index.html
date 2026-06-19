@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Crown Wealth Advisor offers general guidance across insurance, loans and investments with a simple, transparent advisory approach.">
+    <title>Crown Wealth Advisor | Smart Financial Decisions</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <svg class="svg-sprite" aria-hidden="true" focusable="false">
+      <symbol id="icon-shield" viewBox="0 0 48 48">
+        <path d="M24 4 40 10v12c0 10.4-6.5 18.6-16 22-9.5-3.4-16-11.6-16-22V10l16-6Z"></path>
+        <path d="m16.8 24 4.8 4.8 10-11.2"></path>
+      </symbol>
+      <symbol id="icon-user" viewBox="0 0 48 48">
+        <circle cx="24" cy="16" r="7"></circle>
+        <path d="M10 42c1.5-8.2 6.5-12 14-12s12.5 3.8 14 12"></path>
+      </symbol>
+      <symbol id="icon-fast" viewBox="0 0 48 48">
+        <path d="M24 8a16 16 0 1 1-15 21.4"></path>
+        <path d="M24 15v10l8 4"></path>
+        <path d="M5 14h10M3 22h10M6 30h9"></path>
+      </symbol>
+      <symbol id="icon-support" viewBox="0 0 48 48">
+        <path d="M12 30v-7a12 12 0 0 1 24 0v7"></path>
+        <path d="M12 30h-2a4 4 0 0 1-4-4v-2a4 4 0 0 1 4-4h2v10Zm24 0h2a4 4 0 0 0 4-4v-2a4 4 0 0 0-4-4h-2v10Z"></path>
+        <path d="M30 38h-5a6 6 0 0 1-6-6"></path>
+      </symbol>
+      <symbol id="icon-health" viewBox="0 0 48 48">
+        <path d="M24 40S8 30 8 18c0-5 3.5-9 8.5-9 3.1 0 5.7 1.7 7.5 4.3C25.8 10.7 28.4 9 31.5 9 36.5 9 40 13 40 18c0 12-16 22-16 22Z"></path>
+        <path d="M14 24h7l3-7 4 13 3-6h4"></path>
+      </symbol>
+      <symbol id="icon-life" viewBox="0 0 48 48">
+        <path d="M24 5 39 11v11c0 9.8-6 17.2-15 21-9-3.8-15-11.2-15-21V11l15-6Z"></path>
+        <circle cx="24" cy="18" r="5"></circle>
+        <path d="M15 33c1.7-5 4.7-7.5 9-7.5S31.3 28 33 33"></path>
+      </symbol>
+      <symbol id="icon-umbrella" viewBox="0 0 48 48">
+        <path d="M7 23a17 17 0 0 1 34 0c-3-3-6-3-9 0-3-3-6-3-8 0-2-3-5-3-8 0-3-3-6-3-9 0Z"></path>
+        <path d="M24 23v13a5 5 0 0 0 10 0"></path>
+      </symbol>
+      <symbol id="icon-home" viewBox="0 0 48 48">
+        <path d="M7 24 24 9l17 15"></path>
+        <path d="M12 22v19h24V22"></path>
+        <path d="M20 41V29h8v12"></path>
+        <path d="M32 12v8"></path>
+      </symbol>
+      <symbol id="icon-money" viewBox="0 0 48 48">
+        <path d="M15 18h18l6 8v15H9V26l6-8Z"></path>
+        <path d="M18 18V9h12v9"></path>
+        <path d="M24 27v8"></path>
+        <path d="M20 31h8"></path>
+      </symbol>
+      <symbol id="icon-car" viewBox="0 0 48 48">
+        <path d="M10 29h28l-4-10H14l-4 10Z"></path>
+        <path d="M8 29v8h6v-4h20v4h6v-8"></path>
+        <circle cx="16" cy="33" r="2"></circle>
+        <circle cx="32" cy="33" r="2"></circle>
+      </symbol>
+      <symbol id="icon-calculator" viewBox="0 0 48 48">
+        <rect x="12" y="7" width="24" height="34" rx="3"></rect>
+        <path d="M17 14h14"></path>
+        <path d="M18 23h2M24 23h2M30 23h2M18 30h2M24 30h2M30 30h2M18 36h2M24 36h8"></path>
+      </symbol>
+      <symbol id="icon-growth" viewBox="0 0 48 48">
+        <path d="M8 40h32"></path>
+        <path d="M12 34v-8M22 34V16M32 34V22"></path>
+        <path d="m10 20 9-8 8 6 11-12"></path>
+        <path d="M32 6h6v6"></path>
+      </symbol>
+      <symbol id="icon-map" viewBox="0 0 48 48">
+        <path d="M24 43s13-10.8 13-24A13 13 0 1 0 11 19c0 13.2 13 24 13 24Z"></path>
+        <circle cx="24" cy="19" r="4"></circle>
+      </symbol>
+      <symbol id="icon-document" viewBox="0 0 48 48">
+        <path d="M14 6h14l8 8v28H14V6Z"></path>
+        <path d="M28 6v9h8"></path>
+        <path d="M19 23h12M19 30h12M19 36h8"></path>
+      </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h13"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </symbol>
+    </svg>
+
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="#home" aria-label="Crown Wealth Advisor home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 42" role="img">
+              <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+              <path d="M9 35h46"></path>
+              <circle cx="13" cy="9" r="3"></circle>
+              <circle cx="32" cy="5" r="3"></circle>
+              <circle cx="51" cy="9" r="3"></circle>
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Crown</strong>
+            <span>Wealth Advisor</span>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span class="screen-reader-text">Toggle navigation</span>
+        </button>
+
+        <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation" data-nav>
+          <ul>
+            <li><a class="active" href="index.html">Home</a></li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Insurance</button>
+              <div class="mega-dropdown">
+                <a href="pages/health-insurance.html">Health Insurance</a>
+                <a href="pages/life-insurance.html">Life Insurance</a>
+                <a href="pages/general-insurance.html">General Insurance</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Loans</button>
+              <div class="mega-dropdown">
+                <a href="pages/home-loan.html">Home Loan</a>
+                <a href="pages/personal-loan.html">Personal Loan</a>
+                <a href="pages/car-loan.html">Car Loan</a>
+                <a href="pages/loan-against-property.html">Loan Against Property</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Investments</button>
+              <div class="mega-dropdown">
+                <a href="pages/fixed-deposit.html">Fixed Deposit</a>
+                <a href="pages/fixed-deposit.html#wealth-planning">Wealth Planning</a>
+              </div>
+            </li>
+            <li><a href="pages/emi-calculator.html">Calculators</a></li>
+            <li><a href="pages/blog.html">Blog</a></li>
+            <li><a href="#advantage">About Us</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+
+        <a class="header-cta" href="#consultation">
+          <span>Request a Callback</span>
+          <small>We'll call you back</small>
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="home" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+          <div class="hero-content">
+            <p class="eyebrow hero-eyebrow">Crown Wealth Advisor</p>
+            <h1 id="hero-title">Smart Financial Decisions for a <span>Secure Tomorrow</span></h1>
+            <p class="hero-subtext">Comprehensive insurance, loan and investment solutions tailored to your needs. Simple. Transparent. Reliable.</p>
+            <div class="hero-actions">
+              <a class="button button-light" href="#consultation">Get Free Consultation <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+              <a class="button button-outline-light" href="#services">Explore Solutions <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </div>
+          </div>
+
+          <div class="hero-visual" aria-label="Financial protection and growth illustration">
+            <div class="scene-card">
+              <svg class="finance-illustration" viewBox="0 0 620 430" role="img" aria-labelledby="illustration-title">
+                <title id="illustration-title">Custom illustration of insurance protection, home loan and investments</title>
+                <defs>
+                  <linearGradient id="baseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff"></stop>
+                    <stop offset="100%" stop-color="#f2f2f2"></stop>
+                  </linearGradient>
+                  <linearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ff4d4d"></stop>
+                    <stop offset="100%" stop-color="#b40008"></stop>
+                  </linearGradient>
+                </defs>
+                <path class="base-shadow" d="M92 304c90-58 324-62 438 0 27 15 25 41-6 56-103 49-321 48-428-1-35-16-37-39-4-55Z"></path>
+                <path class="base" d="M80 283c96-62 333-65 456 0 34 18 31 51-7 70-107 53-334 52-445 0-39-18-42-51-4-70Z"></path>
+                <path class="base-red" d="M82 328c111 51 338 53 447 0v25c-108 53-335 54-446 1-20-9-30-22-30-34v-25c0 12 10 24 29 33Z"></path>
+
+                <g class="document">
+                  <path d="M164 58 315 76v188l-151-18V58Z"></path>
+                  <path d="M187 103h18v18h-18zM187 143h18v18h-18zM187 183h18v18h-18z" class="fill-red"></path>
+                  <path d="M221 107h68M221 147h61M221 187h72" class="thin-line"></path>
+                  <path d="M221 124h48M221 164h44M221 204h55" class="thin-line muted"></path>
+                </g>
+
+                <g class="house">
+                  <path d="M99 242V170l72-54 73 54v72H99Z" class="house-body"></path>
+                  <path d="m83 175 88-67 89 67-17 18-72-54-71 54-17-18Z" class="roof"></path>
+                  <path d="M132 198h32v44h-32z" class="door"></path>
+                  <path d="M183 193h31v27h-31z" class="window"></path>
+                </g>
+
+                <g class="car">
+                  <path d="M223 273h113l-15-38h-72l-26 38Z" class="car-body"></path>
+                  <path d="M247 235h33l12 24h-61l16-24Z" class="car-window"></path>
+                  <circle cx="252" cy="275" r="15"></circle>
+                  <circle cx="319" cy="275" r="15"></circle>
+                </g>
+
+                <g class="shield-big">
+                  <path d="M372 123c37 30 69 36 112 37v72c0 73-45 118-112 144-67-26-112-71-112-144v-72c43-1 76-7 112-37Z" class="shield-fill"></path>
+                  <path d="M372 153c27 21 50 26 82 28v49c0 51-32 84-82 104-50-20-82-53-82-104v-49c32-2 56-7 82-28Z" class="shield-inner"></path>
+                  <path d="m329 239 31 31 63-71" class="check"></path>
+                </g>
+
+                <g class="bars">
+                  <path d="M514 168h33v112h-33zM462 204h33v76h-33zM568 126h33v154h-33z" class="bar-red"></path>
+                  <path d="M456 289h151" class="bar-axis"></path>
+                </g>
+
+                <g class="coins">
+                  <ellipse cx="446" cy="307" rx="35" ry="10"></ellipse>
+                  <path d="M411 307v34c0 6 16 10 35 10s35-4 35-10v-34"></path>
+                  <ellipse cx="544" cy="304" rx="31" ry="9"></ellipse>
+                  <path d="M513 304v31c0 5 14 9 31 9s31-4 31-9v-31"></path>
+                  <path d="M434 314h24M532 311h20" class="coin-line"></path>
+                </g>
+
+                <path class="umbrella" d="M455 73c59 1 94 33 105 75-23-21-44-20-62 5-16-24-38-28-64-9 2-32 10-55 21-71Z"></path>
+                <path class="umbrella-pole" d="M498 153v74"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="container trust-strip" aria-label="Trust highlights">
+          <div class="trust-item">
+            <svg aria-hidden="true"><use href="#icon-shield"></use></svg>
+            <div><strong>100% Trusted</strong><span>Your trust is our priority</span></div>
+          </div>
+          <div class="trust-item">
+            <svg aria-hidden="true"><use href="#icon-user"></use></svg>
+            <div><strong>Personalized Solutions</strong><span>Tailored for your goals</span></div>
+          </div>
+          <div class="trust-item">
+            <svg aria-hidden="true"><use href="#icon-fast"></use></svg>
+            <div><strong>Quick &amp; Easy</strong><span>Hassle free process</span></div>
+          </div>
+          <div class="trust-item">
+            <svg aria-hidden="true"><use href="#icon-support"></use></svg>
+            <div><strong>End to End Support</strong><span>Guidance at every step</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section services-section" id="services" aria-labelledby="services-title">
+        <div class="container">
+          <p class="eyebrow">Our Solutions</p>
+          <div class="section-heading">
+            <h2 id="services-title">All Your Financial Needs, Under One Roof</h2>
+          </div>
+
+          <div class="service-grid">
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-health"></use></svg>
+              <h3>Health Insurance</h3>
+              <p>Protect your health and your family with suitable coverage choices.</p>
+              <a href="pages/health-insurance.html" aria-label="Explore Health Insurance"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-life"></use></svg>
+              <h3>Life Insurance</h3>
+              <p>Plan financial security for loved ones with clear guidance.</p>
+              <a href="pages/life-insurance.html" aria-label="Explore Life Insurance"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-umbrella"></use></svg>
+              <h3>General Insurance</h3>
+              <p>Find practical protection options for everyday risks.</p>
+              <a href="pages/general-insurance.html" aria-label="Explore General Insurance"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-home"></use></svg>
+              <h3>Home Loan</h3>
+              <p>Compare home loan options with simple process support.</p>
+              <a href="pages/home-loan.html" aria-label="Explore Home Loan"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-money"></use></svg>
+              <h3>Personal Loan</h3>
+              <p>Get guidance for personal finance needs with clarity.</p>
+              <a href="pages/personal-loan.html" aria-label="Explore Personal Loan"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-car"></use></svg>
+              <h3>Car Loan</h3>
+              <p>Explore loan choices for buying a new or used vehicle.</p>
+              <a href="pages/car-loan.html" aria-label="Explore Car Loan"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-calculator"></use></svg>
+              <h3>Loan Against Property</h3>
+              <p>Understand secured loan options against property value.</p>
+              <a href="pages/loan-against-property.html" aria-label="Explore Loan Against Property"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+            <article class="service-card">
+              <svg class="card-icon" aria-hidden="true"><use href="#icon-growth"></use></svg>
+              <h3>Fixed Deposit &amp; Investments</h3>
+              <p>Build a savings and investment path aligned with your comfort.</p>
+              <a href="pages/fixed-deposit.html" aria-label="Explore Fixed Deposit and Investments"> <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section advantage-section" id="advantage" aria-labelledby="advantage-title">
+        <div class="container advantage-panel">
+          <div class="advantage-title-block">
+            <p class="eyebrow">Why Choose Us</p>
+            <h2 id="advantage-title">The Crown Wealth Advisor Advantage</h2>
+          </div>
+          <div class="advantage-grid">
+            <article class="advantage-item">
+              <span class="round-icon"><svg aria-hidden="true"><use href="#icon-shield"></use></svg></span>
+              <h3>Independent Advice</h3>
+              <p>Unbiased guidance to help you make informed decisions.</p>
+            </article>
+            <article class="advantage-item">
+              <span class="round-icon"><svg aria-hidden="true"><use href="#icon-user"></use></svg></span>
+              <h3>Multiple Options</h3>
+              <p>Compare suitable plans and offers from available providers.</p>
+            </article>
+            <article class="advantage-item">
+              <span class="round-icon"><svg aria-hidden="true"><use href="#icon-map"></use></svg></span>
+              <h3>Local Expertise</h3>
+              <p>Practical market understanding for local financial needs.</p>
+            </article>
+            <article class="advantage-item">
+              <span class="round-icon"><svg aria-hidden="true"><use href="#icon-document"></use></svg></span>
+              <h3>Transparent Process</h3>
+              <p>Clear information, no hidden charges and steady support.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section tools-consultation" id="calculators" aria-labelledby="tools-title">
+        <div class="container split-layout">
+          <div class="tools-block">
+            <p class="eyebrow">Financial Tools</p>
+            <h2 id="tools-title">Smart Calculators for Smarter Decisions</h2>
+            <div class="calculator-grid">
+              <article class="calculator-card">
+                <svg class="card-icon dark" aria-hidden="true"><use href="#icon-calculator"></use></svg>
+                <h3>EMI Calculator</h3>
+                <p>Calculate your loan EMI before you apply.</p>
+                <a href="pages/emi-calculator.html">Calculate Now <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+              </article>
+              <article class="calculator-card">
+                <svg class="card-icon dark" aria-hidden="true"><use href="#icon-money"></use></svg>
+                <h3>Loan Eligibility</h3>
+                <p>Check eligibility basics before discussing options.</p>
+                <a href="pages/emi-calculator.html#loan-eligibility">Calculate Now <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+              </article>
+              <article class="calculator-card">
+                <svg class="card-icon dark" aria-hidden="true"><use href="#icon-umbrella"></use></svg>
+                <h3>Insurance Need</h3>
+                <p>Estimate coverage needs for better planning.</p>
+                <a href="pages/emi-calculator.html#insurance-need">Calculate Now <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+              </article>
+            </div>
+          </div>
+
+          <section class="lead-panel" id="consultation" aria-labelledby="consultation-title">
+            <p class="eyebrow light">Free Consultation</p>
+            <h2 id="consultation-title">Get Free Consultation</h2>
+            <p>Fill the form and our advisor will reach out to you.</p>
+            <form class="lead-form" data-lead-form>
+              <div class="form-grid">
+                <label>
+                  <span>Full Name</span>
+                  <input type="text" name="name" placeholder="Full Name" autocomplete="name" required>
+                </label>
+                <label>
+                  <span>Mobile Number</span>
+                  <input type="tel" name="mobile" placeholder="Mobile Number" autocomplete="tel" pattern="[0-9+\-\s]{8,15}" required>
+                </label>
+                <label>
+                  <span>City</span>
+                  <input type="text" name="city" placeholder="City" autocomplete="address-level2" required>
+                </label>
+                <label>
+                  <span>Service Required</span>
+                  <select name="service" required>
+                    <option value="">Service Required</option>
+                    <option>Health Insurance</option>
+                    <option>Life Insurance</option>
+                    <option>General Insurance</option>
+                    <option>Home Loan</option>
+                    <option>Personal Loan</option>
+                    <option>Car Loan</option>
+                    <option>Loan Against Property</option>
+                    <option>Fixed Deposit & Investments</option>
+                  </select>
+                </label>
+                <label class="full-width">
+                  <span>Preferred Callback Time</span>
+                  <select name="time" required>
+                    <option value="">Preferred Callback Time</option>
+                    <option>Morning</option>
+                    <option>Afternoon</option>
+                    <option>Evening</option>
+                    <option>Anytime</option>
+                  </select>
+                </label>
+              </div>
+              <button class="button button-dark" type="submit">Submit Request <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></button>
+              <p class="privacy-note">We respect your privacy. Your information is used only for callback coordination.</p>
+              <p class="form-message" role="status" aria-live="polite" data-form-message></p>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section class="section blog-section" id="blog" aria-labelledby="blog-title">
+        <div class="container">
+          <p class="eyebrow">Financial Insights</p>
+          <div class="section-heading row-heading">
+            <h2 id="blog-title">Latest from Our Blog</h2>
+            <a class="text-link" href="pages/blog.html">View All Articles <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+          </div>
+          <div class="blog-grid">
+            <article class="blog-card">
+              <div class="blog-art family"></div>
+              <div class="blog-content">
+                <h3>Why Health Insurance is Essential for Every Family</h3>
+                <p>Insurance</p>
+              </div>
+            </article>
+            <article class="blog-card">
+              <div class="blog-art insurance"></div>
+              <div class="blog-content">
+                <h3>Term Insurance vs Endowment Plan - Which is Better?</h3>
+                <p>Insurance</p>
+              </div>
+            </article>
+            <article class="blog-card">
+              <div class="blog-art loan"></div>
+              <div class="blog-content">
+                <h3>Home Loan Eligibility Guide</h3>
+                <p>Loans</p>
+              </div>
+            </article>
+            <article class="blog-card">
+              <div class="blog-art property"></div>
+              <div class="blog-content">
+                <h3>Personal Loan vs Loan Against Property</h3>
+                <p>Loans</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section faq-section" id="faq" aria-labelledby="faq-title">
+        <div class="container faq-layout">
+          <div>
+            <p class="eyebrow">Common Questions</p>
+            <h2 id="faq-title">Frequently Asked Questions</h2>
+            <p class="section-intro">Clear answers for people comparing insurance, loan and investment options.</p>
+          </div>
+          <div class="faq-accordion" data-accordion>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                Do you provide advice across insurance, loans and investments?
+                <span aria-hidden="true"></span>
+              </button>
+              <div class="faq-answer">
+                <p>Yes. Crown Wealth Advisor helps you understand available options and choose a suitable next step based on your needs and comfort.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                Is the consultation form connected to a backend?
+                <span aria-hidden="true"></span>
+              </button>
+              <div class="faq-answer">
+                <p>Not yet. This static foundation shows a success message only. A backend or WordPress form plugin can be connected later.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button class="faq-question" type="button" aria-expanded="false">
+                Do you show unverified rates or guaranteed approvals?
+                <span aria-hidden="true"></span>
+              </button>
+              <div class="faq-answer">
+                <p>No. The content is general advisory-focused and avoids unverified statistics, reviews, guaranteed outcomes or misleading provider claims.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta-strip" aria-labelledby="cta-title">
+        <div class="container cta-inner">
+          <div>
+            <h2 id="cta-title">Ready to make a smart financial decision?</h2>
+            <p>Connect with us today and take the first step towards a secure future.</p>
+          </div>
+          <a class="button button-light" href="#consultation">Get Free Consultation <svg aria-hidden="true"><use href="#icon-arrow"></use></svg></a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="contact">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand footer-logo" href="#home" aria-label="Crown Wealth Advisor home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 64 42" role="img">
+                <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+                <path d="M9 35h46"></path>
+                <circle cx="13" cy="9" r="3"></circle>
+                <circle cx="32" cy="5" r="3"></circle>
+                <circle cx="51" cy="9" r="3"></circle>
+              </svg>
+            </span>
+            <span class="brand-copy">
+              <strong>Crown</strong>
+              <span>Wealth Advisor</span>
+            </span>
+          </a>
+          <p>Your general guidance partner for insurance, loans and investment planning.</p>
+        </div>
+
+        <div>
+          <h2>Quick Links</h2>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#advantage">About Us</a></li>
+            <li><a href="pages/blog.html">Blog</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h2>Our Services</h2>
+          <ul>
+            <li><a href="pages/health-insurance.html">Health Insurance</a></li>
+            <li><a href="pages/life-insurance.html">Life Insurance</a></li>
+            <li><a href="pages/home-loan.html">Home Loan</a></li>
+            <li><a href="pages/personal-loan.html">Personal Loan</a></li>
+            <li><a href="pages/loan-against-property.html">Loan Against Property</a></li>
+            <li><a href="pages/fixed-deposit.html">Fixed Deposit</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="pages/emi-calculator.html">Calculators</a></li>
+            <li><a href="pages/blog.html">Financial Guide</a></li>
+            <li><a href="pages/blog.html">Insurance Guide</a></li>
+            <li><a href="pages/blog.html">Loan Guide</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h2>Contact Us</h2>
+          <ul class="contact-list">
+            <li>Share official phone number before launch</li>
+            <li>Share official email before launch</li>
+            <li>Service enquiries through callback form</li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>&copy; <span data-year></span> Crown Wealth Advisor. All rights reserved.</p>
+        <p>Designed for clear and responsible financial guidance.</p>
+      </div>
+    </footer>
+
+    <a class="whatsapp-float" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener" aria-label="Chat with Crown Wealth Advisor on WhatsApp">
+      <span aria-hidden="true">WA</span>
+    </a>
+
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
