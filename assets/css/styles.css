@@ -135,9 +135,16 @@ button {
   color: var(--color-black);
 }
 
+.brand-mark path,
+.brand-mark line {
+  stroke: var(--color-gold);
+  fill: none;
+}
+
 .brand-mark circle {
   fill: var(--color-gold);
   stroke: var(--color-black);
+  stroke-width: 1;
 }
 
 .brand-copy {
@@ -1328,11 +1335,18 @@ button {
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background: #0a0a0a;
+  background: #25D366;
   color: var(--color-white);
-  font-size: 0.88rem;
+  font-size: 1.1rem;
   font-weight: 950;
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+  transition: all 180ms ease;
+  text-decoration: none;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 32px rgba(37, 211, 102, 0.5);
 }
 
 .whatsapp-float::before,
@@ -1341,7 +1355,7 @@ button {
   position: absolute;
   inset: -7px;
   border-radius: inherit;
-  border: 1px solid rgba(201, 0, 11, 0.48);
+  border: 2px solid rgba(37, 211, 102, 0.6);
   animation: whatsappPulse 1.9s ease-out infinite;
 }
 
