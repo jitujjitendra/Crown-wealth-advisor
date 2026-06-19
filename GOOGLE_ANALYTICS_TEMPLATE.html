@@ -1,0 +1,136 @@
+<!-- 
+  Google Analytics 4 Integration Template
+  
+  INSTRUCTIONS:
+  1. Create a Google Analytics 4 property at https://analytics.google.com
+  2. Get your Measurement ID (format: G-XXXXXXXXXX)
+  3. Copy the code below and paste it in the <head> section of ALL your HTML pages
+  4. Replace G-XXXXXXXXXX with your actual Measurement ID
+  5. Add BEFORE the closing </head> tag
+-->
+
+<!-- Google tag (gtag.js) - Replace G-XXXXXXXXXX with your actual ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  
+  // Initialize GA4 with your Measurement ID
+  gtag('config', 'G-XXXXXXXXXX', {
+    'send_page_view': true,
+    'anonymize_ip': true, // GDPR compliance
+    'cookie_flags': 'SameSite=None;Secure' // Cookie security
+  });
+
+  // Optional: Track custom events
+  
+  // Track outbound links
+  document.addEventListener('click', function(event) {
+    var target = event.target.closest('a');
+    if (target && target.hostname !== window.location.hostname) {
+      gtag('event', 'click', {
+        'event_category': 'outbound',
+        'event_label': target.href,
+        'transport_type': 'beacon'
+      });
+    }
+  });
+
+  // Track WhatsApp clicks
+  document.addEventListener('click', function(event) {
+    if (event.target.closest('.whatsapp-float') || 
+        event.target.closest('a[href*="wa.me"]')) {
+      gtag('event', 'whatsapp_click', {
+        'event_category': 'engagement',
+        'event_label': 'WhatsApp Float Button'
+      });
+    }
+  });
+
+  // Track calculator usage
+  window.addEventListener('load', function() {
+    var calculatorForms = document.querySelectorAll('[data-emi-form], #eligibilityForm, #insuranceForm');
+    calculatorForms.forEach(function(form) {
+      form.addEventListener('submit', function() {
+        var calculatorType = form.id || 'emi';
+        gtag('event', 'calculator_use', {
+          'event_category': 'Tools',
+          'event_label': calculatorType
+        });
+      });
+    });
+  });
+
+  // Track scroll depth
+  var scrollDepth = 0;
+  var scrollTracked = {};
+  
+  window.addEventListener('scroll', function() {
+    var windowHeight = window.innerHeight;
+    var documentHeight = document.documentElement.scrollHeight;
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var scrollPercent = Math.round((scrollTop + windowHeight) / documentHeight * 100);
+    
+    // Track at 25%, 50%, 75%, 100%
+    [25, 50, 75, 100].forEach(function(milestone) {
+      if (scrollPercent >= milestone && !scrollTracked[milestone]) {
+        scrollTracked[milestone] = true;
+        gtag('event', 'scroll_depth', {
+          'event_category': 'Engagement',
+          'event_label': milestone + '%',
+          'value': milestone,
+          'non_interaction': true
+        });
+      }
+    });
+  });
+
+  // Track time on page
+  var startTime = new Date().getTime();
+  window.addEventListener('beforeunload', function() {
+    var timeSpent = Math.round((new Date().getTime() - startTime) / 1000);
+    gtag('event', 'time_on_page', {
+      'event_category': 'Engagement',
+      'value': timeSpent,
+      'non_interaction': true
+    });
+  });
+</script>
+
+<!-- 
+  ALTERNATIVE: Google Tag Manager (Recommended for multiple tags)
+  
+  If you want to use Google Tag Manager instead:
+  1. Create a GTM container at https://tagmanager.google.com
+  2. Get your GTM ID (format: GTM-XXXXXXX)
+  3. Add this code immediately after opening <head> tag:
+-->
+
+<!-- Google Tag Manager - Replace GTM-XXXXXXX -->
+<!--
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+-->
+
+<!-- And this code immediately after opening <body> tag: -->
+<!--
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+-->
+
+<!-- 
+  EVENTS BEING TRACKED:
+  - Page views (automatic)
+  - Form submissions (consultation forms)
+  - Calculator usage (EMI, Loan Eligibility, Insurance)
+  - Outbound link clicks
+  - WhatsApp button clicks
+  - Scroll depth (25%, 50%, 75%, 100%)
+  - Time spent on page
+  - 404 errors (in 404.html)
+  - Web Vitals (LCP, FID, CLS) - from performance.js
+-->

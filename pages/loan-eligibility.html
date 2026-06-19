@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Calculate your loan eligibility based on income, obligations, and other factors. Free loan eligibility calculator by Crown Wealth Advisor.">
+    <title>Loan Eligibility Calculator | Crown Wealth Advisor</title>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Loan Eligibility Calculator | Crown Wealth Advisor">
+    <meta property="og:description" content="Check your loan eligibility before applying. Free calculator with instant results.">
+    <meta property="og:url" content="https://www.crownwealthadvisor.com/pages/loan-eligibility.html">
+    
+    <link rel="stylesheet" href="../assets/css/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="../index.html" aria-label="Crown Wealth Advisor home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 42" role="img">
+              <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+              <path d="M9 35h46"></path>
+              <circle cx="13" cy="9" r="3"></circle>
+              <circle cx="32" cy="5" r="3"></circle>
+              <circle cx="51" cy="9" r="3"></circle>
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Crown</strong>
+            <span>Wealth Advisor</span>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span class="screen-reader-text">Toggle navigation</span>
+        </button>
+
+        <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation" data-nav>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Insurance</button>
+              <div class="mega-dropdown">
+                <a href="health-insurance.html">Health Insurance</a>
+                <a href="life-insurance.html">Life Insurance</a>
+                <a href="general-insurance.html">General Insurance</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Loans</button>
+              <div class="mega-dropdown">
+                <a href="home-loan.html">Home Loan</a>
+                <a href="personal-loan.html">Personal Loan</a>
+                <a href="car-loan.html">Car Loan</a>
+                <a href="loan-against-property.html">Loan Against Property</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Investments</button>
+              <div class="mega-dropdown">
+                <a href="fixed-deposit.html">Fixed Deposit</a>
+                <a href="fixed-deposit.html#wealth-planning">Wealth Planning</a>
+              </div>
+            </li>
+            <li><a href="emi-calculator.html">Calculators</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="../index.html#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+
+        <a class="header-cta" href="../index.html#consultation">
+          <span>Request a Callback</span>
+          <small>We'll call you back</small>
+        </a>
+      </div>
+    </header>
+    
+    <main class="inner-main" id="main">
+      <section class="inner-hero">
+        <div class="container inner-hero-grid">
+          <div>
+            <div class="breadcrumb"><a href="../index.html">Home</a> / <span>Loan Eligibility Calculator</span></div>
+            <h1>Loan Eligibility Calculator</h1>
+            <p>Check your potential loan eligibility based on your income and existing obligations.</p>
+          </div>
+          <aside class="hero-summary-card">
+            <h2>Quick Check</h2>
+            <ul>
+              <li>Instant eligibility estimate</li>
+              <li>Based on standard lending norms</li>
+              <li>No credit check required</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container calculator-shell">
+          <div class="content-card">
+            <h2>Calculate Your Eligibility</h2>
+            <p>This calculator provides an estimate based on general lending criteria. Actual eligibility depends on credit score, bank policies, and other factors.</p>
+            
+            <form class="emi-form" id="eligibilityForm">
+              <label>
+                Monthly Gross Income (₹)
+                <input type="number" name="monthlyIncome" placeholder="50000" min="0" required>
+              </label>
+              
+              <label>
+                Existing Monthly EMIs (₹)
+                <input type="number" name="existingEmi" placeholder="5000" min="0" value="0">
+              </label>
+              
+              <label>
+                Loan Type
+                <select name="loanType" required>
+                  <option value="home">Home Loan</option>
+                  <option value="personal">Personal Loan</option>
+                  <option value="car">Car Loan</option>
+                  <option value="lap">Loan Against Property</option>
+                </select>
+              </label>
+              
+              <label>
+                Interest Rate (% per year)
+                <input type="number" name="interestRate" placeholder="8.5" min="1" max="30" step="0.1" value="9" required>
+              </label>
+              
+              <label>
+                Loan Tenure (Years)
+                <input type="number" name="tenure" placeholder="20" min="1" max="30" value="20" required>
+              </label>
+              
+              <button class="button button-dark" type="submit">Calculate Eligibility</button>
+            </form>
+          </div>
+
+          <aside>
+            <div class="emi-card" id="eligibilityResult" style="display: none;">
+              <h3>Eligibility Results</h3>
+              <div class="result-list">
+                <div class="result-row">
+                  <strong>Available Income for EMI:</strong>
+                  <span id="availableIncome">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>Estimated Loan Eligibility:</strong>
+                  <span id="maxLoan">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>Maximum Monthly EMI:</strong>
+                  <span id="maxEmi">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>FOIR Ratio:</strong>
+                  <span id="foirRatio">0%</span>
+                </div>
+              </div>
+              <p class="mini-note">
+                <strong>Note:</strong> This is an estimate only. Actual eligibility varies based on credit score, bank policies, existing liabilities, and employment type.
+              </p>
+            </div>
+            
+            <div class="sidebar-card">
+              <h3>Important Factors</h3>
+              <ul class="check-list">
+                <li>Credit score (750+ recommended)</li>
+                <li>Stable employment history</li>
+                <li>Debt-to-income ratio</li>
+                <li>Age and retirement age</li>
+                <li>Property valuation (for secured loans)</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section service-form-section">
+        <div class="container">
+          <div class="lead-panel compact">
+            <p class="eyebrow light">Need Help?</p>
+            <h2>Discuss Your Loan Requirements</h2>
+            <p>Our advisors can help you understand eligibility criteria and find suitable loan options.</p>
+            <form class="lead-form" data-lead-form>
+              <div class="form-grid">
+                <label class="full-width">
+                  <span>Full Name</span>
+                  <input type="text" name="name" placeholder="Full Name" required>
+                </label>
+                <label>
+                  <span>Mobile</span>
+                  <input type="tel" name="phone" placeholder="Mobile Number" required>
+                </label>
+                <label>
+                  <span>Email</span>
+                  <input type="email" name="email" placeholder="Email Address" required>
+                </label>
+                <label class="full-width">
+                  <span>Loan Type</span>
+                  <select name="service" required>
+                    <option value="">Select Loan Type</option>
+                    <option>Home Loan</option>
+                    <option>Personal Loan</option>
+                    <option>Car Loan</option>
+                    <option>Loan Against Property</option>
+                  </select>
+                </label>
+              </div>
+              <button class="button button-dark" type="submit">Get Expert Guidance</button>
+              <p class="privacy-note">Your information is secure and used only for consultation purposes.</p>
+              <p class="form-message" data-form-message></p>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand footer-logo" href="../index.html">
+            <span class="brand-mark">
+              <svg viewBox="0 0 64 42" role="img">
+                <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+                <path d="M9 35h46"></path>
+                <circle cx="13" cy="9" r="3"></circle>
+                <circle cx="32" cy="5" r="3"></circle>
+                <circle cx="51" cy="9" r="3"></circle>
+              </svg>
+            </span>
+            <span class="brand-copy">
+              <strong>Crown</strong>
+              <span>Wealth Advisor</span>
+            </span>
+          </a>
+          <p>Your trusted partner for financial guidance.</p>
+        </div>
+        <div>
+          <h2>Quick Links</h2>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Calculators</h2>
+          <ul>
+            <li><a href="emi-calculator.html">EMI Calculator</a></li>
+            <li><a href="loan-eligibility.html">Loan Eligibility</a></li>
+            <li><a href="insurance-calculator.html">Insurance Calculator</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact Us</h2>
+          <ul class="contact-list">
+            <li>📞 +91-XXXXXXXXXX</li>
+            <li>✉️ info@crownwealthadvisor.com</li>
+            <li>🌐 www.crownwealthadvisor.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>&copy; <span data-year>2026</span> Crown Wealth Advisor. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <a class="whatsapp-float" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">
+      <span>WA</span>
+    </a>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+      // Loan Eligibility Calculator Logic
+      (function() {
+        const form = document.getElementById('eligibilityForm');
+        const resultCard = document.getElementById('eligibilityResult');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const monthlyIncome = parseFloat(form.monthlyIncome.value);
+          const existingEmi = parseFloat(form.existingEmi.value) || 0;
+          const loanType = form.loanType.value;
+          const annualRate = parseFloat(form.interestRate.value);
+          const tenureYears = parseFloat(form.tenure.value);
+          
+          // FOIR (Fixed Obligation to Income Ratio) - typically 40-60%
+          let foirPercent = 50; // Default 50%
+          
+          // Adjust FOIR based on loan type
+          if (loanType === 'home' || loanType === 'lap') {
+            foirPercent = 60; // Higher for secured loans
+          } else if (loanType === 'personal') {
+            foirPercent = 40; // Lower for unsecured loans
+          } else {
+            foirPercent = 50; // Car loans
+          }
+          
+          // Calculate available income for new EMI
+          const maxAllowedObligation = monthlyIncome * (foirPercent / 100);
+          const availableForNewEmi = maxAllowedObligation - existingEmi;
+          
+          if (availableForNewEmi <= 0) {
+            alert('Your existing EMIs exceed the recommended FOIR limit. Please reduce existing obligations or increase income.');
+            return;
+          }
+          
+          // Calculate maximum loan amount using EMI formula
+          // EMI = P × r × (1 + r)^n / ((1 + r)^n - 1)
+          // Rearranged: P = EMI × ((1 + r)^n - 1) / (r × (1 + r)^n)
+          
+          const monthlyRate = annualRate / 12 / 100;
+          const months = tenureYears * 12;
+          const powerTerm = Math.pow(1 + monthlyRate, months);
+          
+          const maxLoanAmount = availableForNewEmi * ((powerTerm - 1) / (monthlyRate * powerTerm));
+          
+          // Format currency
+          function formatCurrency(value) {
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0
+            }).format(value);
+          }
+          
+          // Display results
+          document.getElementById('availableIncome').textContent = formatCurrency(availableForNewEmi);
+          document.getElementById('maxLoan').textContent = formatCurrency(maxLoanAmount);
+          document.getElementById('maxEmi').textContent = formatCurrency(availableForNewEmi);
+          document.getElementById('foirRatio').textContent = foirPercent + '%';
+          
+          resultCard.style.display = 'block';
+          resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      })();
+    </script>
+  </body>
+</html>

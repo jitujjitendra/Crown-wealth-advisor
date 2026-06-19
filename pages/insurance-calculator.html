@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Calculate your life insurance coverage needs based on income, liabilities, and financial goals. Free insurance need calculator.">
+    <title>Insurance Need Calculator | Crown Wealth Advisor</title>
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Insurance Need Calculator | Crown Wealth Advisor">
+    <meta property="og:description" content="Find out how much life insurance coverage you need for your family's financial security.">
+    <meta property="og:url" content="https://www.crownwealthadvisor.com/pages/insurance-calculator.html">
+    
+    <link rel="stylesheet" href="../assets/css/styles.css">
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header" data-header>
+      <div class="container header-inner">
+        <a class="brand" href="../index.html" aria-label="Crown Wealth Advisor home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 64 42" role="img">
+              <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+              <path d="M9 35h46"></path>
+              <circle cx="13" cy="9" r="3"></circle>
+              <circle cx="32" cy="5" r="3"></circle>
+              <circle cx="51" cy="9" r="3"></circle>
+            </svg>
+          </span>
+          <span class="brand-copy">
+            <strong>Crown</strong>
+            <span>Wealth Advisor</span>
+          </span>
+        </a>
+
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" data-menu-toggle>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span class="screen-reader-text">Toggle navigation</span>
+        </button>
+
+        <nav class="primary-nav" id="primary-nav" aria-label="Primary navigation" data-nav>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Insurance</button>
+              <div class="mega-dropdown">
+                <a href="health-insurance.html">Health Insurance</a>
+                <a href="life-insurance.html">Life Insurance</a>
+                <a href="general-insurance.html">General Insurance</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Loans</button>
+              <div class="mega-dropdown">
+                <a href="home-loan.html">Home Loan</a>
+                <a href="personal-loan.html">Personal Loan</a>
+                <a href="car-loan.html">Car Loan</a>
+                <a href="loan-against-property.html">Loan Against Property</a>
+              </div>
+            </li>
+            <li class="has-dropdown">
+              <button class="nav-dropdown-toggle" type="button" aria-expanded="false">Investments</button>
+              <div class="mega-dropdown">
+                <a href="fixed-deposit.html">Fixed Deposit</a>
+                <a href="fixed-deposit.html#wealth-planning">Wealth Planning</a>
+              </div>
+            </li>
+            <li><a href="emi-calculator.html">Calculators</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="../index.html#contact">Contact Us</a></li>
+          </ul>
+        </nav>
+
+        <a class="header-cta" href="../index.html#consultation">
+          <span>Request a Callback</span>
+          <small>We'll call you back</small>
+        </a>
+      </div>
+    </header>
+    
+    <main class="inner-main" id="main">
+      <section class="inner-hero">
+        <div class="container inner-hero-grid">
+          <div>
+            <div class="breadcrumb"><a href="../index.html">Home</a> / <span>Insurance Need Calculator</span></div>
+            <h1>Life Insurance Need Calculator</h1>
+            <p>Calculate how much life insurance coverage your family needs for financial security.</p>
+          </div>
+          <aside class="hero-summary-card">
+            <h2>Coverage Planning</h2>
+            <ul>
+              <li>Based on income replacement method</li>
+              <li>Includes liabilities and goals</li>
+              <li>Instant coverage estimate</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container calculator-shell">
+          <div class="content-card">
+            <h2>Calculate Your Coverage Need</h2>
+            <p>This calculator uses the Human Life Value (HLV) method combined with liabilities to estimate your life insurance requirement.</p>
+            
+            <form class="emi-form" id="insuranceForm">
+              <label>
+                Annual Income (₹)
+                <input type="number" name="annualIncome" placeholder="600000" min="0" required>
+              </label>
+              
+              <label>
+                Your Current Age (Years)
+                <input type="number" name="currentAge" placeholder="30" min="18" max="65" required>
+              </label>
+              
+              <label>
+                Retirement Age (Years)
+                <input type="number" name="retirementAge" placeholder="60" min="40" max="75" value="60" required>
+              </label>
+              
+              <label>
+                Outstanding Home Loan (₹)
+                <input type="number" name="homeLoan" placeholder="2500000" min="0" value="0">
+              </label>
+              
+              <label>
+                Other Loans/Liabilities (₹)
+                <input type="number" name="otherLoans" placeholder="500000" min="0" value="0">
+              </label>
+              
+              <label>
+                Children's Education Fund (₹)
+                <input type="number" name="educationFund" placeholder="1000000" min="0" value="0">
+              </label>
+              
+              <label>
+                Emergency Fund (Years)
+                <input type="number" name="emergencyYears" placeholder="2" min="0" max="5" value="2" required>
+              </label>
+              
+              <label>
+                Existing Life Insurance (₹)
+                <input type="number" name="existingCover" placeholder="1000000" min="0" value="0">
+              </label>
+              
+              <button class="button button-dark" type="submit">Calculate Coverage Need</button>
+            </form>
+          </div>
+
+          <aside>
+            <div class="emi-card" id="insuranceResult" style="display: none;">
+              <h3>Recommended Coverage</h3>
+              <div class="result-list">
+                <div class="result-row">
+                  <strong>Income Replacement:</strong>
+                  <span id="incomeReplacement">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>Total Liabilities:</strong>
+                  <span id="totalLiabilities">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>Emergency Fund:</strong>
+                  <span id="emergencyAmount">₹0</span>
+                </div>
+                <div class="result-row">
+                  <strong>Existing Coverage:</strong>
+                  <span id="existingAmount">₹0</span>
+                </div>
+                <div class="result-row" style="border-top: 2px solid var(--color-red); padding-top: 14px; margin-top: 14px;">
+                  <strong>Additional Coverage Needed:</strong>
+                  <span id="additionalCover" style="font-size: 1.3rem;">₹0</span>
+                </div>
+              </div>
+              <p class="mini-note">
+                <strong>Note:</strong> This is a general estimate. Actual insurance needs vary based on individual circumstances, lifestyle, and financial goals. Consult an advisor for personalized planning.
+              </p>
+            </div>
+            
+            <div class="sidebar-card">
+              <h3>Coverage Components</h3>
+              <ul class="check-list">
+                <li><strong>Income Replacement:</strong> 10-15 years of income</li>
+                <li><strong>Liabilities:</strong> All outstanding debts</li>
+                <li><strong>Children's Education:</strong> Future education costs</li>
+                <li><strong>Emergency Fund:</strong> 1-3 years of expenses</li>
+                <li><strong>Final Expenses:</strong> Medical and funeral costs</li>
+              </ul>
+            </div>
+            
+            <div class="sidebar-card">
+              <h3>Tips for Better Coverage</h3>
+              <ul class="check-list">
+                <li>Start early for lower premiums</li>
+                <li>Consider term insurance for pure protection</li>
+                <li>Review coverage every 3-5 years</li>
+                <li>Factor in inflation</li>
+                <li>Ensure adequate nominee details</li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section service-form-section">
+        <div class="container">
+          <div class="lead-panel compact">
+            <p class="eyebrow light">Get Expert Advice</p>
+            <h2>Discuss Your Insurance Needs</h2>
+            <p>Our advisors can help you choose the right insurance plan based on your family's needs.</p>
+            <form class="lead-form" data-lead-form>
+              <div class="form-grid">
+                <label class="full-width">
+                  <span>Full Name</span>
+                  <input type="text" name="name" placeholder="Full Name" required>
+                </label>
+                <label>
+                  <span>Mobile</span>
+                  <input type="tel" name="phone" placeholder="Mobile Number" required>
+                </label>
+                <label>
+                  <span>Email</span>
+                  <input type="email" name="email" placeholder="Email Address" required>
+                </label>
+                <label class="full-width">
+                  <span>Insurance Type</span>
+                  <select name="service" required>
+                    <option value="">Select Insurance Type</option>
+                    <option>Term Life Insurance</option>
+                    <option>Health Insurance</option>
+                    <option>Child Education Plan</option>
+                    <option>Retirement Planning</option>
+                  </select>
+                </label>
+              </div>
+              <button class="button button-dark" type="submit">Get Free Consultation</button>
+              <p class="privacy-note">Your information is secure and used only for consultation purposes.</p>
+              <p class="form-message" data-form-message></p>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div class="footer-brand">
+          <a class="brand footer-logo" href="../index.html">
+            <span class="brand-mark">
+              <svg viewBox="0 0 64 42" role="img">
+                <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
+                <path d="M9 35h46"></path>
+                <circle cx="13" cy="9" r="3"></circle>
+                <circle cx="32" cy="5" r="3"></circle>
+                <circle cx="51" cy="9" r="3"></circle>
+              </svg>
+            </span>
+            <span class="brand-copy">
+              <strong>Crown</strong>
+              <span>Wealth Advisor</span>
+            </span>
+          </a>
+          <p>Your trusted partner for financial guidance.</p>
+        </div>
+        <div>
+          <h2>Quick Links</h2>
+          <ul>
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="../index.html#advantage">About Us</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="../index.html#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Calculators</h2>
+          <ul>
+            <li><a href="emi-calculator.html">EMI Calculator</a></li>
+            <li><a href="loan-eligibility.html">Loan Eligibility</a></li>
+            <li><a href="insurance-calculator.html">Insurance Calculator</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2>Contact Us</h2>
+          <ul class="contact-list">
+            <li>📞 +91-XXXXXXXXXX</li>
+            <li>✉️ info@crownwealthadvisor.com</li>
+            <li>🌐 www.crownwealthadvisor.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="container footer-bottom">
+        <p>&copy; <span data-year>2026</span> Crown Wealth Advisor. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <a class="whatsapp-float" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">
+      <span>WA</span>
+    </a>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+      // Insurance Need Calculator Logic
+      (function() {
+        const form = document.getElementById('insuranceForm');
+        const resultCard = document.getElementById('insuranceResult');
+        
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          const annualIncome = parseFloat(form.annualIncome.value);
+          const currentAge = parseInt(form.currentAge.value);
+          const retirementAge = parseInt(form.retirementAge.value);
+          const homeLoan = parseFloat(form.homeLoan.value) || 0;
+          const otherLoans = parseFloat(form.otherLoans.value) || 0;
+          const educationFund = parseFloat(form.educationFund.value) || 0;
+          const emergencyYears = parseFloat(form.emergencyYears.value);
+          const existingCover = parseFloat(form.existingCover.value) || 0;
+          
+          // Validation
+          if (retirementAge <= currentAge) {
+            alert('Retirement age must be greater than current age');
+            return;
+          }
+          
+          // Calculate income replacement (10-15 years, using 12 years average)
+          const yearsToRetirement = retirementAge - currentAge;
+          const incomeMultiplier = Math.min(12, yearsToRetirement);
+          const incomeReplacement = annualIncome * incomeMultiplier;
+          
+          // Calculate total liabilities
+          const totalLiabilities = homeLoan + otherLoans + educationFund;
+          
+          // Calculate emergency fund (annual income * years)
+          const emergencyAmount = annualIncome * emergencyYears;
+          
+          // Total insurance need
+          const totalNeed = incomeReplacement + totalLiabilities + emergencyAmount;
+          
+          // Additional coverage needed (subtract existing)
+          const additionalCover = Math.max(0, totalNeed - existingCover);
+          
+          // Format currency
+          function formatCurrency(value) {
+            return new Intl.NumberFormat('en-IN', {
+              style: 'currency',
+              currency: 'INR',
+              maximumFractionDigits: 0
+            }).format(value);
+          }
+          
+          // Display results
+          document.getElementById('incomeReplacement').textContent = formatCurrency(incomeReplacement);
+          document.getElementById('totalLiabilities').textContent = formatCurrency(totalLiabilities);
+          document.getElementById('emergencyAmount').textContent = formatCurrency(emergencyAmount);
+          document.getElementById('existingAmount').textContent = formatCurrency(existingCover);
+          document.getElementById('additionalCover').textContent = formatCurrency(additionalCover);
+          
+          resultCard.style.display = 'block';
+          resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+      })();
+    </script>
+  </body>
+</html>

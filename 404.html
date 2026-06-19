@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>404 - Page Not Found | Crown Wealth Advisor</title>
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <style>
+      .error-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0 18%, transparent 18% 100%),
+                    linear-gradient(135deg, #d40a15 0%, #b80009 48%, #8e0007 100%);
+        color: var(--color-white);
+        padding: 40px 20px;
+        text-align: center;
+      }
+      
+      .error-content {
+        max-width: 600px;
+      }
+      
+      .error-code {
+        font-size: clamp(6rem, 15vw, 12rem);
+        font-weight: 950;
+        line-height: 1;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.2);
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+      
+      .error-title {
+        font-size: clamp(1.8rem, 4vw, 3rem);
+        font-weight: 900;
+        margin: 20px 0;
+        color: var(--color-white);
+      }
+      
+      .error-message {
+        font-size: 1.1rem;
+        margin: 0 0 32px;
+        color: rgba(255, 255, 255, 0.9);
+        line-height: 1.6;
+      }
+      
+      .error-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .error-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 52px;
+        border: 1px solid transparent;
+        border-radius: var(--radius-small);
+        padding: 0 28px;
+        font-weight: 900;
+        text-decoration: none;
+        transition: transform 180ms ease, box-shadow 180ms ease;
+      }
+      
+      .error-button-primary {
+        background: var(--color-white);
+        color: var(--color-red-dark);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+      }
+      
+      .error-button-secondary {
+        border-color: rgba(255, 255, 255, 0.65);
+        color: var(--color-white);
+      }
+      
+      .error-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2);
+      }
+      
+      .error-links {
+        margin-top: 48px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .error-links h3 {
+        font-size: 1rem;
+        margin: 0 0 16px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 700;
+      }
+      
+      .quick-links {
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+        flex-wrap: wrap;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .quick-links a {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 180ms ease;
+      }
+      
+      .quick-links a:hover {
+        color: var(--color-white);
+        text-decoration: underline;
+      }
+      
+      @media (max-width: 640px) {
+        .error-actions {
+          flex-direction: column;
+        }
+        
+        .error-button {
+          width: 100%;
+          justify-content: center;
+        }
+        
+        .quick-links {
+          flex-direction: column;
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-page">
+      <div class="error-content">
+        <h1 class="error-code">404</h1>
+        <h2 class="error-title">Oops! Page Not Found</h2>
+        <p class="error-message">
+          The page you're looking for doesn't exist or has been moved. 
+          Let's get you back on track with your financial planning journey.
+        </p>
+        
+        <div class="error-actions">
+          <a href="/index.html" class="error-button error-button-primary">
+            Go to Homepage
+          </a>
+          <a href="/index.html#consultation" class="error-button error-button-secondary">
+            Get Free Consultation
+          </a>
+        </div>
+        
+        <div class="error-links">
+          <h3>Or explore these popular pages:</h3>
+          <ul class="quick-links">
+            <li><a href="/pages/health-insurance.html">Health Insurance</a></li>
+            <li><a href="/pages/home-loan.html">Home Loan</a></li>
+            <li><a href="/pages/emi-calculator.html">EMI Calculator</a></li>
+            <li><a href="/pages/blog.html">Financial Blog</a></li>
+            <li><a href="/index.html#contact">Contact Us</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // Log 404 error for analytics (if Google Analytics is configured)
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_not_found', {
+          'page_location': window.location.href,
+          'page_referrer': document.referrer
+        });
+      }
+    </script>
+  </body>
+</html>
