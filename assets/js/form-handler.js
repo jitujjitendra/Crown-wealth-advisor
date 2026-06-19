@@ -24,10 +24,90 @@
     return false;
   }
 
+  // Determine lead source from current page
+  function getLeadSource(form) {
+    const path = window.location.pathname;
+    if (path.indexOf('bajaj-careers') > -1) return 'Bajaj Careers';
+    if (path.indexOf('pnb-careers') > -1) return 'PNB Careers';
+    if (path.indexOf('claim-support') > -1) return 'Claim Support';
+    if (form.getAttribute('data-source')) return form.getAttribute('data-source');
+    return 'website';
+  }
+
+  // Save lead to localStorage (shared with admin panel - cwa_leads)
+  function saveLeadToStore(data, form) {
+    try {
+      var leads = [];
+      var existing = localStorage.getItem('cwa_leads');
+      if (existing) {
+        leads = JSON.parse(existing);
+      }
+
+      var lead = {
+        id: 'L' + String(leads.length + 1).padStart(3, '0'),
+        name: data.name || data.fullName || 'Unknown',
+        mobile: data.mobile || data.phone || data.tel || '',
+        email: data.email || '',
+        city: data.city || '',
+        service: data.service || data.serviceType || 'General Inquiry',
+        time: data.time || data.callbackTime || 'Anytime',
+        message: data.message || '',
+        status: 'new',
+        assignedTo: '',
+        comments: [],
+        createdAt: new Date().toISOString(),
+        source: getLeadSource(form)
+      };
+
+      leads.unshift(lead);
+      localStorage.setItem('cwa_leads', JSON.stringify(leads));
+
+      // Add to activity log
+      try {
+        var activity = [];
+        var actExisting = localStorage.getItem('cwa_activity');
+        if (actExisting) activity = JSON.parse(actExisting);
+        activity.unshift({
+          action: 'New lead ' + lead.id + ' from ' + lead.name + ' (' + lead.source + ')',
+          time: new Date().toISOString(),
+          by: 'website'
+        });
+        localStorage.setItem('cwa_activity', JSON.stringify(activity));
+      } catch (e) {}
+
+      console.log('Lead saved to admin panel:', lead.id);
+      return lead;
+    } catch (e) {
+      console.error('Failed to save lead:', e);
+      return null;
+    }
+  }
+
+  // Generate notification links (Email + WhatsApp) for the owner
+  function notifyOwner(lead) {
+    if (!lead) return;
+    var adminPhone = '917428045423';
+    var msg = 'New Lead Received!%0A%0AName: ' + encodeURIComponent(lead.name) +
+              '%0AMobile: ' + encodeURIComponent(lead.mobile) +
+              '%0ACity: ' + encodeURIComponent(lead.city) +
+              '%0AService: ' + encodeURIComponent(lead.service) +
+              '%0ASource: ' + encodeURIComponent(lead.source);
+    // Store the WhatsApp notify link so admin can forward (used in demo mode)
+    var waLink = 'https://wa.me/' + adminPhone + '?text=' + msg;
+    try {
+      localStorage.setItem('cwa_lastNotifyLink', waLink);
+    } catch (e) {}
+    console.log('Owner notification link generated (WhatsApp):', waLink);
+  }
+
   // Form submission handler
   function handleFormSubmit(form, formMessage) {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
+
+    // ALWAYS save the lead to the admin panel store (works in demo mode)
+    const savedLead = saveLeadToStore(data, form);
+    notifyOwner(savedLead);
 
     // Check if EmailJS is configured
     if (EMAILJS_CONFIG.publicKey === 'YOUR_PUBLIC_KEY') {
@@ -36,8 +116,7 @@
       form.reset();
       
       // Log to console for testing
-      console.log('Form Data (EmailJS not configured):', data);
-      console.warn('Please configure EmailJS credentials in form-handler.js');
+      console.log('Form Data (saved to admin panel):', data);
       return;
     }
 

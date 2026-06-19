@@ -106,29 +106,8 @@
     });
   });
 
-  leadForms.forEach(function (leadForm) {
-    var formMessage = leadForm.querySelector("[data-form-message]");
-
-    leadForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      if (!leadForm.checkValidity()) {
-        leadForm.reportValidity();
-        return;
-      }
-
-      leadForm.reset();
-      if (formMessage) {
-        formMessage.textContent = "Thank you. Your request has been received. We will connect with you soon.";
-        formMessage.classList.add("is-visible");
-
-        window.setTimeout(function () {
-          formMessage.classList.remove("is-visible");
-          formMessage.textContent = "";
-        }, 6500);
-      }
-    });
-  });
+  // Lead form handling is managed by form-handler.js (saves to admin panel).
+  // main.js no longer handles lead form submission to avoid conflicts.
 
   if (blogSearch) {
     blogSearch.addEventListener("input", function () {
