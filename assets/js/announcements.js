@@ -5,12 +5,26 @@
 var CWA_Announcements = (function() {
   'use strict';
 
+  // Default announcements shown when none are configured in localStorage.
+  // These ensure the bar appears on any fresh device/browser (e.g. on Hostinger).
+  function getDefaultAnnouncements() {
+    return [
+      { message: 'Get free financial consultation this month! Call +91-7428045423 for personalized insurance and loan guidance.', active: true },
+      { message: 'Now offering Loan Against Property advisory services. Compare options from multiple lenders.', active: true },
+      { message: 'We are hiring! Join us as a Bajaj or PNB MetLife insurance advisor. Apply now.', active: true }
+    ];
+  }
+
   function getAnnouncements() {
     try {
       var data = localStorage.getItem('cwa_announcements');
-      if (data) return JSON.parse(data);
+      if (data) {
+        var parsed = JSON.parse(data);
+        if (parsed && parsed.length > 0) return parsed;
+      }
     } catch(e) {}
-    return [];
+    // Fallback to defaults so the bar always shows
+    return getDefaultAnnouncements();
   }
 
   function renderAnnouncementBar() {

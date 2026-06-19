@@ -1326,6 +1326,10 @@ button {
 }
 
 .whatsapp-float {
+  display: none !important;
+}
+
+.whatsapp-float-disabled {
   position: fixed;
   right: 24px;
   bottom: 90px;
