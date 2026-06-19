@@ -1,326 +1,174 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
-  <title>Lead Details | Crown Wealth Advisor Admin</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leads | Crown Wealth Advisor Admin</title>
   <link rel="stylesheet" href="admin-styles.css">
-  <style>
-    .lead-detail-container {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    
-    .detail-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    }
-    
-    .detail-card h2 {
-      margin: 0 0 20px;
-      font-size: 1.3rem;
-      font-weight: 900;
-      color: #1a1a1a;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .detail-card h2 svg {
-      width: 24px;
-      height: 24px;
-      stroke: #c9000b;
-      fill: none;
-      stroke-width: 2;
-    }
-    
-    .detail-row {
-      display: grid;
-      grid-template-columns: 140px 1fr;
-      gap: 16px;
-      padding: 14px 0;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .detail-row:last-child {
-      border-bottom: none;
-    }
-    
-    .detail-label {
-      font-weight: 700;
-      color: #666;
-      font-size: 0.9rem;
-    }
-    
-    .detail-value {
-      color: #1a1a1a;
-      font-size: 0.95rem;
-    }
-    
-    .status-selector {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 16px;
-    }
-    
-    .status-option {
-      padding: 14px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      background: #fff;
-      text-align: center;
-      cursor: pointer;
-      transition: all 180ms ease;
-      font-weight: 700;
-      font-size: 0.9rem;
-    }
-    
-    .status-option:hover {
-      border-color: #c9000b;
-    }
-    
-    .status-option.active {
-      border-width: 3px;
-    }
-    
-    .status-option.new.active {
-      background: rgba(33, 150, 243, 0.15);
-      border-color: #2196f3;
-      color: #2196f3;
-    }
-
-    
-    .status-option.success.active {
-      background: rgba(76, 175, 80, 0.15);
-      border-color: #4caf50;
-      color: #4caf50;
-    }
-    
-    .status-option.wip.active {
-      background: rgba(255, 152, 0, 0.15);
-      border-color: #ff9800;
-      color: #ff9800;
-    }
-    
-    .status-option.rejected.active {
-      background: rgba(244, 67, 54, 0.15);
-      border-color: #f44336;
-      color: #f44336;
-    }
-    
-    .comment-list {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 20px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    
-    .comment-item {
-      padding: 14px;
-      background: #f8f8f8;
-      border-left: 3px solid #c9000b;
-      border-radius: 6px;
-    }
-    
-    .comment-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 0.8rem;
-      color: #999;
-    }
-    
-    .comment-text {
-      color: #333;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-    
-    .comment-form {
-      display: grid;
-      gap: 12px;
-    }
-    
-    .comment-form textarea {
-      width: 100%;
-      min-height: 100px;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 0.9rem;
-      outline: none;
-      resize: vertical;
-      transition: border-color 180ms ease;
-    }
-    
-    .comment-form textarea:focus {
-      border-color: #c9000b;
-    }
-    
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-    
-    @media (max-width: 1024px) {
-      .lead-detail-container {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
 </head>
-<body class="admin-body">
-
-
-  <!-- Sidebar Navigation -->
-  <aside class="admin-sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <svg viewBox="0 0 64 42">
-          <path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path>
-          <path d="M9 35h46"></path>
-          <circle cx="13" cy="9" r="3"></circle>
-          <circle cx="32" cy="5" r="3"></circle>
-          <circle cx="51" cy="9" r="3"></circle>
-        </svg>
-        <strong>Crown Admin</strong>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/crown-logo.png" alt="Crown" onerror="this.outerHTML='<span style=&quot;color:#D4A574;font-weight:700;&quot;>Crown</span>'">
+        <div><h2>Crown Admin</h2><small>Wealth Advisor</small></div>
       </div>
-    </div>
-    
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-item">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        Dashboard
-      </a>
-      <a href="../index.html" class="nav-item" target="_blank">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        View Website
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="admin-profile">
-        <div class="profile-avatar">A</div>
-        <div class="profile-info">
-          <strong id="adminName">Admin</strong>
-          <span id="adminEmail">admin@example.com</span>
-        </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a href="dashboard.html"><span class="nav-icon">&#128200;</span> Dashboard</a>
+        <a href="lead-details.html" class="active"><span class="nav-icon">&#128101;</span> Leads</a>
+        <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
+        <div class="sidebar-section">Content</div>
+        <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
+        <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
+        <div class="sidebar-section">Management</div>
+        <a href="users.html" data-role="owner"><span class="nav-icon">&#128100;</span> Users</a>
+        <a href="analytics.html"><span class="nav-icon">&#128202;</span> Analytics</a>
+        <a href="notifications.html"><span class="nav-icon">&#128276;</span> Notifications</a>
+        <a href="announcements.html"><span class="nav-icon">&#128227;</span> Announcements <span class="nav-badge announcement-badge">0</span></a>
+        <a href="settings.html" data-role="owner"><span class="nav-icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html"><span>&#127968;</span> View Website</a>
+        <a href="#" onclick="CWA_Admin.auth.logout();return false;"><span>&#128682;</span> Logout</a>
       </div>
-      <button class="logout-btn" id="logoutBtn">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        Logout
-      </button>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="admin-main">
-    <header class="admin-header">
-      <div>
-        <a href="dashboard.html" style="color: #999; text-decoration: none; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 8px;">
-          <svg style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          Back to Dashboard
-        </a>
-        <h1 id="leadName">Lead Details</h1>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="deleteBtn">
-          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-          Delete Lead
-        </button>
-      </div>
-    </header>
-
-
-
-    <div class="lead-detail-container">
-      <!-- Lead Information -->
-      <div>
-        <div class="detail-card">
-          <h2>
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            Contact Information
-          </h2>
-          <div id="leadInfo"></div>
-        </div>
-        
-        <div class="detail-card" style="margin-top: 24px;">
-          <h2>
-            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            Comments & Notes
-          </h2>
-          <div class="comment-list" id="commentList"></div>
-          <form class="comment-form" id="commentForm">
-            <textarea id="commentText" placeholder="Add a comment or note about this lead..." required></textarea>
-            <button type="submit" class="btn btn-primary">
-              <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-              Add Comment
-            </button>
-          </form>
-        </div>
-      </div>
-      
-      <!-- Status & Actions -->
-      <div>
-        <div class="detail-card">
-          <h2>
-            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-            Lead Status
-          </h2>
-          <div class="status-selector">
-            <div class="status-option new" data-status="new">
-              🆕 New
-            </div>
-            <div class="status-option success" data-status="success">
-              🟢 Success
-            </div>
-            <div class="status-option wip" data-status="wip">
-              🟠 WIP
-            </div>
-            <div class="status-option rejected" data-status="rejected">
-              🔴 Rejected
-            </div>
-          </div>
-          <div class="action-buttons">
-            <button class="btn btn-primary" id="saveStatusBtn" style="flex: 1;">
-              <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-              Save Changes
-            </button>
+    </aside>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-left"><h1>Lead Management</h1><p>View, manage and track all leads</p></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="topbar-avatar"></div>
+            <div><span class="topbar-user-name"></span><br><small class="topbar-user-role text-muted"></small></div>
           </div>
         </div>
-        
-        <div class="detail-card" style="margin-top: 24px;">
-          <h2>
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            Lead History
-          </h2>
-          <div id="leadHistory"></div>
+      </div>
+      <div class="admin-content">
+        <!-- Filter Tabs -->
+        <div class="tab-nav" id="statusTabs">
+          <button class="tab-btn active" data-filter="all">All</button>
+          <button class="tab-btn" data-filter="new">New</button>
+          <button class="tab-btn" data-filter="wip">WIP</button>
+          <button class="tab-btn" data-filter="success">Success</button>
+          <button class="tab-btn" data-filter="rejected">Rejected</button>
+        </div>
+
+        <!-- Leads Table -->
+        <div class="admin-card">
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Mobile</th><th>City</th><th>Service</th><th>Status</th><th>Assigned</th><th>Date</th><th>Action</th></tr>
+              </thead>
+              <tbody id="leadsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Lead Detail Modal -->
+        <div class="modal-overlay" id="leadModal">
+          <div class="modal" style="max-width:700px;">
+            <div class="modal-header">
+              <h3 id="modalLeadTitle">Lead Details</h3>
+              <button class="modal-close" onclick="CWA_Admin.ui.hideModal('leadModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modalLeadBody"></div>
+          </div>
         </div>
       </div>
     </div>
-  </main>
-
-  <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner-large"></div>
-    <p>Loading lead details...</p>
   </div>
+  <script src="admin.js"></script>
+  <script>
+    (function() {
+      if (!CWA_Admin.ui.initPage()) return;
+      var currentFilter = 'all';
+      var users = CWA_Admin.users.getAll();
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  
-  <script src="lead-details.js"></script>
+      function renderLeads() {
+        var leads = CWA_Admin.leads.getAll();
+        if (currentFilter !== 'all') {
+          leads = leads.filter(function(l) { return l.status === currentFilter; });
+        }
+        document.getElementById('leadsTable').innerHTML = leads.map(function(l) {
+          return '<tr>' +
+            '<td>' + l.id + '</td>' +
+            '<td><strong>' + l.name + '</strong></td>' +
+            '<td>' + l.mobile + '</td>' +
+            '<td>' + l.city + '</td>' +
+            '<td>' + l.service + '</td>' +
+            '<td><span class="status-badge ' + l.status + '">' + l.status + '</span></td>' +
+            '<td>' + (l.assignedTo || '<em class="text-muted">Unassigned</em>') + '</td>' +
+            '<td>' + CWA_Admin.ui.formatDate(l.createdAt) + '</td>' +
+            '<td><button class="btn btn-sm btn-outline" onclick="viewLead(\'' + l.id + '\')">View</button></td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      // Tab clicks
+      document.querySelectorAll('#statusTabs .tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#statusTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentFilter = btn.getAttribute('data-filter');
+          renderLeads();
+        });
+      });
+
+      // View lead detail
+      window.viewLead = function(id) {
+        var lead = CWA_Admin.leads.getById(id);
+        if (!lead) return;
+        document.getElementById('modalLeadTitle').textContent = lead.name + ' (' + lead.id + ')';
+        var assignOptions = users.map(function(u) {
+          return '<option value="' + u.email + '"' + (lead.assignedTo === u.email ? ' selected' : '') + '>' + u.name + '</option>';
+        }).join('');
+        var commentsHtml = lead.comments.map(function(c) {
+          return '<div class="timeline-item"><strong>' + c.by + '</strong><p>' + c.text + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.at) + '</span></div>';
+        }).join('');
+
+        document.getElementById('modalLeadBody').innerHTML =
+          '<div class="form-row mb-3">' +
+            '<div class="form-group"><label>Name</label><p><strong>' + lead.name + '</strong></p></div>' +
+            '<div class="form-group"><label>Mobile</label><p>' + lead.mobile + '</p></div>' +
+            '<div class="form-group"><label>City</label><p>' + lead.city + '</p></div>' +
+            '<div class="form-group"><label>Service</label><p>' + lead.service + '</p></div>' +
+            '<div class="form-group"><label>Source</label><p>' + lead.source + '</p></div>' +
+            '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(lead.createdAt) + '</p></div>' +
+          '</div>' +
+          '<div class="form-row mb-3">' +
+            '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus"><option value="new"' + (lead.status==='new'?' selected':'') + '>New</option><option value="wip"' + (lead.status==='wip'?' selected':'') + '>WIP</option><option value="success"' + (lead.status==='success'?' selected':'') + '>Success</option><option value="rejected"' + (lead.status==='rejected'?' selected':'') + '>Rejected</option></select></div>' +
+            '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>' +
+          '</div>' +
+          '<button class="btn btn-primary mb-3" onclick="updateLead(\'' + lead.id + '\')">Update Lead</button>' +
+          '<hr style="margin:16px 0;">' +
+          '<h4 style="margin-bottom:12px;">Timeline & Comments</h4>' +
+          '<div class="timeline">' + (commentsHtml || '<p class="text-muted">No comments yet</p>') + '</div>' +
+          '<div class="form-group mt-3"><label>Add Comment</label><textarea class="form-control" id="modalComment" placeholder="Type a comment..."></textarea></div>' +
+          '<button class="btn btn-success" onclick="addComment(\'' + lead.id + '\')">Add Comment</button>';
+
+        CWA_Admin.ui.showModal('leadModal');
+      };
+
+      window.updateLead = function(id) {
+        var status = document.getElementById('modalStatus').value;
+        var assign = document.getElementById('modalAssign').value;
+        CWA_Admin.leads.updateStatus(id, status);
+        CWA_Admin.leads.assign(id, assign);
+        CWA_Admin.ui.hideModal('leadModal');
+        renderLeads();
+      };
+
+      window.addComment = function(id) {
+        var text = document.getElementById('modalComment').value.trim();
+        if (!text) return;
+        CWA_Admin.leads.addComment(id, text);
+        viewLead(id);
+      };
+
+      renderLeads();
+    })();
+  </script>
 </body>
 </html>

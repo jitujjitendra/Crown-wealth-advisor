@@ -1,154 +1,167 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analytics | Crown Wealth Advisor Admin</title>
-  <link rel="stylesheet" href="../assets/css/styles.css">
   <link rel="stylesheet" href="admin-styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body class="admin-body">
-  <aside class="admin-sidebar">
-    <div class="sidebar-header"><div class="sidebar-logo"><svg viewBox="0 0 64 42"><path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path><path d="M9 35h46"></path><circle cx="13" cy="9" r="3"></circle><circle cx="32" cy="5" r="3"></circle><circle cx="51" cy="9" r="3"></circle></svg><strong>Crown Admin</strong></div></div>
-    <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
-      <a href="blog-submission.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Write Blog</a>
-      <a href="blog-approval.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>Blog Approval</a>
-      <a href="blog-list.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>All Blogs</a>
-      <a href="analytics.html" class="nav-item active" data-feature="analytics"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Analytics</a>
-      <a href="announcements.html" class="nav-item" data-feature="announcements"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>Announcements</a>
-      <a href="assignment-settings.html" class="nav-item" data-feature="leadAssignment"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Lead Assignment</a>
-      <a href="user-management.html" class="nav-item" data-permission="MANAGE_USERS"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>User Management</a>
-      <a href="notification-settings.html" class="nav-item" data-feature="notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications</a>
-      <a href="settings.html" class="nav-item" data-permission="ACCESS_SETTINGS"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Settings</a>
-      <a href="../index.html" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>View Website</a>
-    </nav>
-    <div class="sidebar-footer"><div class="admin-profile"><div class="profile-avatar">A</div><div class="profile-info"><strong id="adminName">Admin</strong><span id="adminEmail">admin@example.com</span></div></div><button class="logout-btn" id="logoutBtn"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</button></div>
-  </aside>
-
-  <main class="admin-main">
-    <header class="admin-header">
-      <h1>Analytics Dashboard</h1>
-      <div class="header-actions">
-        <input type="date" id="dateFrom" class="form-input" style="width:auto;padding:10px;border-radius:8px;border:2px solid #e0e0e0;">
-        <input type="date" id="dateTo" class="form-input" style="width:auto;padding:10px;border-radius:8px;border:2px solid #e0e0e0;">
-        <button class="btn btn-secondary" id="filterBtn">Apply Filter</button>
-        <button class="btn btn-primary" id="exportReportBtn" data-permission="EXPORT_REPORTS">Export Report</button>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/crown-logo.png" alt="Crown" onerror="this.outerHTML='<span style=&quot;color:#D4A574;font-weight:700;&quot;>Crown</span>'">
+        <div><h2>Crown Admin</h2><small>Wealth Advisor</small></div>
       </div>
-    </header>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a href="dashboard.html"><span class="nav-icon">&#128200;</span> Dashboard</a>
+        <a href="lead-details.html"><span class="nav-icon">&#128101;</span> Leads</a>
+        <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
+        <div class="sidebar-section">Content</div>
+        <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
+        <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
+        <div class="sidebar-section">Management</div>
+        <a href="users.html" data-role="owner"><span class="nav-icon">&#128100;</span> Users</a>
+        <a href="analytics.html" class="active"><span class="nav-icon">&#128202;</span> Analytics</a>
+        <a href="notifications.html"><span class="nav-icon">&#128276;</span> Notifications</a>
+        <a href="announcements.html"><span class="nav-icon">&#128227;</span> Announcements <span class="nav-badge announcement-badge">0</span></a>
+        <a href="settings.html" data-role="owner"><span class="nav-icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html"><span>&#127968;</span> View Website</a>
+        <a href="#" onclick="CWA_Admin.auth.logout();return false;"><span>&#128682;</span> Logout</a>
+      </div>
+    </aside>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-left"><h1>Analytics</h1><p>Performance metrics and insights</p></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="topbar-avatar"></div>
+            <div><span class="topbar-user-name"></span><br><small class="topbar-user-role text-muted"></small></div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-content">
+        <!-- Stats Summary -->
+        <div class="stats-grid" id="statsGrid"></div>
 
-    <!-- Stats Summary -->
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon blue"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div><div class="stat-content"><span class="stat-label">Total Leads</span><strong class="stat-value" id="totalLeads">0</strong></div></div>
-      <div class="stat-card"><div class="stat-icon green"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div><div class="stat-content"><span class="stat-label">Converted</span><strong class="stat-value" id="convertedLeads">0</strong></div></div>
-      <div class="stat-card"><div class="stat-icon orange"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><div class="stat-content"><span class="stat-label">Conversion Rate</span><strong class="stat-value" id="conversionRate">0%</strong></div></div>
-      <div class="stat-card"><div class="stat-icon red"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg></div><div class="stat-content"><span class="stat-label">This Month</span><strong class="stat-value" id="monthLeads">0</strong></div></div>
-    </div>
+        <!-- Date Range -->
+        <div class="date-range-btns" id="dateRange">
+          <button data-days="7">7 Days</button>
+          <button data-days="30" class="active">30 Days</button>
+          <button data-days="90">90 Days</button>
+          <button data-days="365">All</button>
+        </div>
 
-    <!-- Charts Grid -->
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:24px;margin-bottom:24px;">
-      <div class="stat-card" style="padding:24px;"><h3 style="margin:0 0 16px;">Leads Over Time</h3><canvas id="leadsTimeChart"></canvas></div>
-      <div class="stat-card" style="padding:24px;"><h3 style="margin:0 0 16px;">Lead Sources</h3><canvas id="sourcesChart"></canvas></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:24px;margin-bottom:24px;">
-      <div class="stat-card" style="padding:24px;"><h3 style="margin:0 0 16px;">Status Distribution</h3><canvas id="statusChart"></canvas></div>
-      <div class="stat-card" style="padding:24px;"><h3 style="margin:0 0 16px;">Conversion Funnel</h3><div id="funnelChart" style="padding:20px;"></div></div>
-    </div>
-  </main>
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="admin-card">
+            <div class="card-header"><h2>Leads Per Day</h2></div>
+            <div class="card-body"><div class="chart-container"><canvas id="lineChart"></canvas></div></div>
+          </div>
+          <div class="admin-card">
+            <div class="card-header"><h2>Lead Sources</h2></div>
+            <div class="card-body"><div class="chart-container"><canvas id="pieChart"></canvas></div></div>
+          </div>
+        </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="../assets/js/role-permissions.js"></script>
-  <script src="../assets/js/feature-config.js"></script>
+        <div class="charts-grid mt-3">
+          <div class="admin-card">
+            <div class="card-header"><h2>Status Distribution</h2></div>
+            <div class="card-body"><div class="chart-container"><canvas id="barChart"></canvas></div></div>
+          </div>
+          <div class="admin-card">
+            <div class="card-header"><h2>Conversion Funnel</h2></div>
+            <div class="card-body">
+              <div class="funnel" id="funnel"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="admin.js"></script>
   <script>
     (function() {
-      // Demo data for analytics
-      var demoLeads = [
-        { status: 'success', service: 'Health Insurance', source: 'Website', createdAt: '2024-01-05' },
-        { status: 'success', service: 'Home Loan', source: 'WhatsApp', createdAt: '2024-01-12' },
-        { status: 'wip', service: 'Personal Loan', source: 'Website', createdAt: '2024-01-18' },
-        { status: 'new', service: 'Life Insurance', source: 'Referral', createdAt: '2024-01-25' },
-        { status: 'rejected', service: 'Car Loan', source: 'Website', createdAt: '2024-02-02' },
-        { status: 'success', service: 'Health Insurance', source: 'Website', createdAt: '2024-02-10' },
-        { status: 'wip', service: 'Fixed Deposit', source: 'WhatsApp', createdAt: '2024-02-15' },
-        { status: 'new', service: 'General Insurance', source: 'Website', createdAt: '2024-02-20' },
-        { status: 'success', service: 'Home Loan', source: 'Referral', createdAt: '2024-02-28' },
-        { status: 'new', service: 'Personal Loan', source: 'Website', createdAt: '2024-03-05' },
-        { status: 'wip', service: 'Life Insurance', source: 'Website', createdAt: '2024-03-10' },
-        { status: 'success', service: 'Health Insurance', source: 'WhatsApp', createdAt: '2024-03-15' }
-      ];
+      if (!CWA_Admin.ui.initPage()) return;
 
-      CWA_Permissions.loadUserRole(function(user) {
-        document.getElementById('adminName').textContent = user.displayName || 'Admin';
-        document.getElementById('adminEmail').textContent = user.email || '';
-        CWA_Permissions.hideElementsWithoutPermission();
-        CWA_FeatureConfig.applyFeatureFlags();
-        renderAnalytics(demoLeads);
-      });
+      var lineChartObj, pieChartObj, barChartObj;
+      var currentDays = 30;
 
-      function renderAnalytics(leads) {
-        var total = leads.length;
-        var converted = leads.filter(function(l) { return l.status === 'success'; }).length;
-        var rate = total > 0 ? Math.round((converted / total) * 100) : 0;
-        var thisMonth = leads.filter(function(l) { var d = new Date(l.createdAt); var now = new Date(); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); }).length;
+      // Stats
+      var stats = CWA_Admin.leads.getStats();
+      document.getElementById('statsGrid').innerHTML =
+        '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>';
 
-        document.getElementById('totalLeads').textContent = total;
-        document.getElementById('convertedLeads').textContent = converted;
-        document.getElementById('conversionRate').textContent = rate + '%';
-        document.getElementById('monthLeads').textContent = thisMonth;
+      // Funnel
+      document.getElementById('funnel').innerHTML =
+        '<div class="funnel-step">New: ' + stats.new + '</div>' +
+        '<div class="funnel-step">Contacted / WIP: ' + stats.wip + '</div>' +
+        '<div class="funnel-step">In Progress: ' + stats.wip + '</div>' +
+        '<div class="funnel-step">Success: ' + stats.success + '</div>';
 
-        // Leads Over Time (Line Chart)
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-        var monthCounts = [0, 0, 0, 0, 0, 0];
-        leads.forEach(function(l) { var m = new Date(l.createdAt).getMonth(); if (m < 6) monthCounts[m]++; });
-        new Chart(document.getElementById('leadsTimeChart'), {
-          type: 'line', data: { labels: months, datasets: [{ label: 'Leads', data: monthCounts, borderColor: '#c9000b', backgroundColor: 'rgba(201,0,11,0.1)', fill: true, tension: 0.3 }] },
-          options: { responsive: true, plugins: { legend: { display: false } } }
+      function renderCharts(days) {
+        // Line Chart
+        var dailyData = CWA_Admin.analytics.getLeadsPerDay(days);
+        var lineCtx = document.getElementById('lineChart').getContext('2d');
+        if (lineChartObj) lineChartObj.destroy();
+        lineChartObj = new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: dailyData.map(function(d) { return d.date.slice(5); }),
+            datasets: [{ label: 'Leads', data: dailyData.map(function(d) { return d.count; }), borderColor: '#c9000b', backgroundColor: 'rgba(201,0,11,0.1)', fill: true, tension: 0.3 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
-        // Sources (Pie Chart)
-        var sources = {};
-        leads.forEach(function(l) { sources[l.source] = (sources[l.source] || 0) + 1; });
-        new Chart(document.getElementById('sourcesChart'), {
-          type: 'pie', data: { labels: Object.keys(sources), datasets: [{ data: Object.values(sources), backgroundColor: ['#c9000b', '#D4A574', '#4caf50', '#2196f3'] }] },
-          options: { responsive: true }
+        // Pie Chart
+        var sources = CWA_Admin.analytics.getSourceBreakdown();
+        var pieCtx = document.getElementById('pieChart').getContext('2d');
+        if (pieChartObj) pieChartObj.destroy();
+        pieChartObj = new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(sources),
+            datasets: [{ data: Object.values(sources), backgroundColor: ['#c9000b', '#D4A574', '#1976d2', '#388e3c', '#f57c00'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
         });
 
-        // Status Distribution (Bar Chart)
-        var statuses = { new: 0, wip: 0, success: 0, rejected: 0 };
-        leads.forEach(function(l) { if (statuses.hasOwnProperty(l.status)) statuses[l.status]++; });
-        new Chart(document.getElementById('statusChart'), {
-          type: 'bar', data: { labels: ['New', 'WIP', 'Success', 'Rejected'], datasets: [{ label: 'Count', data: [statuses.new, statuses.wip, statuses.success, statuses.rejected], backgroundColor: ['#2196f3', '#ff9800', '#4caf50', '#f44336'] }] },
-          options: { responsive: true, plugins: { legend: { display: false } } }
+        // Bar Chart
+        var barCtx = document.getElementById('barChart').getContext('2d');
+        if (barChartObj) barChartObj.destroy();
+        barChartObj = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: ['New', 'WIP', 'Success', 'Rejected'],
+            datasets: [{ label: 'Leads', data: [stats.new, stats.wip, stats.success, stats.rejected], backgroundColor: ['#1976d2', '#f57c00', '#388e3c', '#d32f2f'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
-
-        // Conversion Funnel
-        var funnel = document.getElementById('funnelChart');
-        var funnelData = [
-          { label: 'Total Leads', value: total, color: '#2196f3' },
-          { label: 'In Progress', value: statuses.wip + converted, color: '#ff9800' },
-          { label: 'Converted', value: converted, color: '#4caf50' }
-        ];
-        var html = '';
-        funnelData.forEach(function(item, i) {
-          var width = total > 0 ? Math.max(20, (item.value / total) * 100) : 20;
-          html += '<div style="margin-bottom:12px;"><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-weight:700;">' + item.label + '</span><span style="font-weight:900;">' + item.value + '</span></div><div style="background:#f0f0f0;border-radius:8px;overflow:hidden;height:32px;"><div style="background:' + item.color + ';height:100%;width:' + width + '%;border-radius:8px;transition:width 0.5s;"></div></div></div>';
-        });
-        funnel.innerHTML = html;
       }
 
-      document.getElementById('exportReportBtn').addEventListener('click', function() {
-        alert('Report export would generate a CSV/Excel file with all analytics data. (Demo mode)');
+      // Date range buttons
+      document.querySelectorAll('#dateRange button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#dateRange button').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentDays = parseInt(btn.getAttribute('data-days'));
+          renderCharts(currentDays);
+        });
       });
 
-      document.getElementById('filterBtn').addEventListener('click', function() {
-        alert('Date range filter applied. In production, this filters Firestore queries. (Demo mode)');
-      });
-
-      document.getElementById('logoutBtn').addEventListener('click', function() { sessionStorage.clear(); window.location.href = 'index.html'; });
+      if (typeof Chart !== 'undefined') {
+        renderCharts(currentDays);
+      } else {
+        document.querySelector('.charts-grid').innerHTML = '<div class="admin-card"><div class="card-body"><p class="text-muted">Chart.js library not available. Charts will load when connected to the internet.</p></div></div>';
+      }
     })();
   </script>
 </body>

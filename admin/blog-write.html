@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Write Blog | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="admin-styles.css">
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/crown-logo.png" alt="Crown" onerror="this.outerHTML='<span style=&quot;color:#D4A574;font-weight:700;&quot;>Crown</span>'">
+        <div><h2>Crown Admin</h2><small>Wealth Advisor</small></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a href="dashboard.html"><span class="nav-icon">&#128200;</span> Dashboard</a>
+        <a href="lead-details.html"><span class="nav-icon">&#128101;</span> Leads</a>
+        <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
+        <div class="sidebar-section">Content</div>
+        <a href="blog-write.html" class="active"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
+        <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
+        <div class="sidebar-section">Management</div>
+        <a href="users.html" data-role="owner"><span class="nav-icon">&#128100;</span> Users</a>
+        <a href="analytics.html"><span class="nav-icon">&#128202;</span> Analytics</a>
+        <a href="notifications.html"><span class="nav-icon">&#128276;</span> Notifications</a>
+        <a href="announcements.html"><span class="nav-icon">&#128227;</span> Announcements <span class="nav-badge announcement-badge">0</span></a>
+        <a href="settings.html" data-role="owner"><span class="nav-icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html"><span>&#127968;</span> View Website</a>
+        <a href="#" onclick="CWA_Admin.auth.logout();return false;"><span>&#128682;</span> Logout</a>
+      </div>
+    </aside>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-left"><h1>Write Blog Post</h1><p>Create and publish articles</p></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="topbar-avatar"></div>
+            <div><span class="topbar-user-name"></span><br><small class="topbar-user-role text-muted"></small></div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-content">
+        <div class="admin-card">
+          <div class="card-header"><h2>New Blog Post</h2></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Blog Title</label>
+              <input type="text" class="form-control" id="blogTitle" placeholder="Enter blog title">
+            </div>
+            <div class="blog-meta-row">
+              <div class="form-group">
+                <label>Category</label>
+                <select class="form-control" id="blogCategory">
+                  <option value="Insurance">Insurance</option>
+                  <option value="Loans">Loans</option>
+                  <option value="Investments">Investments</option>
+                  <option value="Tax">Tax Planning</option>
+                  <option value="General">General</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tags (comma separated)</label>
+                <input type="text" class="form-control" id="blogTags" placeholder="health, family, insurance">
+              </div>
+            </div>
+            <div class="blog-meta-row">
+              <div class="form-group">
+                <label>Featured Image URL</label>
+                <input type="text" class="form-control" id="blogImage" placeholder="https://example.com/image.jpg">
+              </div>
+              <div class="form-group">
+                <label>Meta Description</label>
+                <input type="text" class="form-control" id="blogMeta" placeholder="Brief description for SEO">
+              </div>
+            </div>
+            <div class="form-group blog-editor-container">
+              <label>Content</label>
+              <textarea id="blogContent" style="min-height:300px;"></textarea>
+            </div>
+            <div style="display:flex;gap:12px;margin-top:20px;">
+              <button class="btn btn-outline" onclick="saveBlog('draft')">Save Draft</button>
+              <button class="btn btn-primary" onclick="saveBlog('pending')">Submit for Approval</button>
+            </div>
+            <p id="blogMsg" style="margin-top:12px;font-size:0.9rem;display:none;"></p>
+          </div>
+        </div>
+
+        <!-- Edit existing rejected blog -->
+        <div class="admin-card" id="rejectedBlogsCard" style="display:none;">
+          <div class="card-header"><h2>Your Rejected Blogs (Edit & Resubmit)</h2></div>
+          <div class="card-body" id="rejectedBlogsList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="admin.js"></script>
+  <script>
+    (function() {
+      if (!CWA_Admin.ui.initPage()) return;
+
+      // Init TinyMCE
+      if (typeof tinymce !== 'undefined') {
+        tinymce.init({
+          selector: '#blogContent',
+          height: 350,
+          menubar: false,
+          plugins: 'lists link image code',
+          toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code'
+        });
+      }
+
+      // Check URL for edit param
+      var params = new URLSearchParams(window.location.search);
+      var editId = params.get('edit');
+      if (editId) {
+        var blog = CWA_Admin.blogs.getById(editId);
+        if (blog) {
+          document.getElementById('blogTitle').value = blog.title;
+          document.getElementById('blogCategory').value = blog.category;
+          document.getElementById('blogTags').value = blog.tags;
+          document.getElementById('blogImage').value = blog.featuredImage || '';
+          document.getElementById('blogMeta').value = blog.metaDescription || '';
+          if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) {
+            tinymce.get('blogContent').setContent(blog.content);
+          } else {
+            document.getElementById('blogContent').value = blog.content;
+          }
+        }
+      }
+
+      // Show rejected blogs for resubmission
+      var session = CWA_Admin.auth.getSession();
+      var rejected = CWA_Admin.blogs.getAll().filter(function(b) {
+        return b.status === 'rejected' && b.author === session.email;
+      });
+      if (rejected.length > 0) {
+        document.getElementById('rejectedBlogsCard').style.display = 'block';
+        document.getElementById('rejectedBlogsList').innerHTML = rejected.map(function(b) {
+          return '<div class="announcement-item"><div style="flex:1;"><strong>' + b.title + '</strong><p class="text-muted" style="font-size:0.85rem;">Reason: ' + (b.rejectReason || 'No reason given') + '</p></div><a href="blog-write.html?edit=' + b.id + '" class="btn btn-sm btn-warning">Edit & Resubmit</a></div>';
+        }).join('');
+      }
+
+      window.saveBlog = function(status) {
+        var title = document.getElementById('blogTitle').value.trim();
+        if (!title) { alert('Please enter a title'); return; }
+        var content = '';
+        if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) {
+          content = tinymce.get('blogContent').getContent();
+        } else {
+          content = document.getElementById('blogContent').value;
+        }
+        var blogData = {
+          title: title,
+          category: document.getElementById('blogCategory').value,
+          tags: document.getElementById('blogTags').value,
+          content: content,
+          featuredImage: document.getElementById('blogImage').value,
+          metaDescription: document.getElementById('blogMeta').value,
+          status: status
+        };
+
+        if (editId) {
+          blogData.status = status;
+          CWA_Admin.blogs.update(editId, blogData);
+        } else {
+          CWA_Admin.blogs.add(blogData);
+        }
+        var msg = document.getElementById('blogMsg');
+        msg.style.display = 'block';
+        msg.style.color = '#28a745';
+        msg.textContent = status === 'draft' ? 'Blog saved as draft!' : 'Blog submitted for approval!';
+        if (!editId) {
+          document.getElementById('blogTitle').value = '';
+          document.getElementById('blogTags').value = '';
+          document.getElementById('blogImage').value = '';
+          document.getElementById('blogMeta').value = '';
+          if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) tinymce.get('blogContent').setContent('');
+        }
+      };
+    })();
+  </script>
+</body>
+</html>
