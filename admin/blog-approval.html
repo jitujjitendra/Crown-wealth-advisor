@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Blog Approval | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body class="admin-body">
+  <!-- Sidebar Navigation -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 64 42"><path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path><path d="M9 35h46"></path><circle cx="13" cy="9" r="3"></circle><circle cx="32" cy="5" r="3"></circle><circle cx="51" cy="9" r="3"></circle></svg>
+        <strong>Crown Admin</strong>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
+      <a href="blog-submission.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Write Blog</a>
+      <a href="blog-approval.html" class="nav-item active" data-feature="blog"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>Blog Approval</a>
+      <a href="blog-list.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>All Blogs</a>
+      <a href="analytics.html" class="nav-item" data-feature="analytics"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Analytics</a>
+      <a href="announcements.html" class="nav-item" data-feature="announcements"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>Announcements</a>
+      <a href="assignment-settings.html" class="nav-item" data-feature="leadAssignment"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Lead Assignment</a>
+      <a href="user-management.html" class="nav-item" data-permission="MANAGE_USERS"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>User Management</a>
+      <a href="notification-settings.html" class="nav-item" data-feature="notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications</a>
+      <a href="settings.html" class="nav-item" data-permission="ACCESS_SETTINGS"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Settings</a>
+      <a href="../index.html" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>View Website</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-profile"><div class="profile-avatar">A</div><div class="profile-info"><strong id="adminName">Admin</strong><span id="adminEmail">admin@example.com</span></div></div>
+      <button class="logout-btn" id="logoutBtn"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1>Blog Approval</h1>
+      <div class="header-actions">
+        <div class="filters">
+          <button class="filter-btn active" data-filter="pending">Pending</button>
+          <button class="filter-btn" data-filter="approved">Approved</button>
+          <button class="filter-btn" data-filter="rejected">Rejected</button>
+          <button class="filter-btn" data-filter="all">All</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="blog-approval-grid" id="blogGrid">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <p>No blogs pending approval</p>
+        <small>Blogs submitted by admins will appear here</small>
+      </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal-overlay" id="previewModal" style="display:none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="previewTitle">Blog Preview</h2>
+          <button class="modal-close" id="closePreview">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="preview-meta">
+            <span id="previewCategory" class="status-badge new"></span>
+            <span id="previewAuthor"></span>
+            <span id="previewDate"></span>
+          </div>
+          <div id="previewContent" class="preview-content"></div>
+        </div>
+        <div class="modal-footer" data-permission="APPROVE_BLOG">
+          <button class="btn btn-secondary" id="rejectBlogBtn">Reject</button>
+          <button class="btn btn-primary" id="approveBlogBtn">Approve & Publish</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/role-permissions.js"></script>
+  <script src="../assets/js/feature-config.js"></script>
+  <script src="../assets/js/blog-system.js"></script>
+  <script>
+    (function() {
+      var currentFilter = 'pending';
+      var currentBlogId = null;
+
+      CWA_Permissions.loadUserRole(function(user) {
+        document.getElementById('adminName').textContent = user.displayName || 'Admin';
+        document.getElementById('adminEmail').textContent = user.email || '';
+        CWA_Permissions.hideElementsWithoutPermission();
+        CWA_FeatureConfig.applyFeatureFlags();
+        loadBlogs();
+      });
+
+      function loadBlogs() {
+        var filter = currentFilter === 'all' ? {} : { status: currentFilter };
+        CWA_BlogSystem.getBlogs(filter, function(err, blogs) {
+          renderBlogs(blogs || []);
+        });
+      }
+
+      function renderBlogs(blogs) {
+        var grid = document.getElementById('blogGrid');
+        if (blogs.length === 0) {
+          grid.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg><p>No blogs found</p><small>No blogs match the current filter</small></div>';
+          return;
+        }
+
+        var html = '';
+        blogs.forEach(function(blog) {
+          var statusClass = blog.status === 'approved' || blog.status === 'published' ? 'success' : blog.status === 'rejected' ? 'rejected' : blog.status === 'pending' ? 'new' : 'wip';
+          html += '<div class="blog-approval-card">' +
+            '<div class="blog-card-header"><span class="status-badge ' + statusClass + '">' + blog.status.toUpperCase() + '</span><span class="blog-date">' + new Date(blog.createdAt).toLocaleDateString() + '</span></div>' +
+            '<h3>' + blog.title + '</h3>' +
+            '<p class="blog-excerpt">' + (blog.excerpt || 'No excerpt provided') + '</p>' +
+            '<div class="blog-card-meta"><span>By: ' + blog.author + '</span><span>Category: ' + blog.category + '</span></div>' +
+            '<div class="blog-card-actions">' +
+            '<button class="action-btn" onclick="previewBlog(\'' + blog.id + '\')">Preview</button>';
+          if (CWA_Permissions.hasPermission('APPROVE_BLOG') && blog.status === 'pending') {
+            html += '<button class="action-btn primary" onclick="quickApprove(\'' + blog.id + '\')">Approve</button>' +
+              '<button class="action-btn" onclick="quickReject(\'' + blog.id + '\')">Reject</button>';
+          }
+          html += '</div></div>';
+        });
+        grid.innerHTML = html;
+      }
+
+      window.previewBlog = function(blogId) {
+        currentBlogId = blogId;
+        CWA_BlogSystem.getBlogById(blogId, function(err, blog) {
+          if (!blog) return;
+          document.getElementById('previewTitle').textContent = blog.title;
+          document.getElementById('previewCategory').textContent = blog.category;
+          document.getElementById('previewAuthor').textContent = 'By: ' + blog.author;
+          document.getElementById('previewDate').textContent = new Date(blog.createdAt).toLocaleDateString();
+          document.getElementById('previewContent').innerHTML = blog.content;
+          document.getElementById('previewModal').style.display = 'flex';
+        });
+      };
+
+      window.quickApprove = function(blogId) {
+        CWA_BlogSystem.publishBlog(blogId, function(err) {
+          if (!err) loadBlogs();
+        });
+      };
+
+      window.quickReject = function(blogId) {
+        var reason = prompt('Rejection reason (optional):');
+        CWA_BlogSystem.rejectBlog(blogId, reason || '', function(err) {
+          if (!err) loadBlogs();
+        });
+      };
+
+      document.getElementById('closePreview').addEventListener('click', function() {
+        document.getElementById('previewModal').style.display = 'none';
+      });
+
+      document.getElementById('approveBlogBtn').addEventListener('click', function() {
+        if (currentBlogId) {
+          CWA_BlogSystem.publishBlog(currentBlogId, function(err) {
+            if (!err) { document.getElementById('previewModal').style.display = 'none'; loadBlogs(); }
+          });
+        }
+      });
+
+      document.getElementById('rejectBlogBtn').addEventListener('click', function() {
+        if (currentBlogId) {
+          var reason = prompt('Rejection reason (optional):');
+          CWA_BlogSystem.rejectBlog(currentBlogId, reason || '', function(err) {
+            if (!err) { document.getElementById('previewModal').style.display = 'none'; loadBlogs(); }
+          });
+        }
+      });
+
+      // Filter buttons
+      document.querySelectorAll('[data-filter]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('[data-filter]').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentFilter = btn.getAttribute('data-filter');
+          loadBlogs();
+        });
+      });
+
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+      });
+    })();
+  </script>
+</body>
+</html>

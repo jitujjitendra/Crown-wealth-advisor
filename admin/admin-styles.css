@@ -662,3 +662,242 @@
     min-width: 800px;
   }
 }
+
+/* Blog Editor Styles */
+.blog-editor-container {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+}
+
+.editor-main {
+  min-width: 0;
+}
+
+.editor-sidebar .sidebar-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 180ms ease;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: #c9000b;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 400px;
+  padding: 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+
+.form-textarea:focus {
+  border-color: #c9000b;
+}
+
+/* Status Message */
+.status-message {
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.status-message.success {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-message.error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.status-message.info {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* Blog Approval Grid */
+.blog-approval-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.blog-approval-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.blog-approval-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.blog-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.blog-date {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.blog-excerpt {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.blog-card-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.8rem;
+  color: #999;
+  margin: 12px 0;
+}
+
+.blog-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #999;
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 28px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.preview-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.preview-content {
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.preview-content h2 {
+  margin: 24px 0 12px;
+  font-size: 1.4rem;
+}
+
+.preview-content ul, .preview-content ol {
+  padding-left: 24px;
+  margin: 12px 0;
+}
+
+@media (max-width: 768px) {
+  .blog-editor-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .blog-approval-grid {
+    grid-template-columns: 1fr;
+  }
+}

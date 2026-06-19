@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Notification Settings | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="../assets/css/styles.css">
+  <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body class="admin-body">
+  <aside class="admin-sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><svg viewBox="0 0 64 42"><path d="M8 31 13 9l14 16 5-20 5 20L51 9l5 22"></path><path d="M9 35h46"></path><circle cx="13" cy="9" r="3"></circle><circle cx="32" cy="5" r="3"></circle><circle cx="51" cy="9" r="3"></circle></svg><strong>Crown Admin</strong></div></div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>Dashboard</a>
+      <a href="blog-submission.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>Write Blog</a>
+      <a href="blog-approval.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>Blog Approval</a>
+      <a href="blog-list.html" class="nav-item" data-feature="blog"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>All Blogs</a>
+      <a href="analytics.html" class="nav-item" data-feature="analytics"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>Analytics</a>
+      <a href="announcements.html" class="nav-item" data-feature="announcements"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>Announcements</a>
+      <a href="assignment-settings.html" class="nav-item" data-feature="leadAssignment"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Lead Assignment</a>
+      <a href="user-management.html" class="nav-item" data-permission="MANAGE_USERS"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>User Management</a>
+      <a href="notification-settings.html" class="nav-item active" data-feature="notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications</a>
+      <a href="settings.html" class="nav-item" data-permission="ACCESS_SETTINGS"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>Settings</a>
+      <a href="../index.html" class="nav-item" target="_blank"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>View Website</a>
+    </nav>
+    <div class="sidebar-footer"><div class="admin-profile"><div class="profile-avatar">A</div><div class="profile-info"><strong id="adminName">Admin</strong><span id="adminEmail">admin@example.com</span></div></div><button class="logout-btn" id="logoutBtn"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>Logout</button></div>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1>Notification Settings</h1>
+      <div class="header-actions"><button class="btn btn-primary" id="savePrefsBtn">Save Preferences</button></div>
+    </header>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <!-- Email Notifications -->
+      <div class="stat-card" style="padding:24px;">
+        <h3 style="margin:0 0 20px;">Email Notifications</h3>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <input type="checkbox" id="emailOnLead" style="width:20px;height:20px;"> Instant email on new lead
+          </label>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <input type="checkbox" id="dailySummary" style="width:20px;height:20px;"> Daily summary email
+          </label>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Summary Time</label>
+          <input type="time" id="summaryTime" class="form-input" value="09:00">
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>Summary Email</label>
+          <input type="email" id="summaryEmail" class="form-input" value="crownwealthadvisor1111@gmail.com">
+        </div>
+        <h4 style="margin:20px 0 12px;">EmailJS Configuration</h4>
+        <div class="form-group" style="margin-bottom:12px;"><label>Service ID</label><input type="text" id="emailServiceId" class="form-input" placeholder="service_xxxxxxx"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Template ID</label><input type="text" id="emailTemplateId" class="form-input" placeholder="template_xxxxxxx"></div>
+        <div class="form-group"><label>Public Key</label><input type="text" id="emailPublicKey" class="form-input" placeholder="Your EmailJS public key"></div>
+      </div>
+
+      <!-- WhatsApp Notifications -->
+      <div class="stat-card" style="padding:24px;">
+        <h3 style="margin:0 0 20px;">WhatsApp Notifications</h3>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+            <input type="checkbox" id="whatsappOnLead" style="width:20px;height:20px;"> WhatsApp notification on new lead
+          </label>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label>WhatsApp Number (with country code, no +)</label>
+          <input type="text" id="whatsappNumber" class="form-input" value="917428045423" placeholder="917428045423">
+        </div>
+        <div class="stat-card" style="padding:16px;margin-top:20px;background:rgba(37,211,102,0.1);">
+          <p style="margin:0;font-size:0.9rem;color:#333;"><strong>How it works:</strong> When a new lead is submitted, a WhatsApp message link is generated. Click the notification to open WhatsApp with pre-filled lead details.</p>
+        </div>
+
+        <h4 style="margin:24px 0 12px;">Test Notification</h4>
+        <button class="btn btn-secondary" id="testNotificationBtn" style="background:#25D366;color:#fff;border:none;">
+          Send Test WhatsApp Link
+        </button>
+        <p id="testResult" style="margin-top:12px;font-size:0.9rem;color:#666;"></p>
+      </div>
+    </div>
+
+    <!-- Notification Log -->
+    <div class="stat-card" style="padding:24px;margin-top:24px;">
+      <h3 style="margin:0 0 16px;">Recent Notification Log</h3>
+      <div id="notificationLog" style="max-height:300px;overflow-y:auto;"></div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="../assets/js/role-permissions.js"></script>
+  <script src="../assets/js/feature-config.js"></script>
+  <script src="../assets/js/notifications.js"></script>
+  <script>
+    (function() {
+      CWA_Permissions.loadUserRole(function(user) {
+        document.getElementById('adminName').textContent = user.displayName || 'Admin';
+        document.getElementById('adminEmail').textContent = user.email || '';
+        CWA_Permissions.hideElementsWithoutPermission();
+        CWA_FeatureConfig.applyFeatureFlags();
+        loadPreferences();
+        renderLog();
+      });
+
+      function loadPreferences() {
+        var prefs = CWA_Notifications.getPreferences();
+        document.getElementById('emailOnLead').checked = prefs.emailOnNewLead;
+        document.getElementById('whatsappOnLead').checked = prefs.whatsappOnNewLead;
+        document.getElementById('dailySummary').checked = prefs.dailySummary;
+        document.getElementById('summaryTime').value = prefs.summaryTime || '09:00';
+        document.getElementById('summaryEmail').value = prefs.summaryEmail || '';
+        document.getElementById('whatsappNumber').value = prefs.whatsappNumber || '917428045423';
+        document.getElementById('emailServiceId').value = prefs.emailServiceId || '';
+        document.getElementById('emailTemplateId').value = prefs.emailTemplateId || '';
+        document.getElementById('emailPublicKey').value = prefs.emailPublicKey || '';
+      }
+
+      document.getElementById('savePrefsBtn').addEventListener('click', function() {
+        var prefs = {
+          emailOnNewLead: document.getElementById('emailOnLead').checked,
+          whatsappOnNewLead: document.getElementById('whatsappOnLead').checked,
+          dailySummary: document.getElementById('dailySummary').checked,
+          summaryTime: document.getElementById('summaryTime').value,
+          summaryEmail: document.getElementById('summaryEmail').value,
+          whatsappNumber: document.getElementById('whatsappNumber').value,
+          emailServiceId: document.getElementById('emailServiceId').value,
+          emailTemplateId: document.getElementById('emailTemplateId').value,
+          emailPublicKey: document.getElementById('emailPublicKey').value
+        };
+        CWA_Notifications.savePreferences(prefs);
+        alert('Notification preferences saved!');
+      });
+
+      document.getElementById('testNotificationBtn').addEventListener('click', function() {
+        var testLead = { name: 'Test Lead', mobile: '+91-9999999999', service: 'Health Insurance', city: 'Mumbai', time: 'Morning', source: 'Test' };
+        var link = CWA_Notifications.generateWhatsAppLink(testLead);
+        document.getElementById('testResult').innerHTML = '<a href="' + link + '" target="_blank" style="color:#25D366;font-weight:700;">Click to open WhatsApp with test message</a>';
+        CWA_Notifications.addToNotificationLog({ type: 'whatsapp-test', message: 'Test notification sent', status: 'sent' });
+        renderLog();
+      });
+
+      function renderLog() {
+        var log = CWA_Notifications.getNotificationLog();
+        var container = document.getElementById('notificationLog');
+        if (log.length === 0) { container.innerHTML = '<p style="color:#999;">No notifications sent yet.</p>'; return; }
+        var html = '<table style="width:100%;font-size:0.85rem;"><thead><tr><th style="text-align:left;padding:8px;">Time</th><th style="text-align:left;padding:8px;">Type</th><th style="text-align:left;padding:8px;">Message</th><th style="text-align:left;padding:8px;">Status</th></tr></thead><tbody>';
+        log.slice(0, 20).forEach(function(entry) {
+          html += '<tr><td style="padding:8px;">' + new Date(entry.timestamp).toLocaleString() + '</td><td style="padding:8px;">' + entry.type + '</td><td style="padding:8px;">' + entry.message + '</td><td style="padding:8px;"><span class="status-badge new">' + entry.status + '</span></td></tr>';
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', function() { sessionStorage.clear(); window.location.href = 'index.html'; });
+    })();
+  </script>
+</body>
+</html>
