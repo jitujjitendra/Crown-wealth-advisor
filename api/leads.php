@@ -43,6 +43,71 @@ if ($action === 'create') {
 // ---- Everything below requires login ----
 $user = require_login();
 
+// ---- Admin: edit existing lead fields ----
+if ($action === 'update') {
+    require_full();
+    $id = (int) param('id', 0);
+    $stmt = db()->prepare(
+        'UPDATE leads SET name=?, mobile=?, email=?, city=?, service=?, message=? WHERE id=?'
+    );
+    $stmt->execute([
+        trim((string) param('name', '')),
+        trim((string) param('mobile', '')),
+        trim((string) param('email', '')),
+        trim((string) param('city', '')),
+        trim((string) param('service', '')),
+        trim((string) param('message', '')),
+        $id,
+    ]);
+    log_activity("Lead #$id edited", $user['email']);
+    ok();
+}
+
+// ---- Set follow-up date (agent on own lead, admin on any) ----
+if ($action === 'followup') {
+    $id = (int) param('id', 0);
+    $date = trim((string) param('follow_up_date', ''));
+    if (!agent_can_touch($user, $id)) fail('You can only update leads assigned to you.', 403);
+    // empty clears the date
+    if ($date === '') {
+        db()->prepare('UPDATE leads SET follow_up_date = NULL WHERE id = ?')->execute([$id]);
+    } else {
+        db()->prepare('UPDATE leads SET follow_up_date = ? WHERE id = ?')->execute([$date, $id]);
+    }
+    log_activity("Lead #$id follow-up set to " . ($date ?: 'none'), $user['email']);
+    ok();
+}
+
+// ---- Admin: import multiple leads (array of rows) ----
+if ($action === 'import') {
+    require_full();
+    $rows = param('rows', []);
+    if (!is_array($rows) || count($rows) === 0) fail('No rows to import.');
+    $stmt = db()->prepare(
+        'INSERT INTO leads (name, mobile, email, city, service, message, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, "new")'
+    );
+    $count = 0;
+    foreach ($rows as $r) {
+        if (!is_array($r)) continue;
+        $name = trim((string) (isset($r['name']) ? $r['name'] : ''));
+        $mobile = trim((string) (isset($r['mobile']) ? $r['mobile'] : ''));
+        if ($name === '' && $mobile === '') continue;
+        $stmt->execute([
+            $name !== '' ? $name : 'Unknown',
+            $mobile,
+            trim((string) (isset($r['email']) ? $r['email'] : '')),
+            trim((string) (isset($r['city']) ? $r['city'] : '')),
+            trim((string) (isset($r['service']) ? $r['service'] : 'Imported')),
+            trim((string) (isset($r['message']) ? $r['message'] : '')),
+            'import',
+        ]);
+        $count++;
+    }
+    log_activity("Imported $count leads", $user['email']);
+    ok(['imported' => $count]);
+}
+
 if ($action === 'list') {
     $status = param('status', '');
     $search = trim((string) param('search', ''));
@@ -125,7 +190,7 @@ if ($action === 'comment') {
 }
 
 if ($action === 'delete') {
-    require_owner();
+    require_full();
     $id = (int) param('id', 0);
     $stmt = db()->prepare('DELETE FROM leads WHERE id = ?');
     $stmt->execute([$id]);

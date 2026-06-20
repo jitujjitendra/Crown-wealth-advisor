@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS leads (
   status      ENUM('new','wip','success','rejected') NOT NULL DEFAULT 'new',
   assigned_to VARCHAR(160) DEFAULT '',
   source      VARCHAR(120) DEFAULT 'website',
+  follow_up_date DATE NULL,
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX (status), INDEX (source), INDEX (created_at)

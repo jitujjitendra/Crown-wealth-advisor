@@ -78,12 +78,28 @@ if ($action === 'save') {
     ];
 
     if ($id > 0) {
+        // Agents may only edit their own blogs, and never edit an approved/published one
+        if ($user['role'] === 'agent') {
+            $own = db()->prepare('SELECT author, status FROM blogs WHERE id = ?');
+            $own->execute([$id]);
+            $row = $own->fetch();
+            if (!$row || $row['author'] !== $user['email']) fail('You can only edit your own blogs.', 403);
+            if ($row['status'] === 'approved') fail('You cannot edit a published blog.', 403);
+            // Agents can only save as draft or pending
+            if (!in_array($status, ['draft','pending'], true)) $status = 'pending';
+            $data[9] = $status;
+        }
         $sql = 'UPDATE blogs SET title=?, slug=?, category=?, tags=?, content=?, excerpt=?, featured_image=?, meta_description=?, author=?, status=? WHERE id=?';
         $data[] = $id;
         db()->prepare($sql)->execute($data);
         log_activity("Blog #$id updated ($status)", $user['email']);
         ok(['id' => $id]);
     } else {
+        // Agents can only create draft/pending blogs
+        if ($user['role'] === 'agent' && !in_array($status, ['draft','pending'], true)) {
+            $status = 'pending';
+            $data[9] = $status;
+        }
         $sql = 'INSERT INTO blogs (title, slug, category, tags, content, excerpt, featured_image, meta_description, author, status) VALUES (?,?,?,?,?,?,?,?,?,?)';
         db()->prepare($sql)->execute($data);
         $newId = (int) db()->lastInsertId();
@@ -93,13 +109,32 @@ if ($action === 'save') {
 }
 
 if ($action === 'approve') {
+    require_full();
     $id = (int) param('id', 0);
     db()->prepare("UPDATE blogs SET status='approved', approved_at=NOW(), reject_reason='' WHERE id=?")->execute([$id]);
     log_activity("Blog #$id approved", $user['email']);
     ok();
 }
 
+if ($action === 'publish') {
+    require_full();
+    $id = (int) param('id', 0);
+    db()->prepare("UPDATE blogs SET status='approved', approved_at=NOW(), reject_reason='' WHERE id=?")->execute([$id]);
+    log_activity("Blog #$id published", $user['email']);
+    ok();
+}
+
+if ($action === 'unpublish') {
+    require_full();
+    $id = (int) param('id', 0);
+    // Move back to draft so it disappears from the public site but is not deleted
+    db()->prepare("UPDATE blogs SET status='draft' WHERE id=?")->execute([$id]);
+    log_activity("Blog #$id unpublished", $user['email']);
+    ok();
+}
+
 if ($action === 'reject') {
+    require_full();
     $id = (int) param('id', 0);
     $reason = trim((string) param('reason', ''));
     db()->prepare("UPDATE blogs SET status='rejected', reject_reason=? WHERE id=?")->execute([$reason, $id]);
@@ -108,7 +143,7 @@ if ($action === 'reject') {
 }
 
 if ($action === 'delete') {
-    require_owner();
+    require_full();
     $id = (int) param('id', 0);
     db()->prepare('DELETE FROM blogs WHERE id=?')->execute([$id]);
     log_activity("Blog #$id deleted", $user['email']);

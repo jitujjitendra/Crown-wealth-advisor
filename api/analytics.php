@@ -32,7 +32,56 @@ if ($action === 'summary') {
         'successRate'=> $rate,
         'overall'    => $overall,
         'sources'    => $sources,
+        'open'       => $stats['new'] + $stats['wip'],
+        'converted'  => $stats['success'],
     ]);
+}
+
+if ($action === 'agent_performance') {
+    require_full();
+    // Leads per agent with conversion counts
+    $rows = db()->query(
+        "SELECT u.name, u.email,
+                COUNT(l.id) total,
+                SUM(l.status='success') converted,
+                SUM(l.status IN ('new','wip')) open_leads,
+                SUM(l.status='rejected') rejected
+         FROM users u
+         LEFT JOIN leads l ON l.assigned_to = u.email
+         WHERE u.role = 'agent'
+         GROUP BY u.id, u.name, u.email
+         ORDER BY converted DESC, total DESC"
+    )->fetchAll();
+    $perf = array_map(function($r) {
+        $total = (int) $r['total'];
+        $conv  = (int) $r['converted'];
+        return [
+            'name'      => $r['name'],
+            'email'     => $r['email'],
+            'total'     => $total,
+            'open'      => (int) $r['open_leads'],
+            'converted' => $conv,
+            'rejected'  => (int) $r['rejected'],
+            'rate'      => $total > 0 ? round(($conv / $total) * 100) : 0,
+        ];
+    }, $rows);
+    ok(['agents' => $perf]);
+}
+
+if ($action === 'service_breakdown') {
+    require_full();
+    $rows = db()->query(
+        "SELECT service, COUNT(*) total, SUM(status='success') converted
+         FROM leads GROUP BY service ORDER BY total DESC"
+    )->fetchAll();
+    $out = array_map(function($r) {
+        return [
+            'service'   => $r['service'] ?: 'Unspecified',
+            'total'     => (int) $r['total'],
+            'converted' => (int) $r['converted'],
+        ];
+    }, $rows);
+    ok(['services' => $out]);
 }
 
 if ($action === 'trend') {

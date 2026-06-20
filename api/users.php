@@ -17,8 +17,8 @@ if ($action === 'list') {
     ok(['users' => $stmt->fetchAll()]);
 }
 
-// add / delete / password -> owner only
-require_owner();
+// add / delete / password / toggle -> full control (owner or admin)
+require_full();
 
 if ($action === 'add') {
     $name  = trim((string) param('name', ''));
@@ -45,6 +45,14 @@ if ($action === 'delete') {
     if ($id === (int) $user['id']) fail('You cannot delete your own account.');
     db()->prepare('DELETE FROM users WHERE id = ?')->execute([$id]);
     log_activity("User #$id deleted", $user['email']);
+    ok();
+}
+
+if ($action === 'toggle_status') {
+    $id = (int) param('id', 0);
+    if ($id === (int) $user['id']) fail('You cannot deactivate your own account.');
+    db()->prepare("UPDATE users SET status = IF(status='active','inactive','active') WHERE id = ?")->execute([$id]);
+    log_activity("User #$id status toggled", $user['email']);
     ok();
 }
 

@@ -59,7 +59,7 @@ var CWA_Admin = (function() {
 
   // ===== PAGE GUARD =====
   // Pages each role is allowed to open
-  var AGENT_PAGES = ['dashboard.html', 'lead-details.html', 'index.html', ''];
+  var AGENT_PAGES = ['dashboard.html', 'lead-details.html', 'blog-write.html', 'index.html', ''];
 
   async function guardPage() {
     var user;
@@ -90,6 +90,10 @@ var CWA_Admin = (function() {
     return !!(currentUser && currentUser.role === 'owner');
   }
 
+  function isFull() {
+    return !!(currentUser && (currentUser.role === 'owner' || currentUser.role === 'admin'));
+  }
+
   function isAgent() {
     return !!(currentUser && currentUser.role === 'agent');
   }
@@ -115,6 +119,15 @@ var CWA_Admin = (function() {
     },
     create: async function(payload) {
       return await api('leads', 'create', payload, 'POST');
+    },
+    update: async function(payload) {
+      return await api('leads', 'update', payload, 'POST');
+    },
+    followup: async function(id, date) {
+      return await api('leads', 'followup', { id: id, follow_up_date: date }, 'POST');
+    },
+    importLeads: async function(rows) {
+      return await api('leads', 'import', { rows: rows }, 'POST');
     },
     setStatus: async function(id, status) {
       return await api('leads', 'status', { id: id, status: status }, 'POST');
@@ -160,6 +173,12 @@ var CWA_Admin = (function() {
     reject: async function(id, reason) {
       return await api('blogs', 'reject', { id: id, reason: reason }, 'POST');
     },
+    publish: async function(id) {
+      return await api('blogs', 'publish', { id: id }, 'POST');
+    },
+    unpublish: async function(id) {
+      return await api('blogs', 'unpublish', { id: id }, 'POST');
+    },
     remove: async function(id) {
       return await api('blogs', 'delete', { id: id }, 'POST');
     }
@@ -187,6 +206,9 @@ var CWA_Admin = (function() {
     },
     setPassword: async function(id, password) {
       return await api('users', 'password', { id: id, password: password }, 'POST');
+    },
+    toggleStatus: async function(id) {
+      return await api('users', 'toggle_status', { id: id }, 'POST');
     }
   };
 
@@ -236,6 +258,14 @@ var CWA_Admin = (function() {
     activity: async function() {
       var data = await api('analytics', 'activity', null, 'GET');
       return data.activity;
+    },
+    agentPerformance: async function() {
+      var data = await api('analytics', 'agent_performance', null, 'GET');
+      return data.agents;
+    },
+    serviceBreakdown: async function() {
+      var data = await api('analytics', 'service_breakdown', null, 'GET');
+      return data.services;
     }
   };
 
@@ -309,25 +339,26 @@ var CWA_Admin = (function() {
     },
     applyRole: function() {
       var role = currentUser ? currentUser.role : '';
-      // Owner-only elements hidden for non-owners
-      if (role !== 'owner') {
+      // "owner"-tagged elements (Users, Settings) are full-control features:
+      // visible to owner AND admin, hidden only from agents.
+      if (role === 'agent') {
         document.querySelectorAll('[data-role="owner"]').forEach(function(el) { el.style.display = 'none'; });
       }
-      // Agent: restrict sidebar to Dashboard + Leads only
+      // Agent: restrict sidebar to Dashboard + Leads + Write Blog only
       if (role === 'agent') {
+        var allowed = ['dashboard.html', 'lead-details.html', 'blog-write.html'];
         document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
-          var href = (a.getAttribute('href') || '').split('/').pop();
-          if (href !== 'dashboard.html' && href !== 'lead-details.html' && href !== '../index.html' && a.getAttribute('href') !== '../index.html') {
-            // keep "View Website" (../index.html) and logout link
-            if (a.getAttribute('href') === '#' || a.getAttribute('href') === '../index.html') return;
-            a.style.display = 'none';
-          }
+          var raw = a.getAttribute('href') || '';
+          var href = raw.split('/').pop();
+          if (raw === '#' || raw === '../index.html') return; // keep View Website + Logout
+          if (allowed.indexOf(href) === -1) a.style.display = 'none';
         });
-        // Hide section labels (Content / Management) since their items are gone
+        // Hide section labels except "Main"
         document.querySelectorAll('.sidebar-section').forEach(function(s) {
-          if (s.textContent.trim() !== 'Main') s.style.display = 'none';
+          var t = s.textContent.trim();
+          if (t !== 'Main' && t !== 'Content') s.style.display = 'none';
         });
-        // Hide elements marked staff-only (e.g. assign controls)
+        // Hide elements marked staff-only (assign, delete, approve, etc.)
         document.querySelectorAll('[data-role="staff"]').forEach(function(el) { el.style.display = 'none'; });
       }
     }
@@ -339,6 +370,7 @@ var CWA_Admin = (function() {
     auth: auth,
     guardPage: guardPage,
     isOwner: isOwner,
+    isFull: isFull,
     isAgent: isAgent,
     getCurrentUser: getCurrentUser,
     leads: leads,

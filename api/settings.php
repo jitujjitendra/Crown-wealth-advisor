@@ -18,7 +18,7 @@ if ($action === 'all') {
 }
 
 if ($action === 'save') {
-    require_owner();
+    require_full();
     $key = trim((string) param('key', ''));
     $val = (string) param('value', '');
     if ($key === '') fail('Key is required.');

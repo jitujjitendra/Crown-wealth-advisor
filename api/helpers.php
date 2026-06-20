@@ -51,6 +51,16 @@ function require_owner() {
     if ($u['role'] !== 'owner') fail('Only the owner can perform this action.', 403);
     return $u;
 }
+// Full control = owner OR admin (admin has full control per role spec)
+function is_full($u = null) {
+    if ($u === null) $u = current_user();
+    return $u && ($u['role'] === 'owner' || $u['role'] === 'admin');
+}
+function require_full() {
+    $u = require_login();
+    if (!is_full($u)) fail('You do not have permission to perform this action.', 403);
+    return $u;
+}
 
 // ---- Activity log ----
 function log_activity($action, $by = 'system') {
