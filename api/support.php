@@ -17,6 +17,28 @@ $action = param('action', 'list');
 
 $VALID = ['new','assigned','under_review','documents_required','in_progress','resolved','closed'];
 
+// Save a base64 data-URL attachment to the tickets folder; returns public URL or '' 
+function save_ticket_attachment($dataUrl) {
+    if (!$dataUrl || strpos($dataUrl, 'base64,') === false) return '';
+    if (!preg_match('#^data:([\w/+.\-]+);base64,#', $dataUrl, $m)) return '';
+    $mime = strtolower($m[1]);
+    $extMap = [
+        'image/jpeg' => 'jpg', 'image/jpg' => 'jpg', 'image/png' => 'png',
+        'image/webp' => 'webp', 'application/pdf' => 'pdf'
+    ];
+    if (!isset($extMap[$mime])) return '';
+    $ext = $extMap[$mime];
+    $payload = substr($dataUrl, strpos($dataUrl, 'base64,') + 7);
+    $binary = base64_decode($payload, true);
+    if ($binary === false) return '';
+    if (strlen($binary) > MAX_TICKET_UPLOAD_BYTES) return ''; // too big - silently skip
+    if (!is_dir(TICKET_UPLOAD_DIR)) @mkdir(TICKET_UPLOAD_DIR, 0755, true);
+    if (!is_dir(TICKET_UPLOAD_DIR) || !is_writable(TICKET_UPLOAD_DIR)) return '';
+    $filename = 'ticket_' . date('Ymd_His') . '_' . substr(md5(uniqid('', true)), 0, 8) . '.' . $ext;
+    if (file_put_contents(TICKET_UPLOAD_DIR . $filename, $binary) === false) return '';
+    return TICKET_UPLOAD_URL . $filename;
+}
+
 function ticket_agent_can_touch($user, $ticketId) {
     if ($user['role'] !== 'agent') return true;
     $s = db()->prepare('SELECT assigned_to FROM support_tickets WHERE id = ?');
@@ -30,9 +52,10 @@ if ($action === 'create') {
     $name = trim((string) param('name', ''));
     $mobile = trim((string) param('mobile', ''));
     if ($name === '' && $mobile === '') fail('Name or mobile is required.');
+    $attachment = save_ticket_attachment((string) param('attachment', ''));
     $stmt = db()->prepare(
-        'INSERT INTO support_tickets (name, mobile, email, insurance_company, policy_number, issue_type, description, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, "new")'
+        'INSERT INTO support_tickets (name, mobile, email, insurance_company, policy_number, issue_type, description, attachment, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, "new")'
     );
     $stmt->execute([
         $name !== '' ? $name : 'Unknown',
@@ -42,6 +65,7 @@ if ($action === 'create') {
         trim((string) param('policy_number', '')),
         trim((string) param('issue_type', 'General')),
         trim((string) param('description', '')),
+        $attachment,
     ]);
     $id = (int) db()->lastInsertId();
     log_activity("New support ticket #$id from $name", 'website');

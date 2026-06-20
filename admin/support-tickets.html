@@ -176,6 +176,7 @@
             '<div class="form-group"><label>Insurance Company</label><p>' + esc(t.insurance_company) + '</p></div>' +
             '<div class="form-group"><label>Policy Number</label><p>' + esc(t.policy_number || '-') + '</p></div>' +
             '<div class="form-group"><label>Issue Type</label><p>' + esc(t.issue_type) + '</p></div>' +
+            '<div class="form-group"><label>Attachment</label><p>' + (t.attachment ? '<a href="../' + esc(t.attachment) + '" target="_blank" rel="noopener">View / Download</a>' : '<em class="text-muted">None</em>') + '</p></div>' +
             '<div class="form-group"><label>Assigned</label><p>' + (t.assigned_to ? esc(t.assigned_to) : '-') + '</p></div>' +
             '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(t.created_at) + '</p></div>' +
           '</div>' +

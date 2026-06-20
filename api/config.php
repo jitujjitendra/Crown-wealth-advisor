@@ -21,6 +21,11 @@ define('UPLOAD_DIR', __DIR__ . '/../uploads/blogs/');   // where blog images are
 define('UPLOAD_URL', 'uploads/blogs/');                 // public URL path (relative to site root)
 define('MAX_UPLOAD_BYTES', 600 * 1024);                 // 600 KB safety cap (images are pre-compressed client-side)
 
+// ===== TICKET ATTACHMENTS =====
+define('TICKET_UPLOAD_DIR', __DIR__ . '/../uploads/tickets/'); // where ticket attachments are saved
+define('TICKET_UPLOAD_URL', 'uploads/tickets/');               // public URL path (relative to site root)
+define('MAX_TICKET_UPLOAD_BYTES', 1100 * 1024);                // ~1.1 MB server cap (customer limit is 1 MB)
+
 // ===== NOTIFICATION SETTINGS (optional) =====
 define('OWNER_EMAIL', 'support@crownwealthadvisor.com');
 define('OWNER_WHATSAPP', '917428045423');

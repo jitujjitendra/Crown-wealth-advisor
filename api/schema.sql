@@ -110,6 +110,7 @@ CREATE TABLE IF NOT EXISTS support_tickets (
   policy_number     VARCHAR(120) DEFAULT '',
   issue_type        VARCHAR(120) DEFAULT '',
   description       TEXT,
+  attachment        VARCHAR(255) DEFAULT '',
   status            ENUM('new','assigned','under_review','documents_required','in_progress','resolved','closed') NOT NULL DEFAULT 'new',
   assigned_to       VARCHAR(160) DEFAULT '',
   assigned_date     DATETIME NULL,

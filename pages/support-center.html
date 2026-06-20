@@ -177,9 +177,9 @@
                   <textarea name="description" placeholder="Describe your issue in detail..." rows="4" required style="width: 100%; min-height: 90px; border: 1px solid rgba(255, 255, 255, 0.34); border-radius: 6px; background: var(--color-white); color: var(--color-black); padding: 12px 14px; outline: none; font-family: inherit; resize: vertical;"></textarea>
                 </label>
                 <label class="full-width">
-                  <span>Attachment (Coming Soon)</span>
-                  <input type="file" name="attachment" disabled title="Document upload will be available soon" style="opacity:0.6;cursor:not-allowed;">
-                  <small style="color: rgba(255,255,255,0.7); font-size: 0.8rem;">Document upload will be available soon. For now, our team will request documents over WhatsApp/email.</small>
+                  <span>Attachment (Optional)</span>
+                  <input type="file" id="ticketAttachment" accept="image/*,application/pdf">
+                  <small id="attachInfo" style="color: rgba(255,255,255,0.8); font-size: 0.8rem; display:block; margin-top:6px;">Upload an image or PDF (max 1 MB). Images are auto-compressed. Larger files? Our agent will collect them over WhatsApp/email after connecting.</small>
                 </label>
               </div>
               <button class="button button-dark" type="submit">
@@ -259,6 +259,12 @@
         var form = document.getElementById('supportForm');
         if (!form) return;
         var msg = form.querySelector('[data-form-message]');
+        var fileInput = document.getElementById('ticketAttachment');
+        var attachInfo = document.getElementById('attachInfo');
+        var attachmentData = '';            // compressed/encoded data URL to send
+        var MAX_FILE_BYTES = 1024 * 1024;   // 1 MB customer limit
+        var IMG_TARGET = 500 * 1024;        // compress images below ~500KB
+
         function show(text, ok) {
           if (!msg) return;
           msg.textContent = text;
@@ -266,6 +272,78 @@
           msg.style.background = ok ? 'rgba(255,255,255,0.14)' : 'rgba(255,69,58,0.2)';
           msg.style.color = ok ? 'var(--color-white)' : '#ff453a';
         }
+        function setInfo(text, color) {
+          if (attachInfo) { attachInfo.textContent = text; attachInfo.style.color = color || 'rgba(255,255,255,0.8)'; }
+        }
+        function b64size(dataUrl) {
+          var b = (dataUrl.split(',')[1] || ''); return Math.ceil(b.length * 3 / 4);
+        }
+
+        // Compress an image file via canvas, keeping good quality, under IMG_TARGET
+        function compressImage(file, done, failCb) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            var img = new Image();
+            img.onload = function() {
+              var w = img.width, h = img.height, MAXD = 1280;
+              if (w > MAXD || h > MAXD) {
+                if (w >= h) { h = Math.round(h * MAXD / w); w = MAXD; }
+                else { w = Math.round(w * MAXD / h); h = MAXD; }
+              }
+              var c = document.createElement('canvas');
+              c.width = w; c.height = h;
+              var ctx = c.getContext('2d');
+              ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+              ctx.drawImage(img, 0, 0, w, h);
+              var q = 0.9, url = c.toDataURL('image/jpeg', q);
+              while (b64size(url) > IMG_TARGET && q > 0.4) { q -= 0.07; url = c.toDataURL('image/jpeg', q); }
+              done(url, b64size(url));
+            };
+            img.onerror = function() { failCb('Could not read the image. Try another file.'); };
+            img.src = e.target.result;
+          };
+          reader.onerror = function() { failCb('Could not read the file.'); };
+          reader.readAsDataURL(file);
+        }
+
+        if (fileInput) {
+          fileInput.addEventListener('change', function() {
+            attachmentData = '';
+            var file = this.files && this.files[0];
+            if (!file) { setInfo('Upload an image or PDF (max 1 MB). Images are auto-compressed.'); return; }
+            var isImage = file.type.indexOf('image/') === 0;
+            var isPdf = file.type === 'application/pdf';
+            if (!isImage && !isPdf) {
+              this.value = '';
+              setInfo('Only images or PDF allowed.', '#ffd2d2');
+              return;
+            }
+            if (isImage) {
+              setInfo('Compressing image...', 'rgba(255,255,255,0.8)');
+              compressImage(file, function(url, size) {
+                attachmentData = url;
+                setInfo('Image ready (' + Math.round(size / 1024) + ' KB). It will be attached to your ticket.', '#c9f7c9');
+              }, function(err) {
+                fileInput.value = '';
+                setInfo(err, '#ffd2d2');
+              });
+            } else {
+              // PDF: enforce 1 MB limit (no client-side compression for PDF)
+              if (file.size > MAX_FILE_BYTES) {
+                this.value = '';
+                setInfo('PDF is too large (' + Math.round(file.size / 1024) + ' KB). Max 1 MB. Please share this file with our agent over WhatsApp/email after we connect.', '#ffd2d2');
+                return;
+              }
+              var r = new FileReader();
+              r.onload = function(e) {
+                attachmentData = e.target.result;
+                setInfo('PDF ready (' + Math.round(file.size / 1024) + ' KB). It will be attached to your ticket.', '#c9f7c9');
+              };
+              r.readAsDataURL(file);
+            }
+          });
+        }
+
         form.addEventListener('submit', function(e) {
           e.preventDefault();
           var data = {};
@@ -274,6 +352,7 @@
             show('Please fill all required fields.', false);
             return;
           }
+          if (attachmentData) data.attachment = attachmentData;
           var btn = form.querySelector('button[type="submit"]');
           var orig = btn.innerHTML;
           btn.disabled = true; btn.innerHTML = 'Submitting...';
@@ -290,6 +369,8 @@
             if (resp && resp.success) {
               show('Thank you! Your support ticket (#' + resp.id + ') has been created. Our team will contact you soon.', true);
               form.reset();
+              attachmentData = '';
+              setInfo('Upload an image or PDF (max 1 MB). Images are auto-compressed.');
             } else {
               show((resp && resp.error) || 'Something went wrong. Please try again.', false);
             }
