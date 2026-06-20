@@ -71,8 +71,13 @@
             </div>
             <div class="blog-meta-row">
               <div class="form-group">
-                <label>Featured Image URL</label>
-                <input type="text" class="form-control" id="blogImage" placeholder="https://example.com/image.jpg">
+                <label>Featured Image (auto-compressed below 500KB)</label>
+                <input type="file" class="form-control" id="blogImageFile" accept="image/*">
+                <small class="text-muted" id="imgStatus" style="display:block;margin-top:6px;">Select an image — it will be auto-compressed while keeping good quality. Or paste a URL below.</small>
+                <input type="text" class="form-control" id="blogImage" placeholder="...or paste image URL (https://...)" style="margin-top:8px;">
+                <div id="imgPreviewWrap" style="display:none;margin-top:10px;">
+                  <img id="imgPreview" alt="Preview" style="max-width:220px;max-height:140px;border-radius:8px;border:1px solid #e0e0e0;object-fit:cover;">
+                </div>
               </div>
               <div class="form-group">
                 <label>Meta Description</label>
@@ -125,6 +130,10 @@
           document.getElementById('blogCategory').value = blog.category;
           document.getElementById('blogTags').value = blog.tags;
           document.getElementById('blogImage').value = blog.featuredImage || '';
+          if (blog.featuredImage) {
+            document.getElementById('imgPreview').src = blog.featuredImage;
+            document.getElementById('imgPreviewWrap').style.display = 'block';
+          }
           document.getElementById('blogMeta').value = blog.metaDescription || '';
           if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) {
             tinymce.get('blogContent').setContent(blog.content);
@@ -145,6 +154,97 @@
           return '<div class="announcement-item"><div style="flex:1;"><strong>' + b.title + '</strong><p class="text-muted" style="font-size:0.85rem;">Reason: ' + (b.rejectReason || 'No reason given') + '</p></div><a href="blog-write.html?edit=' + b.id + '" class="btn btn-sm btn-warning">Edit & Resubmit</a></div>';
         }).join('');
       }
+
+      // ===== IMAGE COMPRESSION (Canvas API, target < 500KB, keeps quality) =====
+      var MAX_BYTES = 500 * 1024;      // 500 KB
+      var MAX_DIMENSION = 1200;        // max width/height in px (plenty for blog)
+
+      function base64Size(dataUrl) {
+        // approx byte size of base64 payload
+        var base64 = dataUrl.split(',')[1] || '';
+        return Math.ceil(base64.length * 3 / 4);
+      }
+
+      function compressImage(file, onDone, onProgress) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var w = img.width, h = img.height;
+            // Resize keeping aspect ratio if larger than MAX_DIMENSION
+            if (w > MAX_DIMENSION || h > MAX_DIMENSION) {
+              if (w >= h) { h = Math.round(h * MAX_DIMENSION / w); w = MAX_DIMENSION; }
+              else { w = Math.round(w * MAX_DIMENSION / h); h = MAX_DIMENSION; }
+            }
+            var canvas = document.createElement('canvas');
+            canvas.width = w; canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            // White background (for transparent PNGs converted to JPEG)
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            // Step quality down until under target. Start high to keep quality.
+            var quality = 0.92;
+            var dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (base64Size(dataUrl) > MAX_BYTES && quality > 0.4) {
+              quality -= 0.07;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            // If still too big, shrink dimensions once more
+            if (base64Size(dataUrl) > MAX_BYTES) {
+              var c2 = document.createElement('canvas');
+              c2.width = Math.round(w * 0.8); c2.height = Math.round(h * 0.8);
+              var ctx2 = c2.getContext('2d');
+              ctx2.fillStyle = '#ffffff'; ctx2.fillRect(0,0,c2.width,c2.height);
+              ctx2.drawImage(img, 0, 0, c2.width, c2.height);
+              dataUrl = c2.toDataURL('image/jpeg', 0.8);
+            }
+            onDone(dataUrl, quality);
+          };
+          img.onerror = function() { onProgress('Could not read image. Try another file.', true); };
+          img.src = e.target.result;
+        };
+        reader.onerror = function() { onProgress('Could not read file.', true); };
+        reader.readAsDataURL(file);
+      }
+
+      var imgStatus = document.getElementById('imgStatus');
+      var imgPreview = document.getElementById('imgPreview');
+      var imgPreviewWrap = document.getElementById('imgPreviewWrap');
+
+      document.getElementById('blogImageFile').addEventListener('change', function(ev) {
+        var file = ev.target.files[0];
+        if (!file) return;
+        if (!file.type.indexOf || file.type.indexOf('image/') !== 0) {
+          imgStatus.textContent = 'Please select a valid image file.';
+          imgStatus.style.color = '#d32f2f';
+          return;
+        }
+        var origKB = Math.round(file.size / 1024);
+        imgStatus.style.color = '#666';
+        imgStatus.textContent = 'Compressing... (original ' + origKB + ' KB)';
+        compressImage(file, function(dataUrl, quality) {
+          var newKB = Math.round(base64Size(dataUrl) / 1024);
+          document.getElementById('blogImage').value = dataUrl;
+          imgPreview.src = dataUrl;
+          imgPreviewWrap.style.display = 'block';
+          imgStatus.style.color = '#28a745';
+          imgStatus.textContent = 'Compressed: ' + origKB + ' KB -> ' + newKB + ' KB (quality ' + Math.round(quality * 100) + '%)';
+        }, function(msg, isErr) {
+          imgStatus.style.color = isErr ? '#d32f2f' : '#666';
+          imgStatus.textContent = msg;
+        });
+      });
+
+      // Preview when a URL is pasted
+      document.getElementById('blogImage').addEventListener('input', function() {
+        var v = this.value.trim();
+        if (v.indexOf('http') === 0) {
+          imgPreview.src = v;
+          imgPreviewWrap.style.display = 'block';
+        }
+      });
 
       window.saveBlog = function(status) {
         var title = document.getElementById('blogTitle').value.trim();

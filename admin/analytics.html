@@ -57,8 +57,21 @@
           <button data-days="365">All</button>
         </div>
 
+        <!-- Lead Trend (Daily / Weekly / Monthly) -->
+        <div class="admin-card">
+          <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <h2>Lead Trend</h2>
+            <div class="date-range-btns" id="trendToggle" style="margin:0;">
+              <button data-period="daily" class="active">Daily</button>
+              <button data-period="weekly">Weekly</button>
+              <button data-period="monthly">Monthly</button>
+            </div>
+          </div>
+          <div class="card-body"><div class="chart-container"><canvas id="trendChart"></canvas></div></div>
+        </div>
+
         <!-- Charts -->
-        <div class="charts-grid">
+        <div class="charts-grid mt-3">
           <div class="admin-card">
             <div class="card-header"><h2>Leads Per Day</h2></div>
             <div class="card-body"><div class="chart-container"><canvas id="lineChart"></canvas></div></div>
@@ -89,16 +102,41 @@
     (function() {
       if (!CWA_Admin.ui.initPage()) return;
 
-      var lineChartObj, pieChartObj, barChartObj;
+      var lineChartObj, pieChartObj, barChartObj, trendChartObj;
       var currentDays = 30;
+      var currentPeriod = 'daily';
+
+      function renderTrend(period) {
+        if (typeof Chart === 'undefined') return;
+        var data = CWA_Admin.analytics.getTrend(period);
+        var ctx = document.getElementById('trendChart').getContext('2d');
+        if (trendChartObj) trendChartObj.destroy();
+        trendChartObj = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.map(function(d) { return d.label; }),
+            datasets: [{
+              label: 'Leads (' + period + ')',
+              data: data.map(function(d) { return d.count; }),
+              backgroundColor: 'rgba(212,165,116,0.7)',
+              borderColor: '#D4A574',
+              borderWidth: 1
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+      }
 
       // Stats
       var stats = CWA_Admin.leads.getStats();
+      var sr = CWA_Admin.analytics.getSuccessRate();
       document.getElementById('statsGrid').innerHTML =
         '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
         '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
         '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>';
+        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon" style="background:rgba(56,142,60,0.12);color:#388e3c;">&#128200;</div><div class="stat-info"><h3>' + sr.rate + '%</h3><p>Success Rate <small style="display:block;color:#999;">(of closed leads)</small></p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon" style="background:rgba(25,118,210,0.12);color:#1976d2;">&#127919;</div><div class="stat-info"><h3>' + sr.overall + '%</h3><p>Overall Conversion <small style="display:block;color:#999;">(of all leads)</small></p></div></div>';
 
       // Funnel
       document.getElementById('funnel').innerHTML =
@@ -157,8 +195,19 @@
         });
       });
 
+      // Trend period toggle
+      document.querySelectorAll('#trendToggle button').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#trendToggle button').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentPeriod = btn.getAttribute('data-period');
+          renderTrend(currentPeriod);
+        });
+      });
+
       if (typeof Chart !== 'undefined') {
         renderCharts(currentDays);
+        renderTrend(currentPeriod);
       } else {
         document.querySelector('.charts-grid').innerHTML = '<div class="admin-card"><div class="card-body"><p class="text-muted">Chart.js library not available. Charts will load when connected to the internet.</p></div></div>';
       }

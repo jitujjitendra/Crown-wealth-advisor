@@ -431,6 +431,79 @@ var CWA_Admin = (function() {
     },
     getStatusCounts: function() {
       return leads.getStats();
+    },
+    getSuccessRate: function() {
+      var s = leads.getStats();
+      var closed = s.success + s.rejected;
+      var rate = closed > 0 ? Math.round((s.success / closed) * 100) : 0;
+      var overall = s.total > 0 ? Math.round((s.success / s.total) * 100) : 0;
+      return { rate: rate, overall: overall, success: s.success, closed: closed, total: s.total };
+    },
+    // Trend grouped by day/week/month. period = 'daily' | 'weekly' | 'monthly'
+    getTrend: function(period) {
+      var all = leads.getAll();
+      var buckets = {};
+      var order = [];
+
+      function weekKey(d) {
+        // ISO-ish week: year + week number
+        var date = new Date(d.getTime());
+        date.setHours(0,0,0,0);
+        date.setDate(date.getDate() + 4 - (date.getDay() || 7));
+        var yearStart = new Date(date.getFullYear(), 0, 1);
+        var weekNo = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+        return date.getFullYear() + '-W' + (weekNo < 10 ? '0' + weekNo : weekNo);
+      }
+
+      var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var now = new Date();
+
+      if (period === 'monthly') {
+        // last 12 months
+        for (var m = 11; m >= 0; m--) {
+          var dt = new Date(now.getFullYear(), now.getMonth() - m, 1);
+          var key = dt.getFullYear() + '-' + (dt.getMonth() + 1);
+          var label = monthNames[dt.getMonth()] + ' ' + String(dt.getFullYear()).slice(2);
+          buckets[key] = { label: label, count: 0 };
+          order.push(key);
+        }
+        all.forEach(function(l) {
+          var d = new Date(l.createdAt);
+          var key = d.getFullYear() + '-' + (d.getMonth() + 1);
+          if (buckets[key]) buckets[key].count++;
+        });
+      } else if (period === 'weekly') {
+        // last 12 weeks
+        for (var w = 11; w >= 0; w--) {
+          var dt2 = new Date(now.getTime());
+          dt2.setDate(dt2.getDate() - (w * 7));
+          var key2 = weekKey(dt2);
+          buckets[key2] = { label: key2.split('-W')[1] ? 'W' + key2.split('-W')[1] : key2, count: 0 };
+          if (order.indexOf(key2) === -1) order.push(key2);
+        }
+        all.forEach(function(l) {
+          var d = new Date(l.createdAt);
+          var key = weekKey(d);
+          if (buckets[key]) buckets[key].count++;
+        });
+      } else {
+        // daily - last 30 days
+        for (var i = 29; i >= 0; i--) {
+          var dd = new Date(now.getTime());
+          dd.setDate(dd.getDate() - i);
+          var ds = dd.toISOString().split('T')[0];
+          buckets[ds] = { label: ds.slice(5), count: 0 };
+          order.push(ds);
+        }
+        all.forEach(function(l) {
+          var ds2 = l.createdAt.split('T')[0];
+          if (buckets[ds2]) buckets[ds2].count++;
+        });
+      }
+
+      return order.map(function(k) {
+        return { label: buckets[k].label, count: buckets[k].count };
+      });
     }
   };
 
