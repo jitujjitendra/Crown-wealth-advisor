@@ -94,23 +94,47 @@
             </div>
           </div>
         </div>
+
+        <!-- Agent Performance (full-control only) -->
+        <div class="admin-card mt-3" id="agentPerfCard" data-role="owner" style="display:none;">
+          <div class="card-header"><h2>Agent Performance</h2></div>
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="admin-table">
+              <thead><tr><th>Agent</th><th>Total Leads</th><th>Open</th><th>Converted</th><th>Rejected</th><th>Conversion %</th></tr></thead>
+              <tbody id="agentPerfTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Service-wise Leads (full-control only) -->
+        <div class="admin-card mt-3" id="serviceBreakdownCard" data-role="owner" style="display:none;">
+          <div class="card-header"><h2>Service-wise Leads</h2></div>
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="admin-table">
+              <thead><tr><th>Service</th><th>Total</th><th>Converted</th><th>Conversion %</th></tr></thead>
+              <tbody id="serviceBreakdownTable"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <script src="admin.js?v=4"></script>
+  <script src="admin.js?v=5"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
       if (!me) return;
       var esc = CWA_Admin.ui.escapeHtml;
 
-      var stats, sources, successRate, overall;
+      var stats, sources, successRate, overall, openLeads, convertedLeads;
       try {
         var summary = await CWA_Admin.analytics.summary();
         stats = summary.stats;
         sources = summary.sources || {};
         successRate = summary.successRate;
         overall = summary.overall;
+        openLeads = summary.open;
+        convertedLeads = summary.converted;
       } catch (e) {
         document.getElementById('statsGrid').innerHTML = '<p class="text-muted">Could not load analytics: ' + esc(e.message) + '</p>';
         return;
@@ -123,7 +147,50 @@
         '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
         '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>' +
         '<div class="stat-card"><div class="stat-icon" style="background:rgba(56,142,60,0.12);color:#388e3c;">&#128200;</div><div class="stat-info"><h3>' + successRate + '%</h3><p>Success Rate <small style="display:block;color:#999;">(of closed leads)</small></p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon" style="background:rgba(25,118,210,0.12);color:#1976d2;">&#127919;</div><div class="stat-info"><h3>' + overall + '%</h3><p>Overall Conversion <small style="display:block;color:#999;">(of all leads)</small></p></div></div>';
+        '<div class="stat-card"><div class="stat-icon" style="background:rgba(25,118,210,0.12);color:#1976d2;">&#127919;</div><div class="stat-info"><h3>' + overall + '%</h3><p>Overall Conversion <small style="display:block;color:#999;">(of all leads)</small></p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon wip">&#128221;</div><div class="stat-info"><h3>' + (openLeads != null ? openLeads : 0) + '</h3><p>Open Leads</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon success">&#127881;</div><div class="stat-info"><h3>' + (convertedLeads != null ? convertedLeads : 0) + '</h3><p>Converted</p></div></div>';
+
+      // Extra report tables (full-control only)
+      if (CWA_Admin.isFull()) {
+        (async function() {
+          var apCard = document.getElementById('agentPerfCard');
+          var apTable = document.getElementById('agentPerfTable');
+          apCard.style.display = '';
+          try {
+            var agents = await CWA_Admin.analytics.agentPerformance();
+            if (!agents || !agents.length) {
+              apTable.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">No agents yet</td></tr>';
+            } else {
+              apTable.innerHTML = agents.map(function(a) {
+                return '<tr><td><strong>' + esc(a.name) + '</strong><br><small class="text-muted">' + esc(a.email) + '</small></td>' +
+                  '<td>' + (a.total || 0) + '</td><td>' + (a.open || 0) + '</td><td>' + (a.converted || 0) + '</td><td>' + (a.rejected || 0) + '</td><td>' + (a.rate != null ? a.rate + '%' : '0%') + '</td></tr>';
+              }).join('');
+            }
+          } catch (e) {
+            apTable.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Could not load agent performance: ' + esc(e.message) + '</td></tr>';
+          }
+
+          var sbCard = document.getElementById('serviceBreakdownCard');
+          var sbTable = document.getElementById('serviceBreakdownTable');
+          sbCard.style.display = '';
+          try {
+            var services = await CWA_Admin.analytics.serviceBreakdown();
+            if (!services || !services.length) {
+              sbTable.innerHTML = '<tr><td colspan="4" class="text-muted" style="padding:16px;">No services yet</td></tr>';
+            } else {
+              sbTable.innerHTML = services.map(function(s) {
+                var total = s.total || 0;
+                var conv = s.converted || 0;
+                var rate = total > 0 ? Math.round((conv / total) * 100) : 0;
+                return '<tr><td><strong>' + esc(s.service || 'Unspecified') + '</strong></td><td>' + total + '</td><td>' + conv + '</td><td>' + rate + '%</td></tr>';
+              }).join('');
+            }
+          } catch (e) {
+            sbTable.innerHTML = '<tr><td colspan="4" class="text-muted" style="padding:16px;">Could not load service breakdown: ' + esc(e.message) + '</td></tr>';
+          }
+        })();
+      }
 
       // Funnel (uses stats)
       document.getElementById('funnel').innerHTML =

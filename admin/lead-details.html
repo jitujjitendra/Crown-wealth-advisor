@@ -79,7 +79,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=4"></script>
+  <script src="admin.js?v=5"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -110,6 +110,143 @@
         });
       }
 
+      // ---- CSV parsing helpers (client-side) ----
+      function parseCsvLine(line) {
+        var result = [], cur = '', inQuotes = false;
+        for (var i = 0; i < line.length; i++) {
+          var ch = line.charAt(i);
+          if (inQuotes) {
+            if (ch === '"') {
+              if (line.charAt(i + 1) === '"') { cur += '"'; i++; }
+              else { inQuotes = false; }
+            } else { cur += ch; }
+          } else {
+            if (ch === '"') { inQuotes = true; }
+            else if (ch === ',') { result.push(cur); cur = ''; }
+            else { cur += ch; }
+          }
+        }
+        result.push(cur);
+        return result;
+      }
+      function parseCsvToLeads(text) {
+        text = String(text).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+        var lines = text.split('\n').filter(function(l) { return l.trim() !== ''; });
+        if (lines.length < 2) return [];
+        var headers = parseCsvLine(lines[0]).map(function(h) { return h.trim().toLowerCase(); });
+        var fields = ['name', 'mobile', 'email', 'city', 'service', 'message'];
+        var rows = [];
+        for (var i = 1; i < lines.length; i++) {
+          var cols = parseCsvLine(lines[i]);
+          var obj = {};
+          fields.forEach(function(f) {
+            var idx = headers.indexOf(f);
+            obj[f] = (idx >= 0 && cols[idx] != null) ? cols[idx].trim() : '';
+          });
+          obj.source = 'import';
+          rows.push(obj);
+        }
+        return rows;
+      }
+
+      // ---- Full-control toolbar: Add Lead + Import CSV (hidden for agents) ----
+      if (CWA_Admin.isFull() && tabs && !document.getElementById('leadToolbar')) {
+        var toolbar = document.createElement('div');
+        toolbar.id = 'leadToolbar';
+        toolbar.setAttribute('data-role', 'owner');
+        toolbar.style.cssText = 'display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;';
+        toolbar.innerHTML =
+          '<button class="btn btn-primary btn-sm" id="addLeadBtn">+ Add Lead</button>' +
+          '<button class="btn btn-outline btn-sm" id="importCsvBtn">Import CSV</button>' +
+          '<input type="file" id="csvFileInput" accept=".csv" style="display:none;">';
+        tabs.parentNode.insertBefore(toolbar, tabs);
+
+        // Build the add-lead modal once
+        if (!document.getElementById('leadFormModal')) {
+          var lfModal = document.createElement('div');
+          lfModal.className = 'modal-overlay';
+          lfModal.id = 'leadFormModal';
+          lfModal.innerHTML =
+            '<div class="modal" style="max-width:600px;">' +
+              '<div class="modal-header"><h3>Add Lead</h3><button class="modal-close" onclick="CWA_Admin.ui.hideModal(\'leadFormModal\')">&times;</button></div>' +
+              '<div class="modal-body">' +
+                '<div class="form-row">' +
+                  '<div class="form-group"><label>Name</label><input type="text" class="form-control" id="newLeadName"></div>' +
+                  '<div class="form-group"><label>Mobile</label><input type="text" class="form-control" id="newLeadMobile"></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                  '<div class="form-group"><label>Email</label><input type="email" class="form-control" id="newLeadEmail"></div>' +
+                  '<div class="form-group"><label>City</label><input type="text" class="form-control" id="newLeadCity"></div>' +
+                '</div>' +
+                '<div class="form-group"><label>Service</label><input type="text" class="form-control" id="newLeadService"></div>' +
+                '<div class="form-group"><label>Message</label><textarea class="form-control" id="newLeadMessage"></textarea></div>' +
+                '<span id="newLeadMsg" style="font-size:0.9rem;"></span>' +
+              '</div>' +
+              '<div class="modal-footer"><button class="btn btn-outline" onclick="CWA_Admin.ui.hideModal(\'leadFormModal\')">Cancel</button><button class="btn btn-primary" id="newLeadSave">Save Lead</button></div>' +
+            '</div>';
+          document.querySelector('.admin-content').appendChild(lfModal);
+        }
+
+        document.getElementById('addLeadBtn').addEventListener('click', function() {
+          ['Name', 'Mobile', 'Email', 'City', 'Service', 'Message'].forEach(function(f) {
+            var el = document.getElementById('newLead' + f);
+            if (el) el.value = '';
+          });
+          document.getElementById('newLeadMsg').textContent = '';
+          CWA_Admin.ui.showModal('leadFormModal');
+        });
+
+        document.getElementById('newLeadSave').addEventListener('click', async function() {
+          var name = document.getElementById('newLeadName').value.trim();
+          var mobile = document.getElementById('newLeadMobile').value.trim();
+          var msgEl = document.getElementById('newLeadMsg');
+          if (!name || !mobile) {
+            msgEl.style.color = '#dc3545';
+            msgEl.textContent = 'Name and mobile are required.';
+            return;
+          }
+          try {
+            await CWA_Admin.leads.create({
+              name: name,
+              mobile: mobile,
+              email: document.getElementById('newLeadEmail').value.trim(),
+              city: document.getElementById('newLeadCity').value.trim(),
+              service: document.getElementById('newLeadService').value.trim(),
+              message: document.getElementById('newLeadMessage').value.trim(),
+              source: 'manual'
+            });
+            CWA_Admin.ui.hideModal('leadFormModal');
+            await renderLeads();
+          } catch (e) {
+            msgEl.style.color = '#dc3545';
+            msgEl.textContent = 'Could not add lead: ' + e.message;
+          }
+        });
+
+        document.getElementById('importCsvBtn').addEventListener('click', function() {
+          document.getElementById('csvFileInput').click();
+        });
+        document.getElementById('csvFileInput').addEventListener('change', function() {
+          var file = this.files && this.files[0];
+          var self = this;
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = async function(ev) {
+            try {
+              var rows = parseCsvToLeads(ev.target.result);
+              if (!rows.length) { alert('No data rows found in CSV.'); self.value = ''; return; }
+              await CWA_Admin.leads.importLeads(rows);
+              alert(rows.length + ' lead(s) imported.');
+              await renderLeads();
+            } catch (e) {
+              alert('Could not import CSV: ' + e.message);
+            }
+            self.value = '';
+          };
+          reader.readAsText(file);
+        });
+      }
+
       async function renderLeads() {
         var tbody = document.getElementById('leadsTable');
         tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">Loading...</td></tr>';
@@ -129,7 +266,7 @@
               '<td>' + esc(l.service) + '</td>' +
               '<td><span class="status-badge ' + esc(l.status) + '">' + esc(l.status) + '</span></td>' +
               '<td>' + (l.assigned_to ? esc(l.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</td>' +
-              '<td>' + CWA_Admin.ui.formatDate(l.created_at) + '</td>' +
+              '<td>' + CWA_Admin.ui.formatDate(l.created_at) + (l.follow_up_date ? '<br><span class="status-badge wip" style="font-size:0.7rem;">Follow-up: ' + CWA_Admin.ui.formatDate(l.follow_up_date) + '</span>' : '') + '</td>' +
               '<td><a class="btn btn-sm btn-outline" href="lead-details.html?id=' + encodeURIComponent(l.id) + '">View</a></td>' +
               '</tr>';
           }).join('');
@@ -168,11 +305,22 @@
           return '<option value="' + esc(u.email) + '"' + (lead.assigned_to === u.email ? ' selected' : '') + '>' + esc(u.name) + '</option>';
         }).join('');
         var isAgent = CWA_Admin.isAgent && CWA_Admin.isAgent();
+        var isFull = CWA_Admin.isFull();
+        var fu = lead.follow_up_date ? String(lead.follow_up_date).substring(0, 10) : '';
         var commentsHtml = (lead.comments || []).map(function(c) {
           return '<div class="timeline-item"><strong>' + esc(c.by_user) + '</strong><p>' + esc(c.text) + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.created_at) + '</span></div>';
         }).join('');
 
         bodyEl.innerHTML =
+          '<div class="form-row mb-3" style="align-items:flex-end;">' +
+            '<div class="form-group"><label>Follow-up Date</label><input type="date" class="form-control" id="modalFollowup" value="' + esc(fu) + '"></div>' +
+            '<div class="form-group" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">' +
+              '<button class="btn btn-success" id="modalConvertBtn">Mark Converted</button>' +
+              (isFull ? '<button class="btn btn-outline" id="modalEditBtn" data-role="owner">Edit</button>' : '') +
+              (isFull ? '<button class="btn btn-danger" id="modalDeleteBtn" data-role="owner">Delete Lead</button>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div id="leadViewInfo">' +
           '<div class="form-row mb-3">' +
             '<div class="form-group"><label>Name</label><p><strong>' + esc(lead.name) + '</strong></p></div>' +
             '<div class="form-group"><label>Mobile</label><p>' + esc(lead.mobile) + '</p></div>' +
@@ -183,6 +331,22 @@
             '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(lead.created_at) + '</p></div>' +
           '</div>' +
           (lead.message ? '<div class="form-group mb-3"><label>Message</label><p>' + esc(lead.message) + '</p></div>' : '') +
+          '</div>' +
+          (isFull ?
+          '<div id="leadEditForm" style="display:none;">' +
+            '<div class="form-row">' +
+              '<div class="form-group"><label>Name</label><input type="text" class="form-control" id="editName" value="' + esc(lead.name) + '"></div>' +
+              '<div class="form-group"><label>Mobile</label><input type="text" class="form-control" id="editMobile" value="' + esc(lead.mobile) + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+              '<div class="form-group"><label>Email</label><input type="email" class="form-control" id="editEmail" value="' + esc(lead.email) + '"></div>' +
+              '<div class="form-group"><label>City</label><input type="text" class="form-control" id="editCity" value="' + esc(lead.city) + '"></div>' +
+            '</div>' +
+            '<div class="form-group"><label>Service</label><input type="text" class="form-control" id="editService" value="' + esc(lead.service) + '"></div>' +
+            '<div class="form-group"><label>Message</label><textarea class="form-control" id="editMessage">' + esc(lead.message || '') + '</textarea></div>' +
+            '<button class="btn btn-primary" id="modalSaveBtn">Save</button> <button class="btn btn-outline" id="modalCancelEditBtn">Cancel</button>' +
+          '</div>'
+          : '') +
           '<div class="form-row mb-3">' +
             '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus"><option value="new"' + (lead.status==='new'?' selected':'') + '>New</option><option value="wip"' + (lead.status==='wip'?' selected':'') + '>WIP</option><option value="success"' + (lead.status==='success'?' selected':'') + '>Success</option><option value="rejected"' + (lead.status==='rejected'?' selected':'') + '>Rejected</option></select></div>' +
             (isAgent ? '' : '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>') +
@@ -215,6 +379,64 @@
             await renderDetail(id);
           } catch (e) { alert('Could not add comment: ' + e.message); }
         });
+
+        // Wire follow-up date change -> followup (all roles)
+        document.getElementById('modalFollowup').addEventListener('change', async function() {
+          try { await CWA_Admin.leads.followup(id, this.value); }
+          catch (e) { alert('Could not set follow-up date: ' + e.message); }
+        });
+        // Wire Mark Converted (all roles) -> setStatus 'success'
+        document.getElementById('modalConvertBtn').addEventListener('click', async function() {
+          try {
+            await CWA_Admin.leads.setStatus(id, 'success');
+            await renderDetail(id);
+            await renderLeads();
+          } catch (e) { alert('Could not mark converted: ' + e.message); }
+        });
+        // Wire Edit / Save / Cancel / Delete (full-control only)
+        var editBtn = document.getElementById('modalEditBtn');
+        if (editBtn) {
+          editBtn.addEventListener('click', function() {
+            document.getElementById('leadViewInfo').style.display = 'none';
+            document.getElementById('leadEditForm').style.display = 'block';
+          });
+        }
+        var cancelEditBtn = document.getElementById('modalCancelEditBtn');
+        if (cancelEditBtn) {
+          cancelEditBtn.addEventListener('click', function() {
+            document.getElementById('leadEditForm').style.display = 'none';
+            document.getElementById('leadViewInfo').style.display = 'block';
+          });
+        }
+        var saveBtn = document.getElementById('modalSaveBtn');
+        if (saveBtn) {
+          saveBtn.addEventListener('click', async function() {
+            try {
+              await CWA_Admin.leads.update({
+                id: id,
+                name: document.getElementById('editName').value.trim(),
+                mobile: document.getElementById('editMobile').value.trim(),
+                email: document.getElementById('editEmail').value.trim(),
+                city: document.getElementById('editCity').value.trim(),
+                service: document.getElementById('editService').value.trim(),
+                message: document.getElementById('editMessage').value.trim()
+              });
+              await renderDetail(id);
+              await renderLeads();
+            } catch (e) { alert('Could not save lead: ' + e.message); }
+          });
+        }
+        var deleteBtn = document.getElementById('modalDeleteBtn');
+        if (deleteBtn) {
+          deleteBtn.addEventListener('click', async function() {
+            if (!confirm('Delete this lead? This cannot be undone.')) return;
+            try {
+              await CWA_Admin.leads.remove(id);
+              CWA_Admin.ui.hideModal('leadModal');
+              await renderLeads();
+            } catch (e) { alert('Could not delete lead: ' + e.message); }
+          });
+        }
 
         CWA_Admin.ui.showModal('leadModal');
       }

@@ -76,7 +76,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=4"></script>
+  <script src="admin.js?v=5"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -135,9 +135,11 @@
         table.innerHTML = users.map(function(u) {
           var onLeave = isOn(settings['leave_' + u.email]) || u.status === 'inactive';
           var actionCell = owner
-            ? '<td data-role="owner"><button class="btn btn-sm btn-danger" onclick="removeUser(\'' + esc(u.id) + '\')">Delete</button></td>'
+            ? '<td data-role="owner"><button class="btn btn-sm ' + (u.status === 'inactive' ? 'btn-success' : 'btn-outline') + '" onclick="toggleUserStatus(\'' + esc(u.id) + '\')">' + (u.status === 'inactive' ? 'Activate' : 'Deactivate') + '</button> <button class="btn btn-sm btn-info" onclick="resetUserPassword(\'' + esc(u.id) + '\')">Reset Password</button> <button class="btn btn-sm btn-danger" onclick="removeUser(\'' + esc(u.id) + '\')">Delete</button></td>'
             : '<td data-role="owner" style="display:none;"></td>';
-          return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + esc(u.email) + '</td><td>' + esc(u.role) + '</td><td><span class="team-status ' + (onLeave ? 'leave' : 'active') + '">' + (onLeave ? 'On Leave' : 'Active') + '</span></td><td>' + CWA_Admin.ui.formatDate(u.created_at) + '</td>' + actionCell + '</tr>';
+          var statusLabel = u.status === 'inactive' ? 'Inactive' : 'Active';
+          var statusClass = u.status === 'inactive' ? 'leave' : 'active';
+          return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + esc(u.email) + '</td><td>' + esc(u.role) + '</td><td><span class="team-status ' + statusClass + '">' + statusLabel + '</span></td><td>' + CWA_Admin.ui.formatDate(u.created_at) + '</td>' + actionCell + '</tr>';
         }).join('');
       }
 
@@ -173,6 +175,24 @@
           await CWA_Admin.users.remove(id);
           await render();
         } catch (e) { alert('Could not delete: ' + e.message); }
+      };
+
+      window.toggleUserStatus = async function(id) {
+        try {
+          await CWA_Admin.users.toggleStatus(id);
+          await render();
+        } catch (e) { alert('Could not change status: ' + e.message); }
+      };
+
+      window.resetUserPassword = async function(id) {
+        var pwd = prompt('Enter a new password (min 6 characters):');
+        if (pwd === null) return;
+        pwd = pwd.trim();
+        if (pwd.length < 6) { alert('Password must be at least 6 characters.'); return; }
+        try {
+          await CWA_Admin.users.setPassword(id, pwd);
+          alert('Password reset successfully.');
+        } catch (e) { alert('Could not reset password: ' + e.message); }
       };
 
       render();

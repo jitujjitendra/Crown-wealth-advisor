@@ -65,7 +65,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=4"></script>
+  <script src="admin.js?v=5"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -83,10 +83,15 @@
             tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">No blogs found.</td></tr>';
             return;
           }
-          var owner = CWA_Admin.isOwner();
+          var full = CWA_Admin.isFull();
           tbody.innerHTML = blogs.map(function(b) {
             var actions = '<a href="blog-write.html?edit=' + encodeURIComponent(b.id) + '" class="btn btn-sm btn-outline">Edit</a>';
-            if (owner) {
+            if (full) {
+              if (b.status === 'approved') {
+                actions += ' <button class="btn btn-sm btn-outline" onclick="unpublishBlog(\'' + esc(b.id) + '\')">Unpublish</button>';
+              } else if (b.status === 'draft' || b.status === 'pending') {
+                actions += ' <button class="btn btn-sm btn-success" onclick="publishBlog(\'' + esc(b.id) + '\')">Publish</button>';
+              }
               actions += ' <button class="btn btn-sm btn-danger" onclick="deleteBlog(\'' + esc(b.id) + '\')">Delete</button>';
             }
             return '<tr><td><strong>' + esc(b.title) + '</strong></td><td>' + esc(b.category) + '</td><td>' + esc(b.author) + '</td><td><span class="status-badge ' + esc(b.status) + '">' + esc(b.status) + '</span></td><td>' + CWA_Admin.ui.formatDate(b.created_at) + '</td><td>' + actions + '</td></tr>';
@@ -102,6 +107,20 @@
           await CWA_Admin.blogs.remove(id);
           await render();
         } catch (e) { alert('Could not delete: ' + e.message); }
+      };
+
+      window.publishBlog = async function(id) {
+        try {
+          await CWA_Admin.blogs.publish(id);
+          await render();
+        } catch (e) { alert('Could not publish: ' + e.message); }
+      };
+
+      window.unpublishBlog = async function(id) {
+        try {
+          await CWA_Admin.blogs.unpublish(id);
+          await render();
+        } catch (e) { alert('Could not unpublish: ' + e.message); }
       };
 
       document.querySelectorAll('#blogTabs .tab-btn').forEach(function(btn) {
