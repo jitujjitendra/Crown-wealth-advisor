@@ -7,9 +7,8 @@ Allow: /
 # Sitemap location
 Sitemap: https://www.crownwealthadvisor.com/sitemap.xml
 
-# Disallow sensitive directories (if any)
-# Disallow: /admin/
-# Disallow: /private/
+# Disallow sensitive directories
+Disallow: /admin/
 
 # Crawl-delay (optional, helps with server load)
 Crawl-delay: 1
