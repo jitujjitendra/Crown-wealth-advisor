@@ -21,16 +21,22 @@ CREATE TABLE IF NOT EXISTS leads (
   name        VARCHAR(160) NOT NULL,
   mobile      VARCHAR(30)  DEFAULT '',
   email       VARCHAR(160) DEFAULT '',
+  address     VARCHAR(255) DEFAULT '',
   city        VARCHAR(120) DEFAULT '',
+  state       VARCHAR(100) DEFAULT '',
+  pincode     VARCHAR(15)  DEFAULT '',
   service     VARCHAR(160) DEFAULT '',
+  sub_service VARCHAR(160) DEFAULT '',
   message     TEXT,
-  status      ENUM('new','wip','success','rejected') NOT NULL DEFAULT 'new',
+  status      ENUM('new','contacted','follow_up','documents_pending','processing','approved','converted','closed','rejected') NOT NULL DEFAULT 'new',
   assigned_to VARCHAR(160) DEFAULT '',
+  assigned_date DATETIME NULL,
   source      VARCHAR(120) DEFAULT 'website',
-  follow_up_date DATE NULL,
+  next_follow_up DATE NULL,
+  last_follow_up DATE NULL,
   created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX (status), INDEX (source), INDEX (created_at)
+  INDEX (status), INDEX (source), INDEX (created_at), INDEX (assigned_to)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ===== LEAD COMMENTS =====
@@ -47,6 +53,7 @@ CREATE TABLE IF NOT EXISTS lead_comments (
 -- ===== BLOGS =====
 CREATE TABLE IF NOT EXISTS blogs (
   id              INT AUTO_INCREMENT PRIMARY KEY,
+  topic_id        INT NULL,
   title           VARCHAR(255) NOT NULL,
   slug            VARCHAR(255) DEFAULT '',
   category        VARCHAR(80)  DEFAULT 'General',
@@ -61,6 +68,19 @@ CREATE TABLE IF NOT EXISTS blogs (
   created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   approved_at     DATETIME NULL,
   INDEX (status), INDEX (category)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ===== BLOG TOPICS (Admin assigns -> Agent writes) =====
+CREATE TABLE IF NOT EXISTS blog_topics (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  title       VARCHAR(255) NOT NULL,
+  brief       TEXT,
+  assigned_to VARCHAR(160) DEFAULT '',
+  status      ENUM('assigned','in_progress','submitted','done') NOT NULL DEFAULT 'assigned',
+  blog_id     INT NULL,
+  created_by  VARCHAR(160) DEFAULT '',
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (assigned_to), INDEX (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ===== ANNOUNCEMENTS =====

@@ -1,19 +1,33 @@
 <?php
 /**
  * Leads API
- *   GET  ?action=list   [&status=&search=]      (admin only)
- *   GET  ?action=get&id=                         (admin only)
- *   POST ?action=create { name, mobile, email, city, service, message, source }  (PUBLIC - website forms)
- *   POST ?action=status { id, status }           (admin only)
- *   POST ?action=assign { id, assigned_to }       (admin only)
- *   POST ?action=comment { id, text }             (admin only)
- *   POST ?action=delete { id }                    (owner only)
- *   GET  ?action=stats                            (admin only)
+ *   POST ?action=create  (PUBLIC) name, mobile, email, address, city, state, pincode, service, sub_service, message, source
+ *   GET  ?action=list   [&status=&search=]
+ *   GET  ?action=get&id=
+ *   POST ?action=update  (full) all editable fields
+ *   POST ?action=status  { id, status }
+ *   POST ?action=assign  { id, assigned_to }   (full) sets assigned_date
+ *   POST ?action=followup { id, next_follow_up, last_follow_up }
+ *   POST ?action=comment { id, text }
+ *   POST ?action=delete  { id }   (full)
+ *   POST ?action=import  { rows }  (full)
+ *   GET  ?action=stats
  */
 require_once __DIR__ . '/helpers.php';
 allow_cors();
 
 $action = param('action', 'list');
+
+$VALID_STATUSES = ['new','contacted','follow_up','documents_pending','processing','approved','converted','closed','rejected'];
+
+// Helper: ensure an agent owns the lead they are modifying
+function agent_can_touch($user, $leadId) {
+    if ($user['role'] !== 'agent') return true;
+    $s = db()->prepare('SELECT assigned_to FROM leads WHERE id = ?');
+    $s->execute([$leadId]);
+    $row = $s->fetch();
+    return $row && $row['assigned_to'] === $user['email'];
+}
 
 // ---- PUBLIC: create lead from website forms ----
 if ($action === 'create') {
@@ -23,15 +37,19 @@ if ($action === 'create') {
     if ($name === '' && $mobile === '') fail('Name or mobile is required.');
 
     $stmt = db()->prepare(
-        'INSERT INTO leads (name, mobile, email, city, service, message, source, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, "new")'
+        'INSERT INTO leads (name, mobile, email, address, city, state, pincode, service, sub_service, message, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "new")'
     );
     $stmt->execute([
         $name !== '' ? $name : 'Unknown',
         $mobile,
         trim((string) param('email', '')),
+        trim((string) param('address', '')),
         trim((string) param('city', '')),
+        trim((string) param('state', '')),
+        trim((string) param('pincode', '')),
         trim((string) param('service', param('serviceType', 'General Inquiry'))),
+        trim((string) param('sub_service', '')),
         trim((string) param('message', '')),
         trim((string) param('source', 'website')),
     ]);
@@ -43,19 +61,23 @@ if ($action === 'create') {
 // ---- Everything below requires login ----
 $user = require_login();
 
-// ---- Admin: edit existing lead fields ----
+// ---- Full control: edit existing lead ----
 if ($action === 'update') {
     require_full();
     $id = (int) param('id', 0);
     $stmt = db()->prepare(
-        'UPDATE leads SET name=?, mobile=?, email=?, city=?, service=?, message=? WHERE id=?'
+        'UPDATE leads SET name=?, mobile=?, email=?, address=?, city=?, state=?, pincode=?, service=?, sub_service=?, message=? WHERE id=?'
     );
     $stmt->execute([
         trim((string) param('name', '')),
         trim((string) param('mobile', '')),
         trim((string) param('email', '')),
+        trim((string) param('address', '')),
         trim((string) param('city', '')),
+        trim((string) param('state', '')),
+        trim((string) param('pincode', '')),
         trim((string) param('service', '')),
+        trim((string) param('sub_service', '')),
         trim((string) param('message', '')),
         $id,
     ]);
@@ -63,44 +85,42 @@ if ($action === 'update') {
     ok();
 }
 
-// ---- Set follow-up date (agent on own lead, admin on any) ----
+// ---- Follow-up dates ----
 if ($action === 'followup') {
     $id = (int) param('id', 0);
-    $date = trim((string) param('follow_up_date', ''));
     if (!agent_can_touch($user, $id)) fail('You can only update leads assigned to you.', 403);
-    // empty clears the date
-    if ($date === '') {
-        db()->prepare('UPDATE leads SET follow_up_date = NULL WHERE id = ?')->execute([$id]);
-    } else {
-        db()->prepare('UPDATE leads SET follow_up_date = ? WHERE id = ?')->execute([$date, $id]);
-    }
-    log_activity("Lead #$id follow-up set to " . ($date ?: 'none'), $user['email']);
+    $next = trim((string) param('next_follow_up', ''));
+    $last = trim((string) param('last_follow_up', ''));
+    $sets = []; $args = [];
+    // next: empty string clears it
+    $sets[] = 'next_follow_up = ?'; $args[] = ($next === '' ? null : $next);
+    if ($last !== '') { $sets[] = 'last_follow_up = ?'; $args[] = $last; }
+    $args[] = $id;
+    db()->prepare('UPDATE leads SET ' . implode(', ', $sets) . ' WHERE id = ?')->execute($args);
+    log_activity("Lead #$id follow-up updated", $user['email']);
     ok();
 }
 
-// ---- Admin: import multiple leads (array of rows) ----
+// ---- Full control: import rows ----
 if ($action === 'import') {
     require_full();
     $rows = param('rows', []);
     if (!is_array($rows) || count($rows) === 0) fail('No rows to import.');
     $stmt = db()->prepare(
-        'INSERT INTO leads (name, mobile, email, city, service, message, source, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, "new")'
+        'INSERT INTO leads (name, mobile, email, address, city, state, pincode, service, sub_service, message, source, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "new")'
     );
     $count = 0;
     foreach ($rows as $r) {
         if (!is_array($r)) continue;
-        $name = trim((string) (isset($r['name']) ? $r['name'] : ''));
-        $mobile = trim((string) (isset($r['mobile']) ? $r['mobile'] : ''));
+        $g = function($k) use ($r) { return trim((string) (isset($r[$k]) ? $r[$k] : '')); };
+        $name = $g('name'); $mobile = $g('mobile');
         if ($name === '' && $mobile === '') continue;
         $stmt->execute([
-            $name !== '' ? $name : 'Unknown',
-            $mobile,
-            trim((string) (isset($r['email']) ? $r['email'] : '')),
-            trim((string) (isset($r['city']) ? $r['city'] : '')),
-            trim((string) (isset($r['service']) ? $r['service'] : 'Imported')),
-            trim((string) (isset($r['message']) ? $r['message'] : '')),
-            'import',
+            $name !== '' ? $name : 'Unknown', $mobile, $g('email'), $g('address'),
+            $g('city'), $g('state'), $g('pincode'),
+            $g('service') !== '' ? $g('service') : 'Imported', $g('sub_service'),
+            $g('message'), 'import',
         ]);
         $count++;
     }
@@ -113,14 +133,8 @@ if ($action === 'list') {
     $search = trim((string) param('search', ''));
     $sql = 'SELECT * FROM leads WHERE 1=1';
     $args = [];
-    // Agents only see leads assigned to them
-    if ($user['role'] === 'agent') {
-        $sql .= ' AND assigned_to = ?';
-        $args[] = $user['email'];
-    }
-    if ($status && in_array($status, ['new','wip','success','rejected'], true)) {
-        $sql .= ' AND status = ?'; $args[] = $status;
-    }
+    if ($user['role'] === 'agent') { $sql .= ' AND assigned_to = ?'; $args[] = $user['email']; }
+    if ($status && in_array($status, $VALID_STATUSES, true)) { $sql .= ' AND status = ?'; $args[] = $status; }
     if ($search !== '') {
         $sql .= ' AND (name LIKE ? OR mobile LIKE ? OR email LIKE ? OR service LIKE ? OR city LIKE ?)';
         $like = '%' . $search . '%';
@@ -138,7 +152,6 @@ if ($action === 'get') {
     $stmt->execute([$id]);
     $lead = $stmt->fetch();
     if (!$lead) fail('Lead not found.', 404);
-    // Agents can only view leads assigned to them
     if ($user['role'] === 'agent' && $lead['assigned_to'] !== $user['email']) {
         fail('You can only view leads assigned to you.', 403);
     }
@@ -148,22 +161,12 @@ if ($action === 'get') {
     ok(['lead' => $lead]);
 }
 
-// Helper: ensure an agent owns the lead they are modifying
-function agent_can_touch($user, $leadId) {
-    if ($user['role'] !== 'agent') return true;
-    $s = db()->prepare('SELECT assigned_to FROM leads WHERE id = ?');
-    $s->execute([$leadId]);
-    $row = $s->fetch();
-    return $row && $row['assigned_to'] === $user['email'];
-}
-
 if ($action === 'status') {
     $id = (int) param('id', 0);
     $status = (string) param('status', '');
-    if (!in_array($status, ['new','wip','success','rejected'], true)) fail('Invalid status.');
+    if (!in_array($status, $VALID_STATUSES, true)) fail('Invalid status.');
     if (!agent_can_touch($user, $id)) fail('You can only update leads assigned to you.', 403);
-    $stmt = db()->prepare('UPDATE leads SET status = ? WHERE id = ?');
-    $stmt->execute([$status, $id]);
+    db()->prepare('UPDATE leads SET status = ? WHERE id = ?')->execute([$status, $id]);
     log_activity("Lead #$id status -> $status", $user['email']);
     ok();
 }
@@ -172,8 +175,7 @@ if ($action === 'assign') {
     if ($user['role'] === 'agent') fail('Agents cannot assign leads.', 403);
     $id = (int) param('id', 0);
     $to = trim((string) param('assigned_to', ''));
-    $stmt = db()->prepare('UPDATE leads SET assigned_to = ? WHERE id = ?');
-    $stmt->execute([$to, $id]);
+    db()->prepare('UPDATE leads SET assigned_to = ?, assigned_date = NOW() WHERE id = ?')->execute([$to, $id]);
     log_activity("Lead #$id assigned to $to", $user['email']);
     ok();
 }
@@ -183,8 +185,7 @@ if ($action === 'comment') {
     $text = trim((string) param('text', ''));
     if ($text === '') fail('Comment text is required.');
     if (!agent_can_touch($user, $id)) fail('You can only comment on leads assigned to you.', 403);
-    $stmt = db()->prepare('INSERT INTO lead_comments (lead_id, text, by_user) VALUES (?, ?, ?)');
-    $stmt->execute([$id, $text, $user['email']]);
+    db()->prepare('INSERT INTO lead_comments (lead_id, text, by_user) VALUES (?, ?, ?)')->execute([$id, $text, $user['email']]);
     log_activity("Comment on lead #$id", $user['email']);
     ok();
 }
@@ -192,22 +193,37 @@ if ($action === 'comment') {
 if ($action === 'delete') {
     require_full();
     $id = (int) param('id', 0);
-    $stmt = db()->prepare('DELETE FROM leads WHERE id = ?');
-    $stmt->execute([$id]);
+    db()->prepare('DELETE FROM leads WHERE id = ?')->execute([$id]);
     log_activity("Lead #$id deleted", $user['email']);
     ok();
 }
 
 if ($action === 'stats') {
-    if ($user['role'] === 'agent') {
+    $isAgent = ($user['role'] === 'agent');
+    if ($isAgent) {
         $stmt = db()->prepare("SELECT status, COUNT(*) c FROM leads WHERE assigned_to = ? GROUP BY status");
         $stmt->execute([$user['email']]);
         $rows = $stmt->fetchAll();
     } else {
         $rows = db()->query("SELECT status, COUNT(*) c FROM leads GROUP BY status")->fetchAll();
     }
-    $stats = ['total' => 0, 'new' => 0, 'wip' => 0, 'success' => 0, 'rejected' => 0];
+    $stats = ['total' => 0];
+    foreach ($VALID_STATUSES as $s) { $stats[$s] = 0; }
     foreach ($rows as $r) { $stats[$r['status']] = (int) $r['c']; $stats['total'] += (int) $r['c']; }
+    // Derived buckets
+    $stats['converted'] = $stats['converted'];
+    $stats['open'] = $stats['new'] + $stats['contacted'] + $stats['follow_up'] + $stats['documents_pending'] + $stats['processing'] + $stats['approved'];
+    $stats['closed'] = $stats['closed'] + $stats['rejected'];
+
+    // Follow-ups due today (agent = own, full = all)
+    if ($isAgent) {
+        $f = db()->prepare("SELECT COUNT(*) c FROM leads WHERE assigned_to = ? AND next_follow_up = CURDATE()");
+        $f->execute([$user['email']]);
+    } else {
+        $f = db()->query("SELECT COUNT(*) c FROM leads WHERE next_follow_up = CURDATE()");
+    }
+    $stats['followup_today'] = (int) $f->fetch()['c'];
+
     ok(['stats' => $stats]);
 }
 

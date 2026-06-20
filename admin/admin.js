@@ -123,8 +123,10 @@ var CWA_Admin = (function() {
     update: async function(payload) {
       return await api('leads', 'update', payload, 'POST');
     },
-    followup: async function(id, date) {
-      return await api('leads', 'followup', { id: id, follow_up_date: date }, 'POST');
+    followup: async function(id, next, last) {
+      var payload = { id: id, next_follow_up: next || '' };
+      if (last) payload.last_follow_up = last;
+      return await api('leads', 'followup', payload, 'POST');
     },
     importLeads: async function(rows) {
       return await api('leads', 'import', { rows: rows }, 'POST');
@@ -245,6 +247,46 @@ var CWA_Admin = (function() {
     }
   };
 
+  // ===== BLOG TOPICS MODULE =====
+  var topics = {
+    list: async function() {
+      var data = await api('topics', 'list', null, 'GET');
+      return data.topics;
+    },
+    create: async function(payload) {
+      var data = await api('topics', 'create', payload, 'POST');
+      return data.id;
+    },
+    setStatus: async function(id, status) {
+      return await api('topics', 'status', { id: id, status: status }, 'POST');
+    },
+    remove: async function(id) {
+      return await api('topics', 'delete', { id: id }, 'POST');
+    }
+  };
+
+  // ===== LEAD STATUS CONSTANTS =====
+  var STATUSES = [
+    { value: 'new', label: 'New' },
+    { value: 'contacted', label: 'Contacted' },
+    { value: 'follow_up', label: 'Follow-up' },
+    { value: 'documents_pending', label: 'Documents Pending' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'approved', label: 'Approved' },
+    { value: 'converted', label: 'Converted' },
+    { value: 'closed', label: 'Closed' },
+    { value: 'rejected', label: 'Rejected' }
+  ];
+  function statusLabel(v) {
+    for (var i = 0; i < STATUSES.length; i++) { if (STATUSES[i].value === v) return STATUSES[i].label; }
+    return v;
+  }
+  function statusOptions(selected) {
+    return STATUSES.map(function(s) {
+      return '<option value="' + s.value + '"' + (s.value === selected ? ' selected' : '') + '>' + s.label + '</option>';
+    }).join('');
+  }
+
   // ===== ANALYTICS MODULE =====
   var analytics = {
     summary: async function() {
@@ -266,6 +308,10 @@ var CWA_Admin = (function() {
     serviceBreakdown: async function() {
       var data = await api('analytics', 'service_breakdown', null, 'GET');
       return data.services;
+    },
+    adminDashboard: async function() {
+      var data = await api('analytics', 'admin_dashboard', null, 'GET');
+      return data.cards;
     }
   };
 
@@ -379,6 +425,10 @@ var CWA_Admin = (function() {
     users: users,
     announcements: announcements,
     settings: settings,
+    topics: topics,
+    STATUSES: STATUSES,
+    statusLabel: statusLabel,
+    statusOptions: statusOptions,
     analytics: analytics,
     ui: ui
   };

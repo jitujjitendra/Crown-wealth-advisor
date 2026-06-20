@@ -139,6 +139,19 @@ if ($action === 'trend') {
     ok(['trend' => $out]);
 }
 
+if ($action === 'admin_dashboard') {
+    require_full();
+    $total = (int) db()->query("SELECT COUNT(*) c FROM leads")->fetch()['c'];
+    $new = (int) db()->query("SELECT COUNT(*) c FROM leads WHERE status='new'")->fetch()['c'];
+    $converted = (int) db()->query("SELECT COUNT(*) c FROM leads WHERE status='converted'")->fetch()['c'];
+    $activeAgents = (int) db()->query("SELECT COUNT(*) c FROM users WHERE role='agent' AND status='active'")->fetch()['c'];
+    $blogDrafts = (int) db()->query("SELECT COUNT(*) c FROM blogs WHERE status IN ('draft','pending')")->fetch()['c'];
+    ok(['cards' => [
+        'total' => $total, 'new' => $new, 'converted' => $converted,
+        'active_agents' => $activeAgents, 'blog_drafts' => $blogDrafts,
+    ]]);
+}
+
 if ($action === 'activity') {
     $rows = db()->query('SELECT action, by_user, created_at FROM activity_log ORDER BY created_at DESC LIMIT 30')->fetchAll();
     ok(['activity' => $rows]);

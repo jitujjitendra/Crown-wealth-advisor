@@ -24,6 +24,16 @@ function make_slug($title) {
     $s = preg_replace('/[^a-z0-9]+/', '-', $s);
     return trim($s, '-');
 }
+// Link a blog to a topic and update topic status based on blog status
+function link_topic($topicId, $blogId, $blogStatus) {
+    $tstatus = ($blogStatus === 'pending') ? 'submitted' : (($blogStatus === 'approved') ? 'done' : 'in_progress');
+    db()->prepare('UPDATE blog_topics SET blog_id = ?, status = ? WHERE id = ?')->execute([$blogId, $tstatus, $topicId]);
+    db()->prepare('UPDATE blogs SET topic_id = ? WHERE id = ?')->execute([$topicId, $blogId]);
+}
+// When a blog is approved/published, mark its linked topic done
+function topic_done_for_blog($blogId) {
+    db()->prepare("UPDATE blog_topics SET status='done' WHERE blog_id = ?")->execute([$blogId]);
+}
 
 // ---- PUBLIC: approved blogs for website ----
 if ($action === 'published') {
@@ -64,6 +74,7 @@ if ($action === 'save') {
     $status = (string) param('status', 'pending');
     if (!in_array($status, ['draft','pending','approved','rejected'], true)) $status = 'pending';
     $content = (string) param('content', '');
+    $topicId = (int) param('topic_id', 0);
     $data = [
         $title,
         make_slug($title),
@@ -92,6 +103,7 @@ if ($action === 'save') {
         $sql = 'UPDATE blogs SET title=?, slug=?, category=?, tags=?, content=?, excerpt=?, featured_image=?, meta_description=?, author=?, status=? WHERE id=?';
         $data[] = $id;
         db()->prepare($sql)->execute($data);
+        if ($topicId > 0) link_topic($topicId, $id, $status);
         log_activity("Blog #$id updated ($status)", $user['email']);
         ok(['id' => $id]);
     } else {
@@ -103,6 +115,7 @@ if ($action === 'save') {
         $sql = 'INSERT INTO blogs (title, slug, category, tags, content, excerpt, featured_image, meta_description, author, status) VALUES (?,?,?,?,?,?,?,?,?,?)';
         db()->prepare($sql)->execute($data);
         $newId = (int) db()->lastInsertId();
+        if ($topicId > 0) link_topic($topicId, $newId, $status);
         log_activity("Blog #$newId created ($status)", $user['email']);
         ok(['id' => $newId]);
     }
@@ -112,6 +125,7 @@ if ($action === 'approve') {
     require_full();
     $id = (int) param('id', 0);
     db()->prepare("UPDATE blogs SET status='approved', approved_at=NOW(), reject_reason='' WHERE id=?")->execute([$id]);
+    topic_done_for_blog($id);
     log_activity("Blog #$id approved", $user['email']);
     ok();
 }
@@ -120,6 +134,7 @@ if ($action === 'publish') {
     require_full();
     $id = (int) param('id', 0);
     db()->prepare("UPDATE blogs SET status='approved', approved_at=NOW(), reject_reason='' WHERE id=?")->execute([$id]);
+    topic_done_for_blog($id);
     log_activity("Blog #$id published", $user['email']);
     ok();
 }
