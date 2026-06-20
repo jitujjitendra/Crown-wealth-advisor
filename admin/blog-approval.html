@@ -86,46 +86,66 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
       var rejectingId = null;
 
-      function render() {
-        var pending = CWA_Admin.blogs.getPending();
-        var container = document.getElementById('pendingBlogs');
-        if (pending.length === 0) {
-          container.innerHTML = '<p class="text-muted">No pending blogs for approval.</p>';
-          return;
-        }
-        container.innerHTML = pending.map(function(b) {
-          return '<div class="announcement-item">' +
-            '<div style="flex:1;"><strong>' + b.title + '</strong><p class="text-muted" style="font-size:0.85rem;">By: ' + b.author + ' | Category: ' + b.category + ' | ' + CWA_Admin.ui.formatDate(b.createdAt) + '</p></div>' +
-            '<div style="display:flex;gap:8px;">' +
-            '<button class="btn btn-sm btn-info" onclick="previewBlog(\'' + b.id + '\')">Preview</button>' +
-            '<button class="btn btn-sm btn-success" onclick="approveBlog(\'' + b.id + '\')">Approve</button>' +
-            '<button class="btn btn-sm btn-danger" onclick="showReject(\'' + b.id + '\')">Reject</button>' +
-            '</div></div>';
-        }).join('');
+      function imgUrl(u) {
+        if (!u) return '';
+        if (u.indexOf('http') === 0 || u.indexOf('data:') === 0) return u;
+        return '../' + u.replace(/^\/+/, '');
       }
 
-      window.previewBlog = function(id) {
-        var blog = CWA_Admin.blogs.getById(id);
-        if (!blog) return;
-        document.getElementById('previewTitle').textContent = blog.title;
-        document.getElementById('previewBody').innerHTML =
-          '<p class="text-muted mb-2">Category: ' + blog.category + ' | Tags: ' + blog.tags + '</p>' +
-          '<div style="border:1px solid #eee;padding:16px;border-radius:8px;">' + blog.content + '</div>';
-        document.getElementById('previewFooter').innerHTML =
-          '<button class="btn btn-success" onclick="approveBlog(\'' + id + '\');CWA_Admin.ui.hideModal(\'previewModal\');">Approve</button>' +
-          '<button class="btn btn-danger" onclick="showReject(\'' + id + '\');CWA_Admin.ui.hideModal(\'previewModal\');">Reject</button>';
-        CWA_Admin.ui.showModal('previewModal');
+      async function render() {
+        var container = document.getElementById('pendingBlogs');
+        container.innerHTML = '<p class="text-muted">Loading...</p>';
+        try {
+          var pending = await CWA_Admin.blogs.list('pending');
+          if (!pending.length) {
+            container.innerHTML = '<p class="text-muted">No pending blogs for approval.</p>';
+            return;
+          }
+          container.innerHTML = pending.map(function(b) {
+            return '<div class="announcement-item">' +
+              '<div style="flex:1;"><strong>' + esc(b.title) + '</strong><p class="text-muted" style="font-size:0.85rem;">By: ' + esc(b.author) + ' | Category: ' + esc(b.category) + ' | ' + CWA_Admin.ui.formatDate(b.created_at) + '</p></div>' +
+              '<div style="display:flex;gap:8px;">' +
+              '<button class="btn btn-sm btn-info" onclick="previewBlog(\'' + esc(b.id) + '\')">Preview</button>' +
+              '<button class="btn btn-sm btn-success" onclick="approveBlog(\'' + esc(b.id) + '\')">Approve</button>' +
+              '<button class="btn btn-sm btn-danger" onclick="showReject(\'' + esc(b.id) + '\')">Reject</button>' +
+              '</div></div>';
+          }).join('');
+        } catch (e) {
+          container.innerHTML = '<p class="text-muted">Could not load pending blogs: ' + esc(e.message) + '</p>';
+        }
+      }
+
+      window.previewBlog = async function(id) {
+        try {
+          var blog = await CWA_Admin.blogs.get(id);
+          document.getElementById('previewTitle').textContent = blog.title;
+          var imgHtml = blog.featured_image ? '<img src="' + esc(imgUrl(blog.featured_image)) + '" alt="" style="max-width:100%;border-radius:8px;margin-bottom:12px;">' : '';
+          document.getElementById('previewBody').innerHTML =
+            '<p class="text-muted mb-2">Category: ' + esc(blog.category) + ' | Tags: ' + esc(blog.tags) + '</p>' +
+            imgHtml +
+            '<div style="border:1px solid #eee;padding:16px;border-radius:8px;">' + (blog.content || '') + '</div>';
+          document.getElementById('previewFooter').innerHTML =
+            '<button class="btn btn-success" onclick="approveBlog(\'' + esc(id) + '\');CWA_Admin.ui.hideModal(\'previewModal\');">Approve</button>' +
+            '<button class="btn btn-danger" onclick="showReject(\'' + esc(id) + '\');CWA_Admin.ui.hideModal(\'previewModal\');">Reject</button>';
+          CWA_Admin.ui.showModal('previewModal');
+        } catch (e) {
+          alert('Could not load blog: ' + e.message);
+        }
       };
 
-      window.approveBlog = function(id) {
-        CWA_Admin.blogs.approve(id);
-        render();
+      window.approveBlog = async function(id) {
+        try {
+          await CWA_Admin.blogs.approve(id);
+          await render();
+        } catch (e) { alert('Could not approve: ' + e.message); }
       };
 
       window.showReject = function(id) {
@@ -134,12 +154,14 @@
         CWA_Admin.ui.showModal('rejectModal');
       };
 
-      document.getElementById('confirmReject').addEventListener('click', function() {
+      document.getElementById('confirmReject').addEventListener('click', async function() {
         var reason = document.getElementById('rejectReason').value.trim();
         if (!reason) { alert('Please enter a reason'); return; }
-        CWA_Admin.blogs.reject(rejectingId, reason);
-        CWA_Admin.ui.hideModal('rejectModal');
-        render();
+        try {
+          await CWA_Admin.blogs.reject(rejectingId, reason);
+          CWA_Admin.ui.hideModal('rejectModal');
+          await render();
+        } catch (e) { alert('Could not reject: ' + e.message); }
       });
 
       render();

@@ -64,39 +64,62 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
-      function render() {
-        var anns = CWA_Admin.announcements.getAll();
-        document.getElementById('annList').innerHTML = anns.length === 0 ? '<p class="text-muted">No announcements</p>' : anns.map(function(a) {
-          return '<div class="announcement-item">' +
-            '<span class="type-badge ' + a.type + '">' + a.type + '</span>' +
-            '<div style="flex:1;"><strong>' + a.title + '</strong><p style="font-size:0.85rem;color:#666;margin:4px 0 0;">' + a.message + '</p>' + (a.link ? '<small class="text-muted">Link: ' + a.link + '</small>' : '') + '</div>' +
-            '<div style="display:flex;gap:8px;align-items:center;">' +
-            '<label class="toggle-switch"><input type="checkbox" onchange="toggleAnn(\'' + a.id + '\')"' + (a.active ? ' checked' : '') + '><span class="toggle-slider"></span></label>' +
-            '<button class="btn btn-sm btn-danger" onclick="removeAnn(\'' + a.id + '\')">Delete</button>' +
-            '</div></div>';
-        }).join('');
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      function isOn(v) { return v === '1' || v === 1 || v === true || v === 'true'; }
+
+      async function render() {
+        var list = document.getElementById('annList');
+        list.innerHTML = '<p class="text-muted">Loading...</p>';
+        try {
+          var anns = await CWA_Admin.announcements.list();
+          list.innerHTML = !anns.length ? '<p class="text-muted">No announcements</p>' : anns.map(function(a) {
+            return '<div class="announcement-item">' +
+              '<span class="type-badge ' + esc(a.type) + '">' + esc(a.type) + '</span>' +
+              '<div style="flex:1;"><strong>' + esc(a.title) + '</strong><p style="font-size:0.85rem;color:#666;margin:4px 0 0;">' + esc(a.message) + '</p>' + (a.link ? '<small class="text-muted">Link: ' + esc(a.link) + '</small>' : '') + '</div>' +
+              '<div style="display:flex;gap:8px;align-items:center;">' +
+              '<label class="toggle-switch"><input type="checkbox" onchange="toggleAnn(\'' + esc(a.id) + '\')"' + (isOn(a.active) ? ' checked' : '') + '><span class="toggle-slider"></span></label>' +
+              '<button class="btn btn-sm btn-danger" onclick="removeAnn(\'' + esc(a.id) + '\')">Delete</button>' +
+              '</div></div>';
+          }).join('');
+        } catch (e) {
+          list.innerHTML = '<p class="text-muted">Could not load announcements: ' + esc(e.message) + '</p>';
+        }
       }
-      window.addAnnouncement = function() {
+
+      window.addAnnouncement = async function() {
         var title = document.getElementById('annTitle').value.trim();
         var message = document.getElementById('annMessage').value.trim();
         if (!title || !message) { alert('Fill title and message'); return; }
-        CWA_Admin.announcements.add({
-          title: title, message: message,
-          type: document.getElementById('annType').value,
-          link: document.getElementById('annLink').value,
-          active: document.getElementById('annActive').checked
-        });
-        document.getElementById('annTitle').value = '';
-        document.getElementById('annMessage').value = '';
-        document.getElementById('annLink').value = '';
-        render();
+        try {
+          await CWA_Admin.announcements.save({
+            title: title,
+            message: message,
+            type: document.getElementById('annType').value,
+            link: document.getElementById('annLink').value,
+            active: document.getElementById('annActive').checked ? 1 : 0
+          });
+          document.getElementById('annTitle').value = '';
+          document.getElementById('annMessage').value = '';
+          document.getElementById('annLink').value = '';
+          await render();
+        } catch (e) { alert('Could not save announcement: ' + e.message); }
       };
-      window.toggleAnn = function(id) { CWA_Admin.announcements.toggle(id); };
-      window.removeAnn = function(id) { CWA_Admin.announcements.remove(id); render(); };
+
+      window.toggleAnn = async function(id) {
+        try { await CWA_Admin.announcements.toggle(id); }
+        catch (e) { alert('Could not toggle: ' + e.message); await render(); }
+      };
+
+      window.removeAnn = async function(id) {
+        try { await CWA_Admin.announcements.remove(id); await render(); }
+        catch (e) { alert('Could not delete: ' + e.message); }
+      };
+
       render();
     })();
   </script>

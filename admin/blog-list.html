@@ -65,21 +65,44 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
       var currentFilter = 'all';
 
-      function render() {
-        var blogs = CWA_Admin.blogs.getAll();
-        if (currentFilter !== 'all') {
-          blogs = blogs.filter(function(b) { return b.status === currentFilter; });
+      async function render() {
+        var tbody = document.getElementById('blogTable');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        try {
+          var status = currentFilter === 'all' ? '' : currentFilter;
+          var blogs = await CWA_Admin.blogs.list(status);
+          if (!blogs.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">No blogs found.</td></tr>';
+            return;
+          }
+          var owner = CWA_Admin.isOwner();
+          tbody.innerHTML = blogs.map(function(b) {
+            var actions = '<a href="blog-write.html?edit=' + encodeURIComponent(b.id) + '" class="btn btn-sm btn-outline">Edit</a>';
+            if (owner) {
+              actions += ' <button class="btn btn-sm btn-danger" onclick="deleteBlog(\'' + esc(b.id) + '\')">Delete</button>';
+            }
+            return '<tr><td><strong>' + esc(b.title) + '</strong></td><td>' + esc(b.category) + '</td><td>' + esc(b.author) + '</td><td><span class="status-badge ' + esc(b.status) + '">' + esc(b.status) + '</span></td><td>' + CWA_Admin.ui.formatDate(b.created_at) + '</td><td>' + actions + '</td></tr>';
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Could not load blogs: ' + esc(e.message) + '</td></tr>';
         }
-        document.getElementById('blogTable').innerHTML = blogs.map(function(b) {
-          return '<tr><td><strong>' + b.title + '</strong></td><td>' + b.category + '</td><td>' + b.author + '</td><td><span class="status-badge ' + b.status + '">' + b.status + '</span></td><td>' + CWA_Admin.ui.formatDate(b.createdAt) + '</td><td><a href="blog-write.html?edit=' + b.id + '" class="btn btn-sm btn-outline">Edit</a></td></tr>';
-        }).join('');
       }
+
+      window.deleteBlog = async function(id) {
+        if (!confirm('Delete this blog? This cannot be undone.')) return;
+        try {
+          await CWA_Admin.blogs.remove(id);
+          await render();
+        } catch (e) { alert('Could not delete: ' + e.message); }
+      };
 
       document.querySelectorAll('#blogTabs .tab-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {

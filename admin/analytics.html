@@ -97,18 +97,100 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+
+      var stats, sources, successRate, overall;
+      try {
+        var summary = await CWA_Admin.analytics.summary();
+        stats = summary.stats;
+        sources = summary.sources || {};
+        successRate = summary.successRate;
+        overall = summary.overall;
+      } catch (e) {
+        document.getElementById('statsGrid').innerHTML = '<p class="text-muted">Could not load analytics: ' + esc(e.message) + '</p>';
+        return;
+      }
+
+      // Stat cards
+      document.getElementById('statsGrid').innerHTML =
+        '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon" style="background:rgba(56,142,60,0.12);color:#388e3c;">&#128200;</div><div class="stat-info"><h3>' + successRate + '%</h3><p>Success Rate <small style="display:block;color:#999;">(of closed leads)</small></p></div></div>' +
+        '<div class="stat-card"><div class="stat-icon" style="background:rgba(25,118,210,0.12);color:#1976d2;">&#127919;</div><div class="stat-info"><h3>' + overall + '%</h3><p>Overall Conversion <small style="display:block;color:#999;">(of all leads)</small></p></div></div>';
+
+      // Funnel (uses stats)
+      document.getElementById('funnel').innerHTML =
+        '<div class="funnel-step">New: ' + stats.new + '</div>' +
+        '<div class="funnel-step">Contacted / WIP: ' + stats.wip + '</div>' +
+        '<div class="funnel-step">In Progress: ' + stats.wip + '</div>' +
+        '<div class="funnel-step">Success: ' + stats.success + '</div>';
+
+      if (typeof Chart === 'undefined') {
+        document.querySelector('.charts-grid').innerHTML = '<div class="admin-card"><div class="card-body"><p class="text-muted">Chart.js library not available. Charts will load when connected to the internet.</p></div></div>';
+        return;
+      }
 
       var lineChartObj, pieChartObj, barChartObj, trendChartObj;
       var currentDays = 30;
       var currentPeriod = 'daily';
+      var dailyTrend = [];
 
-      function renderTrend(period) {
-        if (typeof Chart === 'undefined') return;
-        var data = CWA_Admin.analytics.getTrend(period);
+      async function loadDaily() {
+        try { dailyTrend = await CWA_Admin.analytics.trend('daily'); }
+        catch (e) { dailyTrend = []; }
+      }
+
+      function renderCharts(days) {
+        // "Leads Per Day" line chart from the daily trend (sliced to the chosen range).
+        var n = Math.min(days, dailyTrend.length);
+        var sliced = dailyTrend.slice(dailyTrend.length - n);
+        var lineCtx = document.getElementById('lineChart').getContext('2d');
+        if (lineChartObj) lineChartObj.destroy();
+        lineChartObj = new Chart(lineCtx, {
+          type: 'line',
+          data: {
+            labels: sliced.map(function(d) { return d.label; }),
+            datasets: [{ label: 'Leads', data: sliced.map(function(d) { return d.count; }), borderColor: '#c9000b', backgroundColor: 'rgba(201,0,11,0.1)', fill: true, tension: 0.3 }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // Pie Chart (sources)
+        var pieCtx = document.getElementById('pieChart').getContext('2d');
+        if (pieChartObj) pieChartObj.destroy();
+        pieChartObj = new Chart(pieCtx, {
+          type: 'pie',
+          data: {
+            labels: Object.keys(sources),
+            datasets: [{ data: Object.values(sources), backgroundColor: ['#c9000b', '#D4A574', '#1976d2', '#388e3c', '#f57c00', '#7b1fa2'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        // Bar Chart (status distribution)
+        var barCtx = document.getElementById('barChart').getContext('2d');
+        if (barChartObj) barChartObj.destroy();
+        barChartObj = new Chart(barCtx, {
+          type: 'bar',
+          data: {
+            labels: ['New', 'WIP', 'Success', 'Rejected'],
+            datasets: [{ label: 'Leads', data: [stats.new, stats.wip, stats.success, stats.rejected], backgroundColor: ['#1976d2', '#f57c00', '#388e3c', '#d32f2f'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      async function renderTrend(period) {
+        var data;
+        try { data = await CWA_Admin.analytics.trend(period); }
+        catch (e) { data = []; }
         var ctx = document.getElementById('trendChart').getContext('2d');
         if (trendChartObj) trendChartObj.destroy();
         trendChartObj = new Chart(ctx, {
@@ -127,64 +209,6 @@
         });
       }
 
-      // Stats
-      var stats = CWA_Admin.leads.getStats();
-      var sr = CWA_Admin.analytics.getSuccessRate();
-      document.getElementById('statsGrid').innerHTML =
-        '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon" style="background:rgba(56,142,60,0.12);color:#388e3c;">&#128200;</div><div class="stat-info"><h3>' + sr.rate + '%</h3><p>Success Rate <small style="display:block;color:#999;">(of closed leads)</small></p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon" style="background:rgba(25,118,210,0.12);color:#1976d2;">&#127919;</div><div class="stat-info"><h3>' + sr.overall + '%</h3><p>Overall Conversion <small style="display:block;color:#999;">(of all leads)</small></p></div></div>';
-
-      // Funnel
-      document.getElementById('funnel').innerHTML =
-        '<div class="funnel-step">New: ' + stats.new + '</div>' +
-        '<div class="funnel-step">Contacted / WIP: ' + stats.wip + '</div>' +
-        '<div class="funnel-step">In Progress: ' + stats.wip + '</div>' +
-        '<div class="funnel-step">Success: ' + stats.success + '</div>';
-
-      function renderCharts(days) {
-        // Line Chart
-        var dailyData = CWA_Admin.analytics.getLeadsPerDay(days);
-        var lineCtx = document.getElementById('lineChart').getContext('2d');
-        if (lineChartObj) lineChartObj.destroy();
-        lineChartObj = new Chart(lineCtx, {
-          type: 'line',
-          data: {
-            labels: dailyData.map(function(d) { return d.date.slice(5); }),
-            datasets: [{ label: 'Leads', data: dailyData.map(function(d) { return d.count; }), borderColor: '#c9000b', backgroundColor: 'rgba(201,0,11,0.1)', fill: true, tension: 0.3 }]
-          },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-
-        // Pie Chart
-        var sources = CWA_Admin.analytics.getSourceBreakdown();
-        var pieCtx = document.getElementById('pieChart').getContext('2d');
-        if (pieChartObj) pieChartObj.destroy();
-        pieChartObj = new Chart(pieCtx, {
-          type: 'pie',
-          data: {
-            labels: Object.keys(sources),
-            datasets: [{ data: Object.values(sources), backgroundColor: ['#c9000b', '#D4A574', '#1976d2', '#388e3c', '#f57c00'] }]
-          },
-          options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        // Bar Chart
-        var barCtx = document.getElementById('barChart').getContext('2d');
-        if (barChartObj) barChartObj.destroy();
-        barChartObj = new Chart(barCtx, {
-          type: 'bar',
-          data: {
-            labels: ['New', 'WIP', 'Success', 'Rejected'],
-            datasets: [{ label: 'Leads', data: [stats.new, stats.wip, stats.success, stats.rejected], backgroundColor: ['#1976d2', '#f57c00', '#388e3c', '#d32f2f'] }]
-          },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-      }
-
       // Date range buttons
       document.querySelectorAll('#dateRange button').forEach(function(btn) {
         btn.addEventListener('click', function() {
@@ -197,20 +221,17 @@
 
       // Trend period toggle
       document.querySelectorAll('#trendToggle button').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', async function() {
           document.querySelectorAll('#trendToggle button').forEach(function(b) { b.classList.remove('active'); });
           btn.classList.add('active');
           currentPeriod = btn.getAttribute('data-period');
-          renderTrend(currentPeriod);
+          await renderTrend(currentPeriod);
         });
       });
 
-      if (typeof Chart !== 'undefined') {
-        renderCharts(currentDays);
-        renderTrend(currentPeriod);
-      } else {
-        document.querySelector('.charts-grid').innerHTML = '<div class="admin-card"><div class="card-body"><p class="text-muted">Chart.js library not available. Charts will load when connected to the internet.</p></div></div>';
-      }
+      await loadDaily();
+      renderCharts(currentDays);
+      await renderTrend(currentPeriod);
     })();
   </script>
 </body>

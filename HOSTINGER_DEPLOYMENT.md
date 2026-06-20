@@ -1,169 +1,134 @@
-# Hostinger Deployment Guide - Crown Wealth Advisor
+# Crown Wealth Advisor — Hostinger Deployment Guide (PHP + MySQL)
 
-## Step-by-Step Deployment via File Manager
+This is the REAL system: a static front-end + a PHP/MySQL backend. Leads, blogs,
+users, announcements and analytics are all stored in a MySQL database on Hostinger.
+Blog images are compressed in the browser (<500KB) and saved to `/uploads/blogs/`.
 
-### Prerequisites
-- Hostinger hosting account (Premium or Business plan recommended)
-- Domain pointed to Hostinger nameservers
-- All website files ready for upload
+---
 
-### Step 1: Login to Hostinger
-1. Go to https://hpanel.hostinger.com
-2. Login with your credentials
-3. Navigate to "Hosting" section
-4. Click "Manage" on your hosting plan
+## What you need
+- A Hostinger plan with PHP + MySQL (every shared plan has this)
+- Your domain connected to Hostinger
+- 15–20 minutes
 
-### Step 2: Access File Manager
-1. In the hosting dashboard, click "File Manager"
-2. Navigate to `public_html` directory
-3. This is the root folder where all files should go
+---
 
-### Step 3: Upload Files
-1. Click "Upload" button in File Manager
-2. Upload the following structure:
+## STEP 1 — Create a MySQL database
+1. Login to **hPanel** → **Databases → MySQL Databases**
+2. Create a new database, e.g. `crown`
+   - Note the FULL database name (Hostinger prefixes it, e.g. `u123456789_crown`)
+3. Create a database user + password (note them)
+4. Make sure the user is **added to the database** with **All Privileges**
 
-```
-public_html/
-  index.html
-  404.html
-  robots.txt
-  sitemap.xml
-  assets/
-    css/
-      styles.css
-    js/
-      main.js
-      announcements.js
-      form-handler.js
-      performance.js
-      blog-system.js
-      feature-config.js
-      lead-assignment.js
-      notifications.js
-      role-permissions.js
-    images/
-      crown-logo.png
-  pages/
-    health-insurance.html
-    life-insurance.html
-    general-insurance.html
-    home-loan.html
-    personal-loan.html
-    car-loan.html
-    loan-against-property.html
-    fixed-deposit.html
-    emi-calculator.html
-    insurance-calculator.html
-    loan-eligibility.html
-    blog.html
-    single-blog.html
-    bajaj-careers.html
-    pnb-careers.html
-    claim-support.html
-  admin/
-    index.html
-    dashboard.html
-    lead-details.html
-    blog-write.html
-    blog-approval.html
-    blog-list.html
-    users.html
-    analytics.html
-    notifications.html
-    assignments.html
-    announcements.html
-    settings.html
-    admin-styles.css
-    admin.js
-```
+You now have 4 values:
+- DB name  (e.g. `u123456789_crown`)
+- DB user  (e.g. `u123456789_admin`)
+- DB pass  (the password you set)
+- DB host  (usually `localhost` on Hostinger)
 
-### Step 4: Verify Upload
-1. Visit your domain in a browser
-2. Check that the homepage loads correctly
-3. Verify the logo appears
-4. Test navigation to all pages
-5. Test admin panel at yourdomain.com/admin/
+---
 
-### Step 5: SSL Certificate Setup
-1. In Hostinger hPanel, go to "SSL"
-2. Click "Setup" or "Install" for your domain
-3. Select "Free SSL (Let's Encrypt)"
-4. Click "Install"
-5. Wait 5-10 minutes for activation
-6. Verify https:// works on your domain
+## STEP 2 — Upload the website files
+1. hPanel → **Files → File Manager** → open `public_html`
+2. Delete any default placeholder files (e.g. Hostinger's `default.php`/`index.html`)
+3. Upload the whole project (zip it, upload the zip, then **Extract**), so you have:
+   ```
+   public_html/
+     index.html
+     404.html  robots.txt  sitemap.xml
+     assets/        (css, js, images)
+     pages/         (all inner pages)
+     admin/         (admin panel)
+     api/           (PHP backend)
+     uploads/blogs/ (blog images saved here)
+   ```
 
-### Step 6: Domain Configuration
-1. In hPanel, go to "Domains"
-2. If using an external domain:
-   - Point nameservers to: ns1.dns-parking.com and ns2.dns-parking.com
-   - Or add A record pointing to your server IP
-3. If domain was purchased at Hostinger, it auto-connects
+---
 
-### Step 7: Create support@crownwealthadvisor.com Email
-1. In hPanel, go to "Emails"
-2. Click "Email Accounts"
-3. Click "Create Email Account"
-4. Enter: support (the part before @)
-5. Set a strong password
-6. Click "Create"
-7. Access webmail at: mail.crownwealthadvisor.com
-8. You can also set up email forwarding to your Gmail
+## STEP 3 — Fill database credentials
+1. In File Manager open **`api/config.php`** (right-click → Edit)
+2. Set your 4 values:
+   ```php
+   define('DB_HOST', 'localhost');
+   define('DB_NAME', 'u123456789_crown');
+   define('DB_USER', 'u123456789_admin');
+   define('DB_PASS', 'your-db-password');
+   ```
+3. Save.
 
-### Step 8: Performance Settings
-1. In hPanel, go to "Advanced" > "Cache Manager"
-2. Enable browser caching
-3. Go to "CDN" section and enable Cloudflare if available
-4. Enable GZIP compression (usually enabled by default)
+---
 
-## Updating the Site
+## STEP 4 — Import the database tables
+1. hPanel → **Databases → phpMyAdmin** → open your database
+2. Click the **Import** tab
+3. Choose file **`api/schema.sql`** (from this project) → **Go**
+4. You should see tables created: `users, leads, lead_comments, blogs,
+   announcements, settings, activity_log`
 
-### To update files:
-1. Go to File Manager
-2. Navigate to the file you want to update
-3. Right-click > Edit, or delete and re-upload
-4. Changes are instant (no build step needed)
+---
 
-### To update admin panel:
-1. Navigate to public_html/admin/
-2. Upload updated admin.js or HTML files
-3. Clear browser cache to see changes
+## STEP 5 — Create the admin owner account
+1. In your browser visit: `https://YOURDOMAIN.com/api/install.php`
+2. It prints the login details:
+   - Email: `support@crownwealthadvisor.com`
+   - Password: `Crown@123`
+3. **DELETE `api/install.php`** afterwards (File Manager → delete).
+   (Change your password later from the admin **Users** page.)
 
-## Firebase Setup (Optional - for production)
+---
 
-To move from demo mode (localStorage) to Firebase:
+## STEP 6 — Set the uploads folder permission
+1. File Manager → right-click **`uploads/blogs`** → **Permissions**
+2. Set to **755** (so PHP can write image files there)
+3. Keep the `.htaccess` inside it (it blocks script execution for security)
 
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Authentication (Email/Password)
-3. Create a Firestore database
-4. Get your config from Project Settings > General
-5. Replace the placeholders in admin/admin.js:
-   - YOUR_API_KEY
-   - YOUR_PROJECT_ID
-   - YOUR_PROJECT.firebaseapp.com
-   - YOUR_SENDER_ID
-   - YOUR_APP_ID
+---
+
+## STEP 7 — Test everything
+1. **Website**: open `https://YOURDOMAIN.com` — the announcement bar shows at top.
+2. **Lead capture**: fill the homepage consultation form and submit.
+3. **Admin login**: open `https://YOURDOMAIN.com/admin/` →
+   login with `support@crownwealthadvisor.com` / `Crown@123`
+4. **Dashboard**: the lead you just submitted appears.
+5. **Blog**: Admin → Write Blog → upload an image (auto-compressed) →
+   Submit for Approval → Blog Approval → Approve → it now shows on
+   `https://YOURDOMAIN.com/pages/blog.html`
+6. **Analytics**: check counts, success rate, daily/weekly/monthly trend.
+
+---
+
+## Security checklist (do these once)
+- [ ] Deleted `api/install.php`
+- [ ] Changed the owner password (admin → Users)
+- [ ] `uploads/blogs` is 755 and contains the protective `.htaccess`
+- [ ] `robots.txt` disallows `/admin/` (already set)
+- [ ] In `api/config.php`, `display_errors` is `0` (already set)
+
+---
+
+## How the data is stored (storage planning)
+| Data | Where | Size |
+|------|-------|------|
+| Leads, blog text, users, settings | MySQL database | tiny (text) — thousands of leads = a few MB |
+| Blog images | `uploads/blogs/` on Hostinger disk | ~300–500 KB each (auto-compressed) |
+| Analytics | computed live from MySQL | 0 extra |
+
+Your Hostinger plan (50 GB+) is far more than enough.
+
+---
+
+## Optional — Email/WhatsApp notifications
+- The site stores leads reliably in the database (no lead is lost).
+- For instant email alerts you can later add EmailJS keys in admin → Notifications.
+- WhatsApp: the homepage form already prepares a `wa.me` message link to
+  `+91-7428045423`; full auto-send needs the WhatsApp Business API.
+
+---
 
 ## Troubleshooting
-
-### 404 errors on pages
-- Ensure all HTML files are in correct directories
-- Check that file names match exactly (case sensitive on Linux servers)
-
-### Logo not showing
-- Verify crown-logo.png is in assets/images/
-- Check file permissions (should be 644)
-
-### Admin panel not working
-- Clear browser localStorage if you see stale data
-- Ensure admin.js is uploaded correctly
-- Check browser console for errors
-
-### SSL not working
-- Wait 24 hours for DNS propagation
-- Try clearing browser cache
-- Contact Hostinger support if issue persists
-
-## Contact
-- Admin Email: crownwealthadvisor1111@gmail.com
-- Support: support@crownwealthadvisor.com
-- Phone: +91-7428045423
+- **"Database connection failed"** → re-check the 4 values in `api/config.php`
+  (Hostinger DB name/user include the `uXXXXXXXX_` prefix).
+- **Admin login fails** → run `api/install.php` once, then delete it.
+- **Blog image upload fails** → set `uploads/blogs` permission to 755.
+- **Blank API response** → make sure files are under `public_html` and the URL is
+  `https://YOURDOMAIN.com/api/...` (not opened as a local file).

@@ -65,22 +65,28 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
-      var users = CWA_Admin.users.getAll();
-      var settings = CWA_Admin.settings.getAll();
-      document.getElementById('autoAssignToggle').checked = settings.autoAssign;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      function isOn(v) { return v === '1' || v === 1 || v === true || v === 'true'; }
+
+      var users = [], settings = {};
+      try { users = await CWA_Admin.users.list(); } catch (e) { users = []; }
+      try { settings = await CWA_Admin.settings.all(); } catch (e) { settings = {}; }
+
+      document.getElementById('autoAssignToggle').checked = isOn(settings['auto_assign']);
 
       function renderSliders() {
         document.getElementById('percentageSliders').innerHTML = users.map(function(u) {
-          var pct = settings.assignmentPercentages[u.email] || 0;
-          var onLeave = settings.leaveMode[u.email] || false;
+          var pct = parseInt(settings['assign_pct_' + u.email] || '0', 10) || 0;
+          var onLeave = isOn(settings['leave_' + u.email]);
           return '<div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;padding:12px;border:1px solid #eee;border-radius:8px;">' +
-            '<strong style="min-width:120px;">' + u.name + '</strong>' +
-            '<label style="font-size:0.85rem;">Percentage: <input type="range" min="0" max="100" value="' + pct + '" data-email="' + u.email + '" class="pct-slider" style="width:120px;"> <span class="pct-val">' + pct + '%</span></label>' +
-            '<label class="toggle-switch" style="margin-left:auto;"><input type="checkbox" class="leave-toggle" data-email="' + u.email + '"' + (onLeave ? ' checked' : '') + '><span class="toggle-slider"></span><span style="font-size:0.8rem;">On Leave</span></label>' +
+            '<strong style="min-width:120px;">' + esc(u.name) + '</strong>' +
+            '<label style="font-size:0.85rem;">Percentage: <input type="range" min="0" max="100" value="' + pct + '" data-email="' + esc(u.email) + '" class="pct-slider" style="width:120px;"> <span class="pct-val">' + pct + '%</span></label>' +
+            '<label class="toggle-switch" style="margin-left:auto;"><input type="checkbox" class="leave-toggle" data-email="' + esc(u.email) + '"' + (onLeave ? ' checked' : '') + '><span class="toggle-slider"></span><span style="font-size:0.8rem;">On Leave</span></label>' +
             '</div>';
         }).join('');
         document.querySelectorAll('.pct-slider').forEach(function(s) {
@@ -89,32 +95,68 @@
       }
       renderSliders();
 
-      function renderTable() {
-        var leads = CWA_Admin.leads.getAll();
-        var options = users.map(function(u) { return '<option value="' + u.email + '">' + u.name + '</option>'; }).join('');
-        document.getElementById('assignTable').innerHTML = leads.map(function(l) {
-          return '<tr><td>' + l.id + '</td><td>' + l.name + '</td><td>' + l.service + '</td><td>' + (l.assignedTo || '<em class="text-muted">None</em>') + '</td><td><select class="form-control" id="assign-' + l.id + '" style="width:auto;padding:6px;"><option value="">Select</option>' + options + '</select></td><td><button class="btn btn-sm btn-primary" onclick="assignLead(\'' + l.id + '\')">Assign</button></td></tr>';
-        }).join('');
+      async function renderTable() {
+        var tbody = document.getElementById('assignTable');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        try {
+          var leads = await CWA_Admin.leads.list();
+          var options = users.map(function(u) { return '<option value="' + esc(u.email) + '">' + esc(u.name) + '</option>'; }).join('');
+          if (!leads.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">No leads.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = leads.map(function(l) {
+            return '<tr><td>' + esc(l.id) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.service) + '</td><td>' + (l.assigned_to ? esc(l.assigned_to) : '<em class="text-muted">None</em>') + '</td><td><select class="form-control" id="assign-' + esc(l.id) + '" style="width:auto;padding:6px;"><option value="">Select</option>' + options + '</select></td><td><button class="btn btn-sm btn-primary" onclick="assignLead(\'' + esc(l.id) + '\')">Assign</button></td></tr>';
+          }).join('');
+          // Pre-select current assignment
+          leads.forEach(function(l) {
+            if (l.assigned_to) {
+              var sel = document.getElementById('assign-' + l.id);
+              if (sel) sel.value = l.assigned_to;
+            }
+          });
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Error loading leads: ' + esc(e.message) + '</td></tr>';
+        }
       }
       renderTable();
 
-      window.assignLead = function(id) {
-        var email = document.getElementById('assign-' + id).value;
+      window.assignLead = async function(id) {
+        var sel = document.getElementById('assign-' + id);
+        var email = sel ? sel.value : '';
         if (!email) { alert('Select a user'); return; }
-        CWA_Admin.leads.assign(id, email);
-        renderTable();
+        try {
+          await CWA_Admin.leads.assign(id, email);
+          await renderTable();
+        } catch (e) { alert('Could not assign: ' + e.message); }
       };
 
-      window.saveAssignSettings = function() {
-        settings.autoAssign = document.getElementById('autoAssignToggle').checked;
-        document.querySelectorAll('.pct-slider').forEach(function(s) {
-          settings.assignmentPercentages[s.getAttribute('data-email')] = parseInt(s.value);
-        });
-        document.querySelectorAll('.leave-toggle').forEach(function(t) {
-          settings.leaveMode[t.getAttribute('data-email')] = t.checked;
-        });
-        CWA_Admin.settings.save(settings);
-        document.getElementById('assignMsg').textContent = 'Settings saved!';
+      window.saveAssignSettings = async function() {
+        var msg = document.getElementById('assignMsg');
+        if (!CWA_Admin.isOwner()) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Only the owner can change these settings.';
+          return;
+        }
+        msg.style.color = '#28a745';
+        msg.textContent = 'Saving...';
+        try {
+          await CWA_Admin.settings.save('auto_assign', document.getElementById('autoAssignToggle').checked ? '1' : '0');
+          var sliders = document.querySelectorAll('.pct-slider');
+          for (var i = 0; i < sliders.length; i++) {
+            await CWA_Admin.settings.save('assign_pct_' + sliders[i].getAttribute('data-email'), String(parseInt(sliders[i].value, 10) || 0));
+          }
+          var toggles = document.querySelectorAll('.leave-toggle');
+          for (var j = 0; j < toggles.length; j++) {
+            await CWA_Admin.settings.save('leave_' + toggles[j].getAttribute('data-email'), toggles[j].checked ? '1' : '0');
+          }
+          settings = await CWA_Admin.settings.all();
+          msg.style.color = '#28a745';
+          msg.textContent = 'Settings saved!';
+        } catch (e) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Error: ' + e.message;
+        }
       };
     })();
   </script>

@@ -76,57 +76,103 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      var owner = CWA_Admin.isOwner();
+      function isOn(v) { return v === '1' || v === 1 || v === true || v === 'true'; }
 
-      function render() {
-        var users = CWA_Admin.users.getAll();
-        var settings = CWA_Admin.settings.getAll();
+      // Owner-only notice for non-owners (add/delete are hidden via data-role="owner").
+      if (!owner) {
+        var contentArea = document.querySelector('.admin-content');
+        var notice = document.createElement('div');
+        notice.className = 'admin-card';
+        notice.innerHTML = '<div class="card-body"><p class="text-muted">Adding and removing users is available to the owner only. You can view the team below.</p></div>';
+        contentArea.insertBefore(notice, contentArea.firstChild);
+      }
 
-        // Team cards
-        document.getElementById('teamGrid').innerHTML = users.map(function(u) {
-          var onLeave = settings.leaveMode[u.email];
+      // The add-user form has no password input in the markup; inject one (required by API).
+      var addCard = document.querySelector('.admin-card[data-role="owner"]');
+      if (addCard) {
+        var row = addCard.querySelector('.form-row');
+        if (row && !document.getElementById('userPassword')) {
+          var grp = document.createElement('div');
+          grp.className = 'form-group';
+          grp.innerHTML = '<label>Password</label><input type="password" class="form-control" id="userPassword" placeholder="Min 6 characters">';
+          row.appendChild(grp);
+        }
+      }
+
+      async function render() {
+        var grid = document.getElementById('teamGrid');
+        var table = document.getElementById('usersTable');
+        grid.innerHTML = '<p class="text-muted">Loading...</p>';
+        table.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        var users = [], settings = {};
+        try {
+          users = await CWA_Admin.users.list();
+        } catch (e) {
+          grid.innerHTML = '<p class="text-muted">Could not load users: ' + esc(e.message) + '</p>';
+          table.innerHTML = '';
+          return;
+        }
+        try { settings = await CWA_Admin.settings.all(); } catch (e) { settings = {}; }
+
+        grid.innerHTML = users.map(function(u) {
+          var onLeave = isOn(settings['leave_' + u.email]) || u.status === 'inactive';
           return '<div class="team-card">' +
-            '<div class="team-avatar">' + u.avatar + '</div>' +
-            '<h3>' + u.name + '</h3>' +
-            '<p class="role">' + u.role + '</p>' +
-            '<p class="email">' + u.email + '</p>' +
+            '<div class="team-avatar">' + esc(CWA_Admin.ui.initials(u.name)) + '</div>' +
+            '<h3>' + esc(u.name) + '</h3>' +
+            '<p class="role">' + esc(u.role) + '</p>' +
+            '<p class="email">' + esc(u.email) + '</p>' +
             '<span class="team-status ' + (onLeave ? 'leave' : 'active') + '">' + (onLeave ? 'On Leave' : 'Active') + '</span>' +
             '</div>';
         }).join('');
 
-        // Table
-        document.getElementById('usersTable').innerHTML = users.map(function(u) {
-          var onLeave = settings.leaveMode[u.email];
-          return '<tr><td><strong>' + u.name + '</strong></td><td>' + u.email + '</td><td>' + u.role + '</td><td><span class="team-status ' + (onLeave ? 'leave' : 'active') + '">' + (onLeave ? 'On Leave' : 'Active') + '</span></td><td>' + CWA_Admin.ui.formatDate(u.createdAt) + '</td><td data-role="owner"><button class="btn btn-sm btn-danger" onclick="removeUser(\'' + u.email + '\')">Delete</button></td></tr>';
+        table.innerHTML = users.map(function(u) {
+          var onLeave = isOn(settings['leave_' + u.email]) || u.status === 'inactive';
+          var actionCell = owner
+            ? '<td data-role="owner"><button class="btn btn-sm btn-danger" onclick="removeUser(\'' + esc(u.id) + '\')">Delete</button></td>'
+            : '<td data-role="owner" style="display:none;"></td>';
+          return '<tr><td><strong>' + esc(u.name) + '</strong></td><td>' + esc(u.email) + '</td><td>' + esc(u.role) + '</td><td><span class="team-status ' + (onLeave ? 'leave' : 'active') + '">' + (onLeave ? 'On Leave' : 'Active') + '</span></td><td>' + CWA_Admin.ui.formatDate(u.created_at) + '</td>' + actionCell + '</tr>';
         }).join('');
       }
 
-      window.addUser = function() {
+      window.addUser = async function() {
         var name = document.getElementById('userName').value.trim();
         var email = document.getElementById('userEmail').value.trim();
         var role = document.getElementById('userRole').value;
-        if (!name || !email) { alert('Please fill all fields'); return; }
-        var result = CWA_Admin.users.add({ name: name, email: email, role: role });
+        var passEl = document.getElementById('userPassword');
+        var password = passEl ? passEl.value : '';
         var msg = document.getElementById('userMsg');
-        if (result) {
-          msg.textContent = 'User added!';
+        if (!name || !email || !password) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Please fill name, email and password.';
+          return;
+        }
+        try {
+          await CWA_Admin.users.add({ name: name, email: email, password: password, role: role });
           msg.style.color = '#28a745';
+          msg.textContent = 'User added!';
           document.getElementById('userName').value = '';
           document.getElementById('userEmail').value = '';
-          render();
-        } else {
-          msg.textContent = 'Email already exists';
+          if (passEl) passEl.value = '';
+          await render();
+        } catch (e) {
           msg.style.color = '#dc3545';
+          msg.textContent = e.message;
         }
       };
 
-      window.removeUser = function(email) {
+      window.removeUser = async function(id) {
         if (!confirm('Delete this user?')) return;
-        CWA_Admin.users.remove(email);
-        render();
+        try {
+          await CWA_Admin.users.remove(id);
+          await render();
+        } catch (e) { alert('Could not delete: ' + e.message); }
       };
 
       render();

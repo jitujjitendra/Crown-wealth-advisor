@@ -167,5 +167,32 @@
       </svg>
     </a>
     <script src="../assets/js/main.js?v=2"></script>
+    <script>
+      // If ?id= is present, load that blog from the backend
+      (function() {
+        var id = new URLSearchParams(window.location.search).get('id');
+        if (!id) return;
+        function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+        fetch('../api/blogs.php?action=get&id=' + encodeURIComponent(id))
+          .then(function(r){ return r.json(); })
+          .then(function(resp){
+            if (!resp || !resp.success || !resp.blog) return;
+            var b = resp.blog;
+            var h1 = document.querySelector('.blog-hero h1');
+            var lead = document.querySelector('.blog-hero p');
+            var body = document.querySelector('.single-article');
+            if (h1) h1.textContent = b.title;
+            if (lead) lead.textContent = b.category + (b.tags ? ' • ' + b.tags : '');
+            if (body) {
+              var imgHtml = b.featured_image
+                ? '<img src="' + (b.featured_image.indexOf('http')===0 ? b.featured_image : '../' + b.featured_image) + '" alt="' + esc(b.title) + '" style="width:100%;border-radius:12px;margin-bottom:20px;">'
+                : '';
+              body.innerHTML = imgHtml + b.content; // content is admin-authored HTML
+            }
+            document.title = b.title + ' | Crown Wealth Advisor';
+          })
+          .catch(function(err){ console.warn('Could not load article:', err); });
+      })();
+    </script>
   </body>
 </html>

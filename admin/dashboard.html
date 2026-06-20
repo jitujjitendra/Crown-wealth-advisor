@@ -92,40 +92,82 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
 
-      // Stats
-      var stats = CWA_Admin.leads.getStats();
-      document.getElementById('statsGrid').innerHTML =
-        '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
-        '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>';
+      // Wire the existing "Export to Excel" button (onclick="CWA_Admin.leads.exportToExcel()")
+      CWA_Admin.leads.exportToExcel = async function() {
+        try {
+          var all = await CWA_Admin.leads.list();
+          var headers = ['ID','Name','Mobile','Email','City','Service','Status','Assigned To','Source','Created'];
+          var rows = all.map(function(l) {
+            return {
+              'ID': l.id, 'Name': l.name, 'Mobile': l.mobile, 'Email': l.email, 'City': l.city,
+              'Service': l.service, 'Status': l.status, 'Assigned To': l.assigned_to,
+              'Source': l.source, 'Created': l.created_at
+            };
+          });
+          if (typeof XLSX !== 'undefined') {
+            var ws = XLSX.utils.json_to_sheet(rows);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Leads');
+            XLSX.writeFile(wb, 'crown_leads_export.xlsx');
+          } else {
+            // CSV fallback download
+            var csv = [headers.join(',')];
+            rows.forEach(function(r) {
+              csv.push(headers.map(function(h) {
+                var v = (r[h] === null || r[h] === undefined) ? '' : String(r[h]);
+                return '"' + v.replace(/"/g, '""') + '"';
+              }).join(','));
+            });
+            var blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url; a.download = 'crown_leads_export.csv';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }
+        } catch (e) {
+          alert('Export failed: ' + e.message);
+        }
+      };
+
+      // Stats (from analytics summary)
+      try {
+        var summary = await CWA_Admin.analytics.summary();
+        var stats = summary.stats;
+        document.getElementById('statsGrid').innerHTML =
+          '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>';
+      } catch (e) {
+        document.getElementById('statsGrid').innerHTML = '<p class="text-muted">Could not load stats: ' + esc(e.message) + '</p>';
+      }
 
       // Recent Leads
-      var leads = CWA_Admin.leads.getAll().slice(0, 8);
-      var tbody = document.getElementById('recentLeads');
-      tbody.innerHTML = leads.map(function(l) {
-        return '<tr><td>' + l.id + '</td><td>' + l.name + '</td><td>' + l.service + '</td><td>' + l.city + '</td><td><span class="status-badge ' + l.status + '">' + l.status + '</span></td><td>' + CWA_Admin.ui.formatDate(l.createdAt) + '</td></tr>';
-      }).join('');
+      try {
+        var leads = (await CWA_Admin.leads.list()).slice(0, 8);
+        document.getElementById('recentLeads').innerHTML = leads.map(function(l) {
+          return '<tr><td>' + esc(l.id) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.service) + '</td><td>' + esc(l.city) + '</td><td><span class="status-badge ' + esc(l.status) + '">' + esc(l.status) + '</span></td><td>' + CWA_Admin.ui.formatDate(l.created_at) + '</td></tr>';
+        }).join('');
+      } catch (e) {
+        document.getElementById('recentLeads').innerHTML = '<tr><td colspan="6" class="text-muted">Could not load leads: ' + esc(e.message) + '</td></tr>';
+      }
 
       // Activity Log
-      var activities = CWA_Admin.activity.getAll().slice(0, 10);
-      document.getElementById('activityLog').innerHTML = activities.map(function(a) {
-        return '<li><span class="activity-dot"></span><div><span>' + a.action + '</span><span class="activity-time">' + CWA_Admin.ui.formatDateTime(a.time) + ' by ' + a.by + '</span></div></li>';
-      }).join('');
-
-      // Alerts
-      var alerts = CWA_Admin.notifications.getAlerts();
-      if (alerts.length > 0) {
-        document.getElementById('alertsCard').style.display = 'block';
-        document.getElementById('alertsList').innerHTML = alerts.slice(0, 5).map(function(a) {
-          return '<p style="padding:8px 0;border-bottom:1px solid #eee;font-size:0.9rem;">' + (a.read ? '' : '<strong>') + a.message + (a.read ? '' : '</strong>') + ' <small class="text-muted">' + CWA_Admin.ui.formatDateTime(a.time) + '</small></p>';
+      try {
+        var activities = (await CWA_Admin.analytics.activity()).slice(0, 10);
+        document.getElementById('activityLog').innerHTML = activities.map(function(a) {
+          return '<li><span class="activity-dot"></span><div><span>' + esc(a.action) + '</span><span class="activity-time">' + CWA_Admin.ui.formatDateTime(a.created_at) + ' by ' + esc(a.by_user) + '</span></div></li>';
         }).join('');
-        CWA_Admin.notifications.markAllRead();
+      } catch (e) {
+        document.getElementById('activityLog').innerHTML = '<li class="text-muted">Could not load activity: ' + esc(e.message) + '</li>';
       }
     })();
   </script>

@@ -1,52 +1,53 @@
 /**
- * Crown Wealth Advisor - Announcements System
- * Loads active announcements from localStorage and displays in announcement bar
+ * Crown Wealth Advisor - Announcements Bar
+ * Loads ACTIVE announcements from the PHP backend and shows them in the
+ * scrolling top bar. Falls back to defaults if the API is unreachable
+ * (so the bar still shows something on a fresh deploy).
  */
 var CWA_Announcements = (function() {
   'use strict';
 
-  // Default announcements shown when none are configured in localStorage.
-  // These ensure the bar appears on any fresh device/browser (e.g. on Hostinger).
-  function getDefaultAnnouncements() {
+  function apiBase() {
+    return window.location.pathname.indexOf('/pages/') > -1 ? '../api/' : 'api/';
+  }
+
+  function defaults() {
     return [
-      { message: 'Get free financial consultation this month! Call +91-7428045423 for personalized insurance and loan guidance.', active: true },
-      { message: 'Now offering Loan Against Property advisory services. Compare options from multiple lenders.', active: true },
-      { message: 'We are hiring! Join us as a Bajaj or PNB MetLife insurance advisor. Apply now.', active: true }
+      { message: 'Get free financial consultation this month! Call +91-7428045423 for personalized insurance and loan guidance.' },
+      { message: 'Now offering Loan Against Property advisory services. Compare options from multiple lenders.' },
+      { message: 'We are hiring! Join us as a Bajaj or PNB MetLife insurance advisor. Apply now.' }
     ];
   }
 
-  function getAnnouncements() {
-    try {
-      var data = localStorage.getItem('cwa_announcements');
-      if (data) {
-        var parsed = JSON.parse(data);
-        if (parsed && parsed.length > 0) return parsed;
-      }
-    } catch(e) {}
-    // Fallback to defaults so the bar always shows
-    return getDefaultAnnouncements();
-  }
-
-  function renderAnnouncementBar() {
+  function paint(list) {
     var bar = document.getElementById('announcement-bar');
     var textEl = document.getElementById('announcement-text');
     if (!bar || !textEl) return;
 
-    var announcements = getAnnouncements().filter(function(a) { return a.active; });
-    if (announcements.length === 0) {
-      bar.style.display = 'none';
-      return;
-    }
+    var active = (list || []).filter(function(a) {
+      return a && a.message && (a.active === undefined || a.active == 1 || a.active === true);
+    });
+    if (active.length === 0) { bar.style.display = 'none'; return; }
 
-    var text = announcements.map(function(a) {
-      return a.message;
-    }).join('  |  ');
-
-    textEl.textContent = text;
+    textEl.textContent = active.map(function(a) { return a.message; }).join('   |   ');
     bar.style.display = 'block';
   }
 
-  return {
-    renderAnnouncementBar: renderAnnouncementBar
-  };
+  function renderAnnouncementBar() {
+    fetch(apiBase() + 'announcements.php?action=active')
+      .then(function(r) { return r.json(); })
+      .then(function(resp) {
+        if (resp && resp.success && resp.announcements && resp.announcements.length) {
+          paint(resp.announcements);
+        } else {
+          paint(defaults());
+        }
+      })
+      .catch(function() {
+        // API not reachable (e.g. opened as plain file) - show defaults
+        paint(defaults());
+      });
+  }
+
+  return { renderAnnouncementBar: renderAnnouncementBar };
 })();

@@ -79,34 +79,66 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
-      var currentFilter = 'all';
-      var users = CWA_Admin.users.getAll();
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      var params = new URLSearchParams(window.location.search);
+      var leadId = params.get('id');
 
-      function renderLeads() {
-        var leads = CWA_Admin.leads.getAll();
-        if (currentFilter !== 'all') {
-          leads = leads.filter(function(l) { return l.status === currentFilter; });
-        }
-        document.getElementById('leadsTable').innerHTML = leads.map(function(l) {
-          return '<tr>' +
-            '<td>' + l.id + '</td>' +
-            '<td><strong>' + l.name + '</strong></td>' +
-            '<td>' + l.mobile + '</td>' +
-            '<td>' + l.city + '</td>' +
-            '<td>' + l.service + '</td>' +
-            '<td><span class="status-badge ' + l.status + '">' + l.status + '</span></td>' +
-            '<td>' + (l.assignedTo || '<em class="text-muted">Unassigned</em>') + '</td>' +
-            '<td>' + CWA_Admin.ui.formatDate(l.createdAt) + '</td>' +
-            '<td><button class="btn btn-sm btn-outline" onclick="viewLead(\'' + l.id + '\')">View</button></td>' +
-            '</tr>';
-        }).join('');
+      var currentFilter = 'all';
+      var searchTerm = '';
+
+      // Inject a search box (no markup change to the file; added at runtime).
+      var tabs = document.getElementById('statusTabs');
+      if (tabs && !document.getElementById('leadSearch')) {
+        var searchInput = document.createElement('input');
+        searchInput.type = 'text';
+        searchInput.className = 'form-control';
+        searchInput.id = 'leadSearch';
+        searchInput.placeholder = 'Search by name, mobile, email, service, city...';
+        searchInput.style.maxWidth = '320px';
+        searchInput.style.margin = '0 0 16px';
+        tabs.parentNode.insertBefore(searchInput, tabs.nextSibling);
+        var searchTimer = null;
+        searchInput.addEventListener('input', function() {
+          searchTerm = this.value.trim();
+          clearTimeout(searchTimer);
+          searchTimer = setTimeout(renderLeads, 250);
+        });
       }
 
-      // Tab clicks
+      async function renderLeads() {
+        var tbody = document.getElementById('leadsTable');
+        tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        try {
+          var status = currentFilter === 'all' ? '' : currentFilter;
+          var leads = await CWA_Admin.leads.list(status, searchTerm);
+          if (!leads.length) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">No leads found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = leads.map(function(l) {
+            return '<tr>' +
+              '<td>' + esc(l.id) + '</td>' +
+              '<td><strong>' + esc(l.name) + '</strong></td>' +
+              '<td>' + esc(l.mobile) + '</td>' +
+              '<td>' + esc(l.city) + '</td>' +
+              '<td>' + esc(l.service) + '</td>' +
+              '<td><span class="status-badge ' + esc(l.status) + '">' + esc(l.status) + '</span></td>' +
+              '<td>' + (l.assigned_to ? esc(l.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</td>' +
+              '<td>' + CWA_Admin.ui.formatDate(l.created_at) + '</td>' +
+              '<td><a class="btn btn-sm btn-outline" href="lead-details.html?id=' + encodeURIComponent(l.id) + '">View</a></td>' +
+              '</tr>';
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">Error loading leads: ' + esc(e.message) + '</td></tr>';
+        }
+      }
+
+      // Tab clicks (status filter)
       document.querySelectorAll('#statusTabs .tab-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
           document.querySelectorAll('#statusTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
@@ -116,58 +148,79 @@
         });
       });
 
-      // View lead detail
-      window.viewLead = function(id) {
-        var lead = CWA_Admin.leads.getById(id);
-        if (!lead) return;
-        document.getElementById('modalLeadTitle').textContent = lead.name + ' (' + lead.id + ')';
-        var assignOptions = users.map(function(u) {
-          return '<option value="' + u.email + '"' + (lead.assignedTo === u.email ? ' selected' : '') + '>' + u.name + '</option>';
+      async function renderDetail(id) {
+        var titleEl = document.getElementById('modalLeadTitle');
+        var bodyEl = document.getElementById('modalLeadBody');
+        var lead;
+        try {
+          lead = await CWA_Admin.leads.get(id);
+        } catch (e) {
+          titleEl.textContent = 'Lead Details';
+          bodyEl.innerHTML = '<p class="text-muted">Could not load lead: ' + esc(e.message) + '</p>';
+          CWA_Admin.ui.showModal('leadModal');
+          return;
+        }
+        var usersList = [];
+        try { usersList = await CWA_Admin.users.list(); } catch (e) { usersList = []; }
+
+        titleEl.textContent = lead.name + ' (#' + lead.id + ')';
+        var assignOptions = usersList.map(function(u) {
+          return '<option value="' + esc(u.email) + '"' + (lead.assigned_to === u.email ? ' selected' : '') + '>' + esc(u.name) + '</option>';
         }).join('');
-        var commentsHtml = lead.comments.map(function(c) {
-          return '<div class="timeline-item"><strong>' + c.by + '</strong><p>' + c.text + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.at) + '</span></div>';
+        var commentsHtml = (lead.comments || []).map(function(c) {
+          return '<div class="timeline-item"><strong>' + esc(c.by_user) + '</strong><p>' + esc(c.text) + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.created_at) + '</span></div>';
         }).join('');
 
-        document.getElementById('modalLeadBody').innerHTML =
+        bodyEl.innerHTML =
           '<div class="form-row mb-3">' +
-            '<div class="form-group"><label>Name</label><p><strong>' + lead.name + '</strong></p></div>' +
-            '<div class="form-group"><label>Mobile</label><p>' + lead.mobile + '</p></div>' +
-            '<div class="form-group"><label>City</label><p>' + lead.city + '</p></div>' +
-            '<div class="form-group"><label>Service</label><p>' + lead.service + '</p></div>' +
-            '<div class="form-group"><label>Source</label><p>' + lead.source + '</p></div>' +
-            '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(lead.createdAt) + '</p></div>' +
+            '<div class="form-group"><label>Name</label><p><strong>' + esc(lead.name) + '</strong></p></div>' +
+            '<div class="form-group"><label>Mobile</label><p>' + esc(lead.mobile) + '</p></div>' +
+            '<div class="form-group"><label>Email</label><p>' + esc(lead.email) + '</p></div>' +
+            '<div class="form-group"><label>City</label><p>' + esc(lead.city) + '</p></div>' +
+            '<div class="form-group"><label>Service</label><p>' + esc(lead.service) + '</p></div>' +
+            '<div class="form-group"><label>Source</label><p>' + esc(lead.source) + '</p></div>' +
+            '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(lead.created_at) + '</p></div>' +
           '</div>' +
+          (lead.message ? '<div class="form-group mb-3"><label>Message</label><p>' + esc(lead.message) + '</p></div>' : '') +
           '<div class="form-row mb-3">' +
             '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus"><option value="new"' + (lead.status==='new'?' selected':'') + '>New</option><option value="wip"' + (lead.status==='wip'?' selected':'') + '>WIP</option><option value="success"' + (lead.status==='success'?' selected':'') + '>Success</option><option value="rejected"' + (lead.status==='rejected'?' selected':'') + '>Rejected</option></select></div>' +
             '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>' +
           '</div>' +
-          '<button class="btn btn-primary mb-3" onclick="updateLead(\'' + lead.id + '\')">Update Lead</button>' +
           '<hr style="margin:16px 0;">' +
-          '<h4 style="margin-bottom:12px;">Timeline & Comments</h4>' +
+          '<h4 style="margin-bottom:12px;">Timeline &amp; Comments</h4>' +
           '<div class="timeline">' + (commentsHtml || '<p class="text-muted">No comments yet</p>') + '</div>' +
           '<div class="form-group mt-3"><label>Add Comment</label><textarea class="form-control" id="modalComment" placeholder="Type a comment..."></textarea></div>' +
-          '<button class="btn btn-success" onclick="addComment(\'' + lead.id + '\')">Add Comment</button>';
+          '<button class="btn btn-success" id="modalCommentBtn">Add Comment</button>';
+
+        // Wire status change -> setStatus
+        document.getElementById('modalStatus').addEventListener('change', async function() {
+          try { await CWA_Admin.leads.setStatus(id, this.value); }
+          catch (e) { alert('Could not update status: ' + e.message); }
+        });
+        // Wire assign change -> assign
+        document.getElementById('modalAssign').addEventListener('change', async function() {
+          try { await CWA_Admin.leads.assign(id, this.value); }
+          catch (e) { alert('Could not assign: ' + e.message); }
+        });
+        // Wire comment submit -> comment then reload detail
+        document.getElementById('modalCommentBtn').addEventListener('click', async function() {
+          var text = document.getElementById('modalComment').value.trim();
+          if (!text) return;
+          try {
+            await CWA_Admin.leads.comment(id, text);
+            await renderDetail(id);
+          } catch (e) { alert('Could not add comment: ' + e.message); }
+        });
 
         CWA_Admin.ui.showModal('leadModal');
-      };
+      }
 
-      window.updateLead = function(id) {
-        var status = document.getElementById('modalStatus').value;
-        var assign = document.getElementById('modalAssign').value;
-        CWA_Admin.leads.updateStatus(id, status);
-        CWA_Admin.leads.assign(id, assign);
-        CWA_Admin.ui.hideModal('leadModal');
-        renderLeads();
-      };
-
-      window.addComment = function(id) {
-        var text = document.getElementById('modalComment').value.trim();
-        if (!text) return;
-        CWA_Admin.leads.addComment(id, text);
-        viewLead(id);
-      };
-
-      renderLeads();
+      // Always render the list (so closing the detail modal reveals the table).
+      await renderLeads();
+      // If an id is present, open the detail view for it.
+      if (leadId) {
+        await renderDetail(leadId);
+      }
     })();
   </script>
 </body>

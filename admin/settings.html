@@ -88,34 +88,55 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
-      var settings = CWA_Admin.settings.getAll();
-      document.getElementById('toggleBlog').checked = settings.blogEnabled;
-      document.getElementById('toggleAnalytics').checked = settings.analyticsEnabled;
-      document.getElementById('toggleNotifications').checked = settings.notificationsEnabled;
-      document.getElementById('toggleAssignments').checked = settings.assignmentsEnabled;
-      window.saveFeatures = function() {
-        settings.blogEnabled = document.getElementById('toggleBlog').checked;
-        settings.analyticsEnabled = document.getElementById('toggleAnalytics').checked;
-        settings.notificationsEnabled = document.getElementById('toggleNotifications').checked;
-        settings.assignmentsEnabled = document.getElementById('toggleAssignments').checked;
-        CWA_Admin.settings.save(settings);
-        document.getElementById('settingsMsg').textContent = 'Settings saved!';
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      function isOn(v) { return v === '1' || v === 1 || v === true || v === 'true'; }
+      var owner = CWA_Admin.isOwner();
+
+      var settings = {};
+      try { settings = await CWA_Admin.settings.all(); } catch (e) { settings = {}; }
+
+      document.getElementById('toggleBlog').checked = isOn(settings['blog_enabled']);
+      document.getElementById('toggleAnalytics').checked = isOn(settings['analytics_enabled']);
+      document.getElementById('toggleNotifications').checked = isOn(settings['notifications_enabled']);
+      document.getElementById('toggleAssignments').checked = isOn(settings['assignments_enabled']);
+
+      if (!owner) {
+        var contentArea = document.querySelector('.admin-content');
+        var notice = document.createElement('div');
+        notice.className = 'admin-card';
+        notice.innerHTML = '<div class="card-body"><p class="text-muted">Settings can be changed by the owner only.</p></div>';
+        contentArea.insertBefore(notice, contentArea.firstChild);
+      }
+
+      window.saveFeatures = async function() {
+        var msg = document.getElementById('settingsMsg');
+        if (!owner) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Only the owner can change settings.';
+          return;
+        }
+        msg.style.color = '#28a745';
+        msg.textContent = 'Saving...';
+        try {
+          await CWA_Admin.settings.save('blog_enabled', document.getElementById('toggleBlog').checked ? '1' : '0');
+          await CWA_Admin.settings.save('analytics_enabled', document.getElementById('toggleAnalytics').checked ? '1' : '0');
+          await CWA_Admin.settings.save('notifications_enabled', document.getElementById('toggleNotifications').checked ? '1' : '0');
+          await CWA_Admin.settings.save('assignments_enabled', document.getElementById('toggleAssignments').checked ? '1' : '0');
+          msg.style.color = '#28a745';
+          msg.textContent = 'Settings saved!';
+        } catch (e) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Error: ' + e.message;
+        }
       };
+
+      // Data now lives on the server; local reset is no longer applicable.
       window.resetData = function() {
-        if (!confirm('Reset ALL data to defaults? This cannot be undone.')) return;
-        localStorage.removeItem('cwa_leads');
-        localStorage.removeItem('cwa_blogs');
-        localStorage.removeItem('cwa_users');
-        localStorage.removeItem('cwa_announcements');
-        localStorage.removeItem('cwa_settings');
-        localStorage.removeItem('cwa_activity');
-        localStorage.removeItem('cwa_alerts');
-        alert('Data reset. Page will reload.');
-        location.reload();
+        alert('Data is stored on the server and cannot be reset from here.');
       };
     })();
   </script>

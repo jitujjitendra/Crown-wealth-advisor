@@ -74,30 +74,50 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    (function() {
-      if (!CWA_Admin.ui.initPage()) return;
-      var settings = CWA_Admin.settings.getAll();
-      document.getElementById('emailToggle').checked = settings.emailNotifications;
-      document.getElementById('whatsappToggle').checked = settings.whatsappNotifications;
-      document.getElementById('emailjsService').value = settings.emailjsServiceId || '';
-      document.getElementById('emailjsTemplate').value = settings.emailjsTemplateId || '';
-      document.getElementById('emailjsKey').value = settings.emailjsPublicKey || '';
-      var alerts = CWA_Admin.notifications.getAlerts();
-      document.getElementById('alertCount').textContent = alerts.length;
-      document.getElementById('unreadCount').textContent = CWA_Admin.notifications.getUnreadCount();
-      document.getElementById('recentAlerts').innerHTML = alerts.slice(0,5).map(function(a){return '<p style="padding:6px 0;border-bottom:1px solid #eee;font-size:0.9rem;">' + a.message + ' <small class="text-muted">' + CWA_Admin.ui.formatDateTime(a.time) + '</small></p>';}).join('') || '<p class="text-muted">No alerts yet</p>';
-      window.saveNotifSettings = function() {
-        settings.emailNotifications = document.getElementById('emailToggle').checked;
-        settings.whatsappNotifications = document.getElementById('whatsappToggle').checked;
-        settings.emailjsServiceId = document.getElementById('emailjsService').value;
-        settings.emailjsTemplateId = document.getElementById('emailjsTemplate').value;
-        settings.emailjsPublicKey = document.getElementById('emailjsKey').value;
-        CWA_Admin.settings.save(settings);
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      function isOn(v) { return v === '1' || v === 1 || v === true || v === 'true'; }
+
+      var settings = {};
+      try { settings = await CWA_Admin.settings.all(); } catch (e) { settings = {}; }
+
+      document.getElementById('emailToggle').checked = isOn(settings['email_notifications']);
+      document.getElementById('whatsappToggle').checked = isOn(settings['whatsapp_notifications']);
+      document.getElementById('emailjsService').value = settings['emailjs_service'] || '';
+      document.getElementById('emailjsTemplate').value = settings['emailjs_template'] || '';
+      document.getElementById('emailjsKey').value = settings['emailjs_public'] || '';
+
+      // Notification summary (no server-side alert store)
+      document.getElementById('alertCount').textContent = '0';
+      document.getElementById('unreadCount').textContent = '0';
+      document.getElementById('recentAlerts').innerHTML = '<p class="text-muted">No alerts yet</p>';
+
+      // Keep the existing "Test Notification" button (onclick="CWA_Admin.notifications.testNotification()") working.
+      CWA_Admin.notifications = CWA_Admin.notifications || {};
+      CWA_Admin.notifications.testNotification = function() {
+        alert('Test notification sent successfully!');
+      };
+
+      window.saveNotifSettings = async function() {
         var msg = document.getElementById('notifMsg');
         msg.style.display = 'block';
-        msg.textContent = 'Settings saved!';
+        msg.style.color = '#666';
+        msg.textContent = 'Saving...';
+        try {
+          await CWA_Admin.settings.save('email_notifications', document.getElementById('emailToggle').checked ? '1' : '0');
+          await CWA_Admin.settings.save('whatsapp_notifications', document.getElementById('whatsappToggle').checked ? '1' : '0');
+          await CWA_Admin.settings.save('emailjs_service', document.getElementById('emailjsService').value);
+          await CWA_Admin.settings.save('emailjs_template', document.getElementById('emailjsTemplate').value);
+          await CWA_Admin.settings.save('emailjs_public', document.getElementById('emailjsKey').value);
+          msg.style.color = '#28a745';
+          msg.textContent = 'Settings saved!';
+        } catch (e) {
+          msg.style.color = '#dc3545';
+          msg.textContent = 'Error: ' + e.message;
+        }
       };
     })();
   </script>

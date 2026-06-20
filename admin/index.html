@@ -31,21 +31,30 @@
       <p>Admin: <code>staff@crown.com</code> / <code>staff123</code></p>
     </div>
   </div>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
-    if (CWA_Admin.auth.isLoggedIn()) {
-      window.location.href = 'dashboard.html';
-    }
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var email = document.getElementById('email').value;
-      var password = document.getElementById('password').value;
-      if (CWA_Admin.auth.login(email, password)) {
-        window.location.href = 'dashboard.html';
-      } else {
-        document.getElementById('loginError').style.display = 'block';
-      }
-    });
+    (async function() {
+      var errEl = document.getElementById('loginError');
+      // If already logged in, go straight to the dashboard.
+      try {
+        var existing = await CWA_Admin.auth.session();
+        if (existing) { window.location.href = 'dashboard.html'; return; }
+      } catch (e) { /* not logged in / network issue - stay on login */ }
+
+      document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        var email = document.getElementById('email').value;
+        var password = document.getElementById('password').value;
+        errEl.style.display = 'none';
+        try {
+          await CWA_Admin.auth.login(email, password);
+          window.location.href = 'dashboard.html';
+        } catch (err) {
+          errEl.textContent = err.message || 'Invalid email or password';
+          errEl.style.display = 'block';
+        }
+      });
+    })();
   </script>
 </body>
 </html>

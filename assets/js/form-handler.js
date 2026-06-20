@@ -34,53 +34,41 @@
     return 'website';
   }
 
-  // Save lead to localStorage (shared with admin panel - cwa_leads)
+  // API base path: pages/ live one level deep, root pages use 'api/'
+  function apiBase() {
+    return window.location.pathname.indexOf('/pages/') > -1 ? '../api/' : 'api/';
+  }
+
+  // Save lead to the PHP backend (real database)
   function saveLeadToStore(data, form) {
-    try {
-      var leads = [];
-      var existing = localStorage.getItem('cwa_leads');
-      if (existing) {
-        leads = JSON.parse(existing);
+    var payload = {
+      name: data.name || data.fullName || 'Unknown',
+      mobile: data.mobile || data.phone || data.tel || '',
+      email: data.email || '',
+      city: data.city || '',
+      service: data.service || data.serviceType || 'General Inquiry',
+      message: data.message || data.time || data.callbackTime || '',
+      source: getLeadSource(form)
+    };
+
+    fetch(apiBase() + 'leads.php?action=create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(resp) {
+      if (resp && resp.success) {
+        console.log('Lead saved to database, id:', resp.id);
+      } else {
+        console.warn('Lead save returned error:', resp && resp.error);
       }
+    })
+    .catch(function(err) {
+      console.error('Could not reach lead API:', err);
+    });
 
-      var lead = {
-        id: 'L' + String(leads.length + 1).padStart(3, '0'),
-        name: data.name || data.fullName || 'Unknown',
-        mobile: data.mobile || data.phone || data.tel || '',
-        email: data.email || '',
-        city: data.city || '',
-        service: data.service || data.serviceType || 'General Inquiry',
-        time: data.time || data.callbackTime || 'Anytime',
-        message: data.message || '',
-        status: 'new',
-        assignedTo: '',
-        comments: [],
-        createdAt: new Date().toISOString(),
-        source: getLeadSource(form)
-      };
-
-      leads.unshift(lead);
-      localStorage.setItem('cwa_leads', JSON.stringify(leads));
-
-      // Add to activity log
-      try {
-        var activity = [];
-        var actExisting = localStorage.getItem('cwa_activity');
-        if (actExisting) activity = JSON.parse(actExisting);
-        activity.unshift({
-          action: 'New lead ' + lead.id + ' from ' + lead.name + ' (' + lead.source + ')',
-          time: new Date().toISOString(),
-          by: 'website'
-        });
-        localStorage.setItem('cwa_activity', JSON.stringify(activity));
-      } catch (e) {}
-
-      console.log('Lead saved to admin panel:', lead.id);
-      return lead;
-    } catch (e) {
-      console.error('Failed to save lead:', e);
-      return null;
-    }
+    return payload;
   }
 
   // Generate notification links (Email + WhatsApp) for the owner

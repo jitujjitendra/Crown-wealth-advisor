@@ -1,0 +1,7 @@
+# Protect sensitive files in /api/
+Options -Indexes
+
+# Block direct download of SQL and config source files
+<FilesMatch "\.(sql|md|log)$">
+    Require all denied
+</FilesMatch>
