@@ -53,8 +53,10 @@
 
     fetch(apiBase() + 'leads.php?action=create', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: Object.keys(payload).map(function(k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(payload[k]);
+      }).join('&')
     })
     .then(function(res) { return res.json(); })
     .then(function(resp) {
