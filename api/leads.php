@@ -48,6 +48,11 @@ if ($action === 'list') {
     $search = trim((string) param('search', ''));
     $sql = 'SELECT * FROM leads WHERE 1=1';
     $args = [];
+    // Agents only see leads assigned to them
+    if ($user['role'] === 'agent') {
+        $sql .= ' AND assigned_to = ?';
+        $args[] = $user['email'];
+    }
     if ($status && in_array($status, ['new','wip','success','rejected'], true)) {
         $sql .= ' AND status = ?'; $args[] = $status;
     }
@@ -68,16 +73,30 @@ if ($action === 'get') {
     $stmt->execute([$id]);
     $lead = $stmt->fetch();
     if (!$lead) fail('Lead not found.', 404);
+    // Agents can only view leads assigned to them
+    if ($user['role'] === 'agent' && $lead['assigned_to'] !== $user['email']) {
+        fail('You can only view leads assigned to you.', 403);
+    }
     $c = db()->prepare('SELECT text, by_user, created_at FROM lead_comments WHERE lead_id = ? ORDER BY created_at ASC');
     $c->execute([$id]);
     $lead['comments'] = $c->fetchAll();
     ok(['lead' => $lead]);
 }
 
+// Helper: ensure an agent owns the lead they are modifying
+function agent_can_touch($user, $leadId) {
+    if ($user['role'] !== 'agent') return true;
+    $s = db()->prepare('SELECT assigned_to FROM leads WHERE id = ?');
+    $s->execute([$leadId]);
+    $row = $s->fetch();
+    return $row && $row['assigned_to'] === $user['email'];
+}
+
 if ($action === 'status') {
     $id = (int) param('id', 0);
     $status = (string) param('status', '');
     if (!in_array($status, ['new','wip','success','rejected'], true)) fail('Invalid status.');
+    if (!agent_can_touch($user, $id)) fail('You can only update leads assigned to you.', 403);
     $stmt = db()->prepare('UPDATE leads SET status = ? WHERE id = ?');
     $stmt->execute([$status, $id]);
     log_activity("Lead #$id status -> $status", $user['email']);
@@ -85,6 +104,7 @@ if ($action === 'status') {
 }
 
 if ($action === 'assign') {
+    if ($user['role'] === 'agent') fail('Agents cannot assign leads.', 403);
     $id = (int) param('id', 0);
     $to = trim((string) param('assigned_to', ''));
     $stmt = db()->prepare('UPDATE leads SET assigned_to = ? WHERE id = ?');
@@ -97,6 +117,7 @@ if ($action === 'comment') {
     $id = (int) param('id', 0);
     $text = trim((string) param('text', ''));
     if ($text === '') fail('Comment text is required.');
+    if (!agent_can_touch($user, $id)) fail('You can only comment on leads assigned to you.', 403);
     $stmt = db()->prepare('INSERT INTO lead_comments (lead_id, text, by_user) VALUES (?, ?, ?)');
     $stmt->execute([$id, $text, $user['email']]);
     log_activity("Comment on lead #$id", $user['email']);
@@ -113,7 +134,13 @@ if ($action === 'delete') {
 }
 
 if ($action === 'stats') {
-    $rows = db()->query("SELECT status, COUNT(*) c FROM leads GROUP BY status")->fetchAll();
+    if ($user['role'] === 'agent') {
+        $stmt = db()->prepare("SELECT status, COUNT(*) c FROM leads WHERE assigned_to = ? GROUP BY status");
+        $stmt->execute([$user['email']]);
+        $rows = $stmt->fetchAll();
+    } else {
+        $rows = db()->query("SELECT status, COUNT(*) c FROM leads GROUP BY status")->fetchAll();
+    }
     $stats = ['total' => 0, 'new' => 0, 'wip' => 0, 'success' => 0, 'rejected' => 0];
     foreach ($rows as $r) { $stats[$r['status']] = (int) $r['c']; $stats['total'] += (int) $r['c']; }
     ok(['stats' => $stats]);

@@ -26,7 +26,7 @@ if ($action === 'add') {
     $pass  = (string) param('password', '');
     $role  = (string) param('role', 'admin');
     if ($name === '' || $email === '' || $pass === '') fail('Name, email and password are required.');
-    if (!in_array($role, ['owner', 'admin'], true)) $role = 'admin';
+    if (!in_array($role, ['owner', 'admin', 'agent'], true)) $role = 'agent';
     if (strlen($pass) < 6) fail('Password must be at least 6 characters.');
 
     $check = db()->prepare('SELECT id FROM users WHERE email = ?');

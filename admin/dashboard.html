@@ -54,10 +54,10 @@
 
         <!-- Quick Actions -->
         <div class="quick-actions">
-          <button class="btn btn-primary" onclick="CWA_Admin.leads.exportToExcel()">&#128229; Export to Excel</button>
-          <a href="blog-write.html" class="btn btn-info">&#9997; Write Blog</a>
+          <button class="btn btn-primary" data-role="staff" onclick="CWA_Admin.leads.exportToExcel()">&#128229; Export to Excel</button>
+          <a href="blog-write.html" class="btn btn-info" data-role="staff">&#9997; Write Blog</a>
           <a href="lead-details.html" class="btn btn-outline">&#128101; View All Leads</a>
-          <a href="analytics.html" class="btn btn-outline">&#128202; Analytics</a>
+          <a href="analytics.html" class="btn btn-outline" data-role="staff">&#128202; Analytics</a>
         </div>
 
         <!-- Alerts -->
@@ -92,7 +92,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=3"></script>
+  <script src="admin.js?v=4"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -139,8 +139,7 @@
 
       // Stats (from analytics summary)
       try {
-        var summary = await CWA_Admin.analytics.summary();
-        var stats = summary.stats;
+        var stats = await CWA_Admin.leads.stats();
         document.getElementById('statsGrid').innerHTML =
           '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
           '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +

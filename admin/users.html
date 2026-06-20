@@ -52,7 +52,7 @@
             <div class="form-row">
               <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="userName" placeholder="Full name"></div>
               <div class="form-group"><label>Email</label><input type="email" class="form-control" id="userEmail" placeholder="Email address"></div>
-              <div class="form-group"><label>Role</label><select class="form-control" id="userRole"><option value="admin">Admin</option><option value="owner">Owner</option></select></div>
+              <div class="form-group"><label>Role</label><select class="form-control" id="userRole"><option value="agent">Agent</option><option value="admin">Admin</option><option value="owner">Owner</option></select></div>
             </div>
             <button class="btn btn-primary" onclick="addUser()">Add User</button>
             <span id="userMsg" style="margin-left:12px;font-size:0.9rem;"></span>
@@ -76,7 +76,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=3"></script>
+  <script src="admin.js?v=4"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();

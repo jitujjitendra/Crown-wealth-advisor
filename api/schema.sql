@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   name          VARCHAR(120) NOT NULL,
   email         VARCHAR(160) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  role          ENUM('owner','admin') NOT NULL DEFAULT 'admin',
+  role          ENUM('owner','admin','agent') NOT NULL DEFAULT 'admin',
   status        ENUM('active','inactive') NOT NULL DEFAULT 'active',
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -58,6 +58,9 @@ var CWA_Admin = (function() {
   };
 
   // ===== PAGE GUARD =====
+  // Pages each role is allowed to open
+  var AGENT_PAGES = ['dashboard.html', 'lead-details.html', 'index.html', ''];
+
   async function guardPage() {
     var user;
     try {
@@ -70,6 +73,14 @@ var CWA_Admin = (function() {
       return null;
     }
     currentUser = user;
+    // Page-access enforcement for agents
+    if (user.role === 'agent') {
+      var page = window.location.pathname.split('/').pop();
+      if (AGENT_PAGES.indexOf(page) === -1) {
+        window.location.href = 'dashboard.html';
+        return null;
+      }
+    }
     ui.applyRole();
     ui.updateTopbar();
     return user;
@@ -77,6 +88,10 @@ var CWA_Admin = (function() {
 
   function isOwner() {
     return !!(currentUser && currentUser.role === 'owner');
+  }
+
+  function isAgent() {
+    return !!(currentUser && currentUser.role === 'agent');
   }
 
   function getCurrentUser() {
@@ -293,9 +308,27 @@ var CWA_Admin = (function() {
       if (roleEl) roleEl.textContent = session.role;
     },
     applyRole: function() {
-      if (!isOwner()) {
-        var ownerElements = document.querySelectorAll('[data-role="owner"]');
-        ownerElements.forEach(function(el) { el.style.display = 'none'; });
+      var role = currentUser ? currentUser.role : '';
+      // Owner-only elements hidden for non-owners
+      if (role !== 'owner') {
+        document.querySelectorAll('[data-role="owner"]').forEach(function(el) { el.style.display = 'none'; });
+      }
+      // Agent: restrict sidebar to Dashboard + Leads only
+      if (role === 'agent') {
+        document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
+          var href = (a.getAttribute('href') || '').split('/').pop();
+          if (href !== 'dashboard.html' && href !== 'lead-details.html' && href !== '../index.html' && a.getAttribute('href') !== '../index.html') {
+            // keep "View Website" (../index.html) and logout link
+            if (a.getAttribute('href') === '#' || a.getAttribute('href') === '../index.html') return;
+            a.style.display = 'none';
+          }
+        });
+        // Hide section labels (Content / Management) since their items are gone
+        document.querySelectorAll('.sidebar-section').forEach(function(s) {
+          if (s.textContent.trim() !== 'Main') s.style.display = 'none';
+        });
+        // Hide elements marked staff-only (e.g. assign controls)
+        document.querySelectorAll('[data-role="staff"]').forEach(function(el) { el.style.display = 'none'; });
       }
     }
   };
@@ -306,6 +339,7 @@ var CWA_Admin = (function() {
     auth: auth,
     guardPage: guardPage,
     isOwner: isOwner,
+    isAgent: isAgent,
     getCurrentUser: getCurrentUser,
     leads: leads,
     blogs: blogs,

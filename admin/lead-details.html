@@ -79,7 +79,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=3"></script>
+  <script src="admin.js?v=4"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -167,6 +167,7 @@
         var assignOptions = usersList.map(function(u) {
           return '<option value="' + esc(u.email) + '"' + (lead.assigned_to === u.email ? ' selected' : '') + '>' + esc(u.name) + '</option>';
         }).join('');
+        var isAgent = CWA_Admin.isAgent && CWA_Admin.isAgent();
         var commentsHtml = (lead.comments || []).map(function(c) {
           return '<div class="timeline-item"><strong>' + esc(c.by_user) + '</strong><p>' + esc(c.text) + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.created_at) + '</span></div>';
         }).join('');
@@ -184,7 +185,7 @@
           (lead.message ? '<div class="form-group mb-3"><label>Message</label><p>' + esc(lead.message) + '</p></div>' : '') +
           '<div class="form-row mb-3">' +
             '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus"><option value="new"' + (lead.status==='new'?' selected':'') + '>New</option><option value="wip"' + (lead.status==='wip'?' selected':'') + '>WIP</option><option value="success"' + (lead.status==='success'?' selected':'') + '>Success</option><option value="rejected"' + (lead.status==='rejected'?' selected':'') + '>Rejected</option></select></div>' +
-            '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>' +
+            (isAgent ? '' : '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>') +
           '</div>' +
           '<hr style="margin:16px 0;">' +
           '<h4 style="margin-bottom:12px;">Timeline &amp; Comments</h4>' +
@@ -197,11 +198,14 @@
           try { await CWA_Admin.leads.setStatus(id, this.value); }
           catch (e) { alert('Could not update status: ' + e.message); }
         });
-        // Wire assign change -> assign
-        document.getElementById('modalAssign').addEventListener('change', async function() {
-          try { await CWA_Admin.leads.assign(id, this.value); }
-          catch (e) { alert('Could not assign: ' + e.message); }
-        });
+        // Wire assign change -> assign (not present for agents)
+        var assignEl = document.getElementById('modalAssign');
+        if (assignEl) {
+          assignEl.addEventListener('change', async function() {
+            try { await CWA_Admin.leads.assign(id, this.value); }
+            catch (e) { alert('Could not assign: ' + e.message); }
+          });
+        }
         // Wire comment submit -> comment then reload detail
         document.getElementById('modalCommentBtn').addEventListener('click', async function() {
           var text = document.getElementById('modalComment').value.trim();
