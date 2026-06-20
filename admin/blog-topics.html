@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Topics | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="admin-styles.css?v=2">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/crown-logo.png" alt="Crown" onerror="this.outerHTML='<span style=&quot;color:#D4A574;font-weight:700;&quot;>Crown</span>'">
+        <div><h2>Crown Admin</h2><small>Wealth Advisor</small></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a href="dashboard.html"><span class="nav-icon">&#128200;</span> Dashboard</a>
+        <a href="lead-details.html"><span class="nav-icon">&#128101;</span> Leads</a>
+        <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
+        <div class="sidebar-section">Content</div>
+        <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-topics.html" class="active" data-role="owner"><span class="nav-icon">&#128221;</span> Blog Topics</a>
+        <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
+        <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
+        <div class="sidebar-section">Management</div>
+        <a href="users.html" data-role="owner"><span class="nav-icon">&#128100;</span> Users</a>
+        <a href="analytics.html"><span class="nav-icon">&#128202;</span> Analytics</a>
+        <a href="notifications.html"><span class="nav-icon">&#128276;</span> Notifications</a>
+        <a href="announcements.html"><span class="nav-icon">&#128227;</span> Announcements <span class="nav-badge announcement-badge">0</span></a>
+        <a href="settings.html" data-role="owner"><span class="nav-icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html"><span>&#127968;</span> View Website</a>
+        <a href="#" onclick="CWA_Admin.auth.logout();return false;"><span>&#128682;</span> Logout</a>
+      </div>
+    </aside>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-left"><h1>Blog Topics</h1><p>Assign and track blog topics</p></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="topbar-avatar"></div>
+            <div><span class="topbar-user-name"></span><br><small class="topbar-user-role text-muted"></small></div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-content">
+        <!-- Assign Topic form (full-control only) -->
+        <div class="admin-card" id="assignTopicCard" style="display:none;">
+          <div class="card-header"><h2>Assign a Topic</h2></div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" class="form-control" id="topicTitle" placeholder="Enter topic title">
+            </div>
+            <div class="form-group">
+              <label>Brief</label>
+              <textarea class="form-control" id="topicBrief" placeholder="Brief / instructions for the writer"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Assign To</label>
+              <select class="form-control" id="topicAssign"></select>
+            </div>
+            <button class="btn btn-primary" id="topicCreateBtn">Assign Topic</button>
+            <span id="topicMsg" style="font-size:0.9rem;margin-left:10px;"></span>
+          </div>
+        </div>
+
+        <!-- Topics table -->
+        <div class="admin-card">
+          <div class="card-header"><h2>All Topics</h2></div>
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Title</th><th>Brief</th><th>Assigned To</th><th>Status</th><th>Created</th><th>Action</th></tr>
+              </thead>
+              <tbody id="topicsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="admin.js?v=6"></script>
+  <script>
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      var isFull = CWA_Admin.isFull();
+
+      // ===== Assign Topic form (full-control only) =====
+      if (isFull) {
+        document.getElementById('assignTopicCard').style.display = 'block';
+        try {
+          var users = await CWA_Admin.users.list();
+          var agents = (users || []).filter(function(u) { return u.role === 'agent'; });
+          document.getElementById('topicAssign').innerHTML =
+            '<option value="">Select an agent</option>' +
+            agents.map(function(u) {
+              return '<option value="' + esc(u.email) + '">' + esc(u.name) + ' (' + esc(u.email) + ')</option>';
+            }).join('');
+        } catch (e) {
+          document.getElementById('topicAssign').innerHTML = '<option value="">Could not load agents</option>';
+        }
+
+        document.getElementById('topicCreateBtn').addEventListener('click', async function() {
+          var title = document.getElementById('topicTitle').value.trim();
+          var brief = document.getElementById('topicBrief').value.trim();
+          var assignedTo = document.getElementById('topicAssign').value;
+          var msgEl = document.getElementById('topicMsg');
+          if (!title) {
+            msgEl.style.color = '#dc3545';
+            msgEl.textContent = 'Title is required.';
+            return;
+          }
+          msgEl.style.color = '#666';
+          msgEl.textContent = 'Saving...';
+          try {
+            await CWA_Admin.topics.create({ title: title, brief: brief, assigned_to: assignedTo });
+            document.getElementById('topicTitle').value = '';
+            document.getElementById('topicBrief').value = '';
+            document.getElementById('topicAssign').selectedIndex = 0;
+            msgEl.style.color = '#28a745';
+            msgEl.textContent = 'Topic assigned.';
+            await renderTopics();
+          } catch (e) {
+            msgEl.style.color = '#dc3545';
+            msgEl.textContent = 'Could not assign topic: ' + e.message;
+          }
+        });
+      }
+
+      // ===== Topics table =====
+      async function renderTopics() {
+        var tbody = document.getElementById('topicsTable');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        try {
+          var topics = await CWA_Admin.topics.list();
+          if (!topics.length) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">No topics found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = topics.map(function(t) {
+            var action = isFull
+              ? '<button class="btn btn-sm btn-danger" onclick="deleteTopic(\'' + esc(t.id) + '\')">Delete</button>'
+              : '<a class="btn btn-sm btn-primary" href="blog-write.html?topic=' + encodeURIComponent(t.id) + '">Write Blog</a>';
+            return '<tr>' +
+              '<td><strong>' + esc(t.title) + '</strong></td>' +
+              '<td>' + esc(t.brief || '') + '</td>' +
+              '<td>' + (t.assigned_to ? esc(t.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</td>' +
+              '<td><span class="status-badge ' + esc(t.status) + '">' + esc(t.status) + '</span></td>' +
+              '<td>' + CWA_Admin.ui.formatDate(t.created_at) + '</td>' +
+              '<td>' + action + '</td>' +
+              '</tr>';
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-muted" style="padding:16px;">Could not load topics: ' + esc(e.message) + '</td></tr>';
+        }
+      }
+
+      window.deleteTopic = async function(id) {
+        if (!confirm('Delete this topic? This cannot be undone.')) return;
+        try {
+          await CWA_Admin.topics.remove(id);
+          await renderTopics();
+        } catch (e) { alert('Could not delete topic: ' + e.message); }
+      };
+
+      await renderTopics();
+    })();
+  </script>
+</body>
+</html>

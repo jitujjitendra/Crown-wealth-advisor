@@ -6,6 +6,7 @@
   <title>Dashboard | Crown Wealth Advisor Admin</title>
   <link rel="stylesheet" href="admin-styles.css?v=2">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="admin-layout">
@@ -21,6 +22,7 @@
         <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
         <div class="sidebar-section">Content</div>
         <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-topics.html" data-role="owner"><span class="nav-icon">&#128221;</span> Blog Topics</a>
         <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
         <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
         <div class="sidebar-section">Management</div>
@@ -66,16 +68,32 @@
           <div class="card-body" id="alertsList"></div>
         </div>
 
+        <!-- Charts (admin only) -->
+        <div id="chartsArea" style="display:none;">
+          <div class="admin-card">
+            <div class="card-header"><h2>&#128202; Service-wise Leads</h2></div>
+            <div class="card-body"><canvas id="serviceChart" height="140"></canvas></div>
+          </div>
+          <div class="admin-card">
+            <div class="card-header"><h2>&#128200; Monthly Leads</h2></div>
+            <div class="card-body"><canvas id="monthlyChart" height="140"></canvas></div>
+          </div>
+          <div class="admin-card">
+            <div class="card-header"><h2>&#128101; Agent Performance (Converted)</h2></div>
+            <div class="card-body"><canvas id="agentChart" height="140"></canvas></div>
+          </div>
+        </div>
+
         <!-- Recent Leads Table -->
-        <div class="admin-card">
+        <div class="admin-card" id="leadsCard">
           <div class="card-header">
-            <h2>Recent Leads</h2>
+            <h2 id="leadsTitle">Recent Leads</h2>
             <a href="lead-details.html" class="btn btn-sm btn-outline">View All</a>
           </div>
           <div class="card-body" style="padding:0;">
             <table class="admin-table">
               <thead>
-                <tr><th>ID</th><th>Name</th><th>Service</th><th>City</th><th>Status</th><th>Date</th></tr>
+                <tr id="leadsHead"><th>ID</th><th>Name</th><th>Service</th><th>City</th><th>Status</th><th>Date</th></tr>
               </thead>
               <tbody id="recentLeads"></tbody>
             </table>
@@ -83,7 +101,7 @@
         </div>
 
         <!-- Activity Log -->
-        <div class="admin-card">
+        <div class="admin-card" id="activityCard">
           <div class="card-header"><h2>&#128336; Recent Activity</h2></div>
           <div class="card-body">
             <ul class="activity-log" id="activityLog"></ul>
@@ -92,7 +110,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=5"></script>
+  <script src="admin.js?v=6"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -137,23 +155,113 @@
         }
       };
 
-      // Stats (from analytics summary)
+      var isAgent = CWA_Admin.isAgent();
+
+      if (isAgent) {
+        // ===== AGENT DASHBOARD =====
+        var headingEl = document.querySelector('.topbar-left h1');
+        if (headingEl) headingEl.textContent = 'My Dashboard';
+        var subEl = document.querySelector('.topbar-left p');
+        if (subEl) subEl.textContent = 'Your assigned leads at a glance.';
+        // Hide admin-only sections
+        ['chartsArea', 'activityCard', 'alertsCard'].forEach(function(idn) {
+          var el = document.getElementById(idn);
+          if (el) el.style.display = 'none';
+        });
+
+        // Cards from leads.stats() (already scoped to the agent)
+        try {
+          var stats = await CWA_Admin.leads.stats();
+          document.getElementById('statsGrid').innerHTML =
+            '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + (stats.total || 0) + '</h3><p>My Leads</p></div></div>' +
+            '<div class="stat-card"><div class="stat-icon total">&#128276;</div><div class="stat-info"><h3>' + (stats.new || 0) + '</h3><p>New Leads</p></div></div>' +
+            '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + (stats.followup_today || 0) + '</h3><p>Follow-up Today</p></div></div>' +
+            '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + (stats.converted || 0) + '</h3><p>Converted</p></div></div>';
+        } catch (e) {
+          document.getElementById('statsGrid').innerHTML = '<p class="text-muted">Could not load stats: ' + esc(e.message) + '</p>';
+        }
+
+        // "My Leads" table
+        document.getElementById('leadsTitle').textContent = 'My Leads';
+        document.getElementById('leadsHead').innerHTML = '<th>Lead</th><th>Service</th><th>Status</th><th>Next Follow-up</th>';
+        try {
+          var myLeads = await CWA_Admin.leads.list();
+          if (!myLeads.length) {
+            document.getElementById('recentLeads').innerHTML = '<tr><td colspan="4" class="text-muted" style="padding:16px;">No leads assigned yet.</td></tr>';
+          } else {
+            document.getElementById('recentLeads').innerHTML = myLeads.map(function(l) {
+              return '<tr><td><a href="lead-details.html?id=' + encodeURIComponent(l.id) + '"><strong>' + esc(l.name) + '</strong></a></td>' +
+                '<td>' + esc(l.service) + '</td>' +
+                '<td><span class="status-badge ' + esc(l.status) + '">' + esc(CWA_Admin.statusLabel(l.status)) + '</span></td>' +
+                '<td>' + (l.next_follow_up ? CWA_Admin.ui.formatDate(l.next_follow_up) : '-') + '</td></tr>';
+            }).join('');
+          }
+        } catch (e) {
+          document.getElementById('recentLeads').innerHTML = '<tr><td colspan="4" class="text-muted">Could not load leads: ' + esc(e.message) + '</td></tr>';
+        }
+        return;
+      }
+
+      // ===== ADMIN / FULL-CONTROL DASHBOARD =====
+      // Cards from analytics.adminDashboard()
       try {
-        var stats = await CWA_Admin.leads.stats();
+        var cards = await CWA_Admin.analytics.adminDashboard();
         document.getElementById('statsGrid').innerHTML =
-          '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + stats.total + '</h3><p>Total Leads</p></div></div>' +
-          '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + stats.success + '</h3><p>Success</p></div></div>' +
-          '<div class="stat-card"><div class="stat-icon wip">&#9203;</div><div class="stat-info"><h3>' + stats.wip + '</h3><p>Work in Progress</p></div></div>' +
-          '<div class="stat-card"><div class="stat-icon rejected">&#10060;</div><div class="stat-info"><h3>' + stats.rejected + '</h3><p>Rejected</p></div></div>';
+          '<div class="stat-card"><div class="stat-icon total">&#128202;</div><div class="stat-info"><h3>' + (cards.total || 0) + '</h3><p>Total Leads</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon total">&#128276;</div><div class="stat-info"><h3>' + (cards.new || 0) + '</h3><p>New Leads</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon success">&#9989;</div><div class="stat-info"><h3>' + (cards.converted || 0) + '</h3><p>Converted Leads</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon wip">&#128101;</div><div class="stat-info"><h3>' + (cards.active_agents || 0) + '</h3><p>Active Agents</p></div></div>' +
+          '<div class="stat-card"><div class="stat-icon rejected">&#128221;</div><div class="stat-info"><h3>' + (cards.blog_drafts || 0) + '</h3><p>Blog Drafts</p></div></div>';
       } catch (e) {
         document.getElementById('statsGrid').innerHTML = '<p class="text-muted">Could not load stats: ' + esc(e.message) + '</p>';
+      }
+
+      // Charts (only if Chart.js loaded)
+      if (typeof Chart !== 'undefined') {
+        document.getElementById('chartsArea').style.display = 'block';
+        // Service-wise Leads (bar)
+        try {
+          var services = await CWA_Admin.analytics.serviceBreakdown();
+          new Chart(document.getElementById('serviceChart'), {
+            type: 'bar',
+            data: {
+              labels: services.map(function(s) { return s.service; }),
+              datasets: [{ label: 'Leads', data: services.map(function(s) { return s.total; }), backgroundColor: '#D4A574' }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        } catch (e) { /* non-fatal */ }
+        // Monthly Leads (line)
+        try {
+          var trend = await CWA_Admin.analytics.trend('monthly');
+          new Chart(document.getElementById('monthlyChart'), {
+            type: 'line',
+            data: {
+              labels: trend.map(function(t) { return t.period || t.label || t.month || t.date || ''; }),
+              datasets: [{ label: 'Leads', data: trend.map(function(t) { return (t.count != null ? t.count : t.total); }), borderColor: '#1a1a2e', backgroundColor: 'rgba(212,165,116,0.3)', fill: true, tension: 0.3 }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        } catch (e) { /* non-fatal */ }
+        // Agent Performance (bar of converted per agent)
+        try {
+          var agents = await CWA_Admin.analytics.agentPerformance();
+          new Chart(document.getElementById('agentChart'), {
+            type: 'bar',
+            data: {
+              labels: agents.map(function(a) { return a.name; }),
+              datasets: [{ label: 'Converted', data: agents.map(function(a) { return a.converted; }), backgroundColor: '#28a745' }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+          });
+        } catch (e) { /* non-fatal */ }
       }
 
       // Recent Leads
       try {
         var leads = (await CWA_Admin.leads.list()).slice(0, 8);
         document.getElementById('recentLeads').innerHTML = leads.map(function(l) {
-          return '<tr><td>' + esc(l.id) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.service) + '</td><td>' + esc(l.city) + '</td><td><span class="status-badge ' + esc(l.status) + '">' + esc(l.status) + '</span></td><td>' + CWA_Admin.ui.formatDate(l.created_at) + '</td></tr>';
+          return '<tr><td>' + esc(l.id) + '</td><td>' + esc(l.name) + '</td><td>' + esc(l.service) + '</td><td>' + esc(l.city) + '</td><td><span class="status-badge ' + esc(l.status) + '">' + esc(CWA_Admin.statusLabel(l.status)) + '</span></td><td>' + CWA_Admin.ui.formatDate(l.created_at) + '</td></tr>';
         }).join('');
       } catch (e) {
         document.getElementById('recentLeads').innerHTML = '<tr><td colspan="6" class="text-muted">Could not load leads: ' + esc(e.message) + '</td></tr>';

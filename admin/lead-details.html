@@ -20,6 +20,7 @@
         <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
         <div class="sidebar-section">Content</div>
         <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-topics.html" data-role="owner"><span class="nav-icon">&#128221;</span> Blog Topics</a>
         <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
         <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
         <div class="sidebar-section">Management</div>
@@ -49,8 +50,13 @@
         <div class="tab-nav" id="statusTabs">
           <button class="tab-btn active" data-filter="all">All</button>
           <button class="tab-btn" data-filter="new">New</button>
-          <button class="tab-btn" data-filter="wip">WIP</button>
-          <button class="tab-btn" data-filter="success">Success</button>
+          <button class="tab-btn" data-filter="contacted">Contacted</button>
+          <button class="tab-btn" data-filter="follow_up">Follow-up</button>
+          <button class="tab-btn" data-filter="documents_pending">Docs Pending</button>
+          <button class="tab-btn" data-filter="processing">Processing</button>
+          <button class="tab-btn" data-filter="approved">Approved</button>
+          <button class="tab-btn" data-filter="converted">Converted</button>
+          <button class="tab-btn" data-filter="closed">Closed</button>
           <button class="tab-btn" data-filter="rejected">Rejected</button>
         </div>
 
@@ -79,12 +85,19 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=5"></script>
+  <script src="admin.js?v=6"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
       if (!me) return;
       var esc = CWA_Admin.ui.escapeHtml;
+      var SOURCES = ['Website', 'WhatsApp', 'Facebook', 'Instagram', 'Referral', 'Direct Call'];
+      var SOURCE_OPTIONS = SOURCES.map(function(s) { return '<option value="' + esc(s) + '">' + esc(s) + '</option>'; }).join('');
+      function sourceOptions(selected) {
+        return SOURCES.map(function(s) {
+          return '<option value="' + esc(s) + '"' + (s === selected ? ' selected' : '') + '>' + esc(s) + '</option>';
+        }).join('');
+      }
       var params = new URLSearchParams(window.location.search);
       var leadId = params.get('id');
 
@@ -134,7 +147,7 @@
         var lines = text.split('\n').filter(function(l) { return l.trim() !== ''; });
         if (lines.length < 2) return [];
         var headers = parseCsvLine(lines[0]).map(function(h) { return h.trim().toLowerCase(); });
-        var fields = ['name', 'mobile', 'email', 'city', 'service', 'message'];
+        var fields = ['name', 'mobile', 'email', 'address', 'city', 'state', 'pincode', 'service', 'sub_service', 'message'];
         var rows = [];
         for (var i = 1; i < lines.length; i++) {
           var cols = parseCsvLine(lines[i]);
@@ -176,9 +189,20 @@
                 '</div>' +
                 '<div class="form-row">' +
                   '<div class="form-group"><label>Email</label><input type="email" class="form-control" id="newLeadEmail"></div>' +
-                  '<div class="form-group"><label>City</label><input type="text" class="form-control" id="newLeadCity"></div>' +
+                  '<div class="form-group"><label>Address</label><input type="text" class="form-control" id="newLeadAddress"></div>' +
                 '</div>' +
-                '<div class="form-group"><label>Service</label><input type="text" class="form-control" id="newLeadService"></div>' +
+                '<div class="form-row">' +
+                  '<div class="form-group"><label>City</label><input type="text" class="form-control" id="newLeadCity"></div>' +
+                  '<div class="form-group"><label>State</label><input type="text" class="form-control" id="newLeadState"></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                  '<div class="form-group"><label>Pincode</label><input type="text" class="form-control" id="newLeadPincode"></div>' +
+                  '<div class="form-group"><label>Source</label><select class="form-control" id="newLeadSource">' + SOURCE_OPTIONS + '</select></div>' +
+                '</div>' +
+                '<div class="form-row">' +
+                  '<div class="form-group"><label>Service Type</label><input type="text" class="form-control" id="newLeadService"></div>' +
+                  '<div class="form-group"><label>Sub Service</label><input type="text" class="form-control" id="newLeadSubService"></div>' +
+                '</div>' +
                 '<div class="form-group"><label>Message</label><textarea class="form-control" id="newLeadMessage"></textarea></div>' +
                 '<span id="newLeadMsg" style="font-size:0.9rem;"></span>' +
               '</div>' +
@@ -188,10 +212,12 @@
         }
 
         document.getElementById('addLeadBtn').addEventListener('click', function() {
-          ['Name', 'Mobile', 'Email', 'City', 'Service', 'Message'].forEach(function(f) {
+          ['Name', 'Mobile', 'Email', 'Address', 'City', 'State', 'Pincode', 'Service', 'SubService', 'Message'].forEach(function(f) {
             var el = document.getElementById('newLead' + f);
             if (el) el.value = '';
           });
+          var srcEl = document.getElementById('newLeadSource');
+          if (srcEl) srcEl.selectedIndex = 0;
           document.getElementById('newLeadMsg').textContent = '';
           CWA_Admin.ui.showModal('leadFormModal');
         });
@@ -210,10 +236,14 @@
               name: name,
               mobile: mobile,
               email: document.getElementById('newLeadEmail').value.trim(),
+              address: document.getElementById('newLeadAddress').value.trim(),
               city: document.getElementById('newLeadCity').value.trim(),
+              state: document.getElementById('newLeadState').value.trim(),
+              pincode: document.getElementById('newLeadPincode').value.trim(),
               service: document.getElementById('newLeadService').value.trim(),
+              sub_service: document.getElementById('newLeadSubService').value.trim(),
               message: document.getElementById('newLeadMessage').value.trim(),
-              source: 'manual'
+              source: document.getElementById('newLeadSource').value
             });
             CWA_Admin.ui.hideModal('leadFormModal');
             await renderLeads();
@@ -264,9 +294,9 @@
               '<td>' + esc(l.mobile) + '</td>' +
               '<td>' + esc(l.city) + '</td>' +
               '<td>' + esc(l.service) + '</td>' +
-              '<td><span class="status-badge ' + esc(l.status) + '">' + esc(l.status) + '</span></td>' +
+              '<td><span class="status-badge ' + esc(l.status) + '">' + esc(CWA_Admin.statusLabel(l.status)) + '</span></td>' +
               '<td>' + (l.assigned_to ? esc(l.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</td>' +
-              '<td>' + CWA_Admin.ui.formatDate(l.created_at) + (l.follow_up_date ? '<br><span class="status-badge wip" style="font-size:0.7rem;">Follow-up: ' + CWA_Admin.ui.formatDate(l.follow_up_date) + '</span>' : '') + '</td>' +
+              '<td>' + CWA_Admin.ui.formatDate(l.created_at) + (l.next_follow_up ? '<br><span class="status-badge follow_up" style="font-size:0.7rem;">Follow-up: ' + CWA_Admin.ui.formatDate(l.next_follow_up) + '</span>' : '') + '</td>' +
               '<td><a class="btn btn-sm btn-outline" href="lead-details.html?id=' + encodeURIComponent(l.id) + '">View</a></td>' +
               '</tr>';
           }).join('');
@@ -306,14 +336,16 @@
         }).join('');
         var isAgent = CWA_Admin.isAgent && CWA_Admin.isAgent();
         var isFull = CWA_Admin.isFull();
-        var fu = lead.follow_up_date ? String(lead.follow_up_date).substring(0, 10) : '';
+        var nextFu = lead.next_follow_up ? String(lead.next_follow_up).substring(0, 10) : '';
+        var lastFu = lead.last_follow_up ? String(lead.last_follow_up).substring(0, 10) : '';
         var commentsHtml = (lead.comments || []).map(function(c) {
           return '<div class="timeline-item"><strong>' + esc(c.by_user) + '</strong><p>' + esc(c.text) + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.created_at) + '</span></div>';
         }).join('');
 
         bodyEl.innerHTML =
           '<div class="form-row mb-3" style="align-items:flex-end;">' +
-            '<div class="form-group"><label>Follow-up Date</label><input type="date" class="form-control" id="modalFollowup" value="' + esc(fu) + '"></div>' +
+            '<div class="form-group"><label>Next Follow-up Date</label><input type="date" class="form-control" id="modalNextFollowup" value="' + esc(nextFu) + '"></div>' +
+            '<div class="form-group"><label>Last Follow-up Date</label><input type="date" class="form-control" id="modalLastFollowup" value="' + esc(lastFu) + '"></div>' +
             '<div class="form-group" style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">' +
               '<button class="btn btn-success" id="modalConvertBtn">Mark Converted</button>' +
               (isFull ? '<button class="btn btn-outline" id="modalEditBtn" data-role="owner">Edit</button>' : '') +
@@ -325,9 +357,15 @@
             '<div class="form-group"><label>Name</label><p><strong>' + esc(lead.name) + '</strong></p></div>' +
             '<div class="form-group"><label>Mobile</label><p>' + esc(lead.mobile) + '</p></div>' +
             '<div class="form-group"><label>Email</label><p>' + esc(lead.email) + '</p></div>' +
+            '<div class="form-group"><label>Address</label><p>' + esc(lead.address) + '</p></div>' +
             '<div class="form-group"><label>City</label><p>' + esc(lead.city) + '</p></div>' +
+            '<div class="form-group"><label>State</label><p>' + esc(lead.state) + '</p></div>' +
+            '<div class="form-group"><label>Pincode</label><p>' + esc(lead.pincode) + '</p></div>' +
             '<div class="form-group"><label>Service</label><p>' + esc(lead.service) + '</p></div>' +
+            '<div class="form-group"><label>Sub Service</label><p>' + esc(lead.sub_service) + '</p></div>' +
             '<div class="form-group"><label>Source</label><p>' + esc(lead.source) + '</p></div>' +
+            '<div class="form-group"><label>Assigned</label><p>' + (lead.assigned_to ? esc(lead.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</p></div>' +
+            '<div class="form-group"><label>Assigned Date</label><p>' + (lead.assigned_date ? CWA_Admin.ui.formatDateTime(lead.assigned_date) : '-') + '</p></div>' +
             '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(lead.created_at) + '</p></div>' +
           '</div>' +
           (lead.message ? '<div class="form-group mb-3"><label>Message</label><p>' + esc(lead.message) + '</p></div>' : '') +
@@ -340,15 +378,23 @@
             '</div>' +
             '<div class="form-row">' +
               '<div class="form-group"><label>Email</label><input type="email" class="form-control" id="editEmail" value="' + esc(lead.email) + '"></div>' +
-              '<div class="form-group"><label>City</label><input type="text" class="form-control" id="editCity" value="' + esc(lead.city) + '"></div>' +
+              '<div class="form-group"><label>Address</label><input type="text" class="form-control" id="editAddress" value="' + esc(lead.address || '') + '"></div>' +
             '</div>' +
-            '<div class="form-group"><label>Service</label><input type="text" class="form-control" id="editService" value="' + esc(lead.service) + '"></div>' +
+            '<div class="form-row">' +
+              '<div class="form-group"><label>City</label><input type="text" class="form-control" id="editCity" value="' + esc(lead.city) + '"></div>' +
+              '<div class="form-group"><label>State</label><input type="text" class="form-control" id="editState" value="' + esc(lead.state || '') + '"></div>' +
+            '</div>' +
+            '<div class="form-row">' +
+              '<div class="form-group"><label>Pincode</label><input type="text" class="form-control" id="editPincode" value="' + esc(lead.pincode || '') + '"></div>' +
+              '<div class="form-group"><label>Service</label><input type="text" class="form-control" id="editService" value="' + esc(lead.service) + '"></div>' +
+            '</div>' +
+            '<div class="form-group"><label>Sub Service</label><input type="text" class="form-control" id="editSubService" value="' + esc(lead.sub_service || '') + '"></div>' +
             '<div class="form-group"><label>Message</label><textarea class="form-control" id="editMessage">' + esc(lead.message || '') + '</textarea></div>' +
             '<button class="btn btn-primary" id="modalSaveBtn">Save</button> <button class="btn btn-outline" id="modalCancelEditBtn">Cancel</button>' +
           '</div>'
           : '') +
           '<div class="form-row mb-3">' +
-            '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus"><option value="new"' + (lead.status==='new'?' selected':'') + '>New</option><option value="wip"' + (lead.status==='wip'?' selected':'') + '>WIP</option><option value="success"' + (lead.status==='success'?' selected':'') + '>Success</option><option value="rejected"' + (lead.status==='rejected'?' selected':'') + '>Rejected</option></select></div>' +
+            '<div class="form-group"><label>Status</label><select class="form-control" id="modalStatus">' + CWA_Admin.statusOptions(lead.status) + '</select></div>' +
             (isAgent ? '' : '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>') +
           '</div>' +
           '<hr style="margin:16px 0;">' +
@@ -380,15 +426,19 @@
           } catch (e) { alert('Could not add comment: ' + e.message); }
         });
 
-        // Wire follow-up date change -> followup (all roles)
-        document.getElementById('modalFollowup').addEventListener('change', async function() {
-          try { await CWA_Admin.leads.followup(id, this.value); }
+        // Wire follow-up date changes -> followup(id, next, last) (all roles)
+        async function saveFollowup() {
+          var nextVal = document.getElementById('modalNextFollowup').value;
+          var lastVal = document.getElementById('modalLastFollowup').value;
+          try { await CWA_Admin.leads.followup(id, nextVal, lastVal); }
           catch (e) { alert('Could not set follow-up date: ' + e.message); }
-        });
-        // Wire Mark Converted (all roles) -> setStatus 'success'
+        }
+        document.getElementById('modalNextFollowup').addEventListener('change', saveFollowup);
+        document.getElementById('modalLastFollowup').addEventListener('change', saveFollowup);
+        // Wire Mark Converted (all roles) -> setStatus 'converted'
         document.getElementById('modalConvertBtn').addEventListener('click', async function() {
           try {
-            await CWA_Admin.leads.setStatus(id, 'success');
+            await CWA_Admin.leads.setStatus(id, 'converted');
             await renderDetail(id);
             await renderLeads();
           } catch (e) { alert('Could not mark converted: ' + e.message); }
@@ -417,8 +467,12 @@
                 name: document.getElementById('editName').value.trim(),
                 mobile: document.getElementById('editMobile').value.trim(),
                 email: document.getElementById('editEmail').value.trim(),
+                address: document.getElementById('editAddress').value.trim(),
                 city: document.getElementById('editCity').value.trim(),
+                state: document.getElementById('editState').value.trim(),
+                pincode: document.getElementById('editPincode').value.trim(),
                 service: document.getElementById('editService').value.trim(),
+                sub_service: document.getElementById('editSubService').value.trim(),
                 message: document.getElementById('editMessage').value.trim()
               });
               await renderDetail(id);

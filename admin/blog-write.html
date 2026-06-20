@@ -21,6 +21,7 @@
         <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
         <div class="sidebar-section">Content</div>
         <a href="blog-write.html" class="active"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-topics.html" data-role="owner"><span class="nav-icon">&#128221;</span> Blog Topics</a>
         <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
         <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
         <div class="sidebar-section">Management</div>
@@ -46,6 +47,12 @@
         </div>
       </div>
       <div class="admin-content">
+        <!-- Assigned Topics -->
+        <div class="admin-card" id="assignedTopicsCard" style="display:none;">
+          <div class="card-header"><h2>&#128221; Assigned Topics</h2></div>
+          <div class="card-body" id="assignedTopicsList"></div>
+        </div>
+
         <div class="admin-card">
           <div class="card-header"><h2>New Blog Post</h2></div>
           <div class="card-body">
@@ -104,7 +111,7 @@
       </div>
     </div>
   </div>
-  <script src="admin.js?v=5"></script>
+  <script src="admin.js?v=6"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -187,6 +194,49 @@
           document.getElementById('rejectedBlogsList').innerHTML = rejected.map(function(b) {
             return '<div class="announcement-item"><div style="flex:1;"><strong>' + esc(b.title) + '</strong><p class="text-muted" style="font-size:0.85rem;">Reason: ' + esc(b.reject_reason || 'No reason given') + '</p></div><a href="blog-write.html?edit=' + encodeURIComponent(b.id) + '" class="btn btn-sm btn-warning">Edit &amp; Resubmit</a></div>';
           }).join('');
+        }
+      } catch (e) { /* non-fatal */ }
+
+      // ===== ASSIGNED TOPICS WORKFLOW =====
+      var selectedTopicId = null;
+      function applyTopic(topic) {
+        if (!topic) return;
+        selectedTopicId = topic.id;
+        document.getElementById('blogTitle').value = topic.title || '';
+        setEditorContent(topic.brief ? '<p>' + esc(topic.brief) + '</p>' : '');
+      }
+
+      try {
+        var allTopics = await CWA_Admin.topics.list();
+        // Support ?topic=ID in URL
+        var topicParam = params.get('topic');
+        if (topicParam) {
+          var foundTopic = null;
+          for (var ti = 0; ti < allTopics.length; ti++) {
+            if (String(allTopics[ti].id) === String(topicParam)) { foundTopic = allTopics[ti]; break; }
+          }
+          if (foundTopic) applyTopic(foundTopic);
+        }
+        // Show the current user's assigned / in-progress topics
+        var myTopics = allTopics.filter(function(t) {
+          return t.assigned_to === me.email && (t.status === 'assigned' || t.status === 'in_progress');
+        });
+        if (myTopics.length) {
+          document.getElementById('assignedTopicsCard').style.display = 'block';
+          document.getElementById('assignedTopicsList').innerHTML = myTopics.map(function(t) {
+            return '<div class="announcement-item topic-pick" style="cursor:pointer;" data-topic-id="' + esc(t.id) + '">' +
+              '<div style="flex:1;"><strong>' + esc(t.title) + '</strong><p class="text-muted" style="font-size:0.85rem;">' + esc(t.brief || '') + '</p></div>' +
+              '<span class="status-badge ' + esc(t.status) + '">' + esc(t.status) + '</span></div>';
+          }).join('');
+          document.querySelectorAll('#assignedTopicsList .topic-pick').forEach(function(el) {
+            el.addEventListener('click', function() {
+              var tid = this.getAttribute('data-topic-id');
+              for (var k = 0; k < myTopics.length; k++) {
+                if (String(myTopics[k].id) === String(tid)) { applyTopic(myTopics[k]); break; }
+              }
+              window.scrollTo(0, 0);
+            });
+          });
         }
       } catch (e) { /* non-fatal */ }
 
@@ -296,6 +346,7 @@
           status: status
         };
         if (editId) payload.id = editId;
+        if (selectedTopicId) payload.topic_id = selectedTopicId;
 
         var msg = document.getElementById('blogMsg');
         msg.style.display = 'block';
