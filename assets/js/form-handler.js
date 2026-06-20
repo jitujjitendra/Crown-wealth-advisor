@@ -195,12 +195,12 @@
       }
     }
 
-    // Phone validation (Indian format)
+    // Phone validation (Indian format - allows +91 prefix)
     const phoneField = form.querySelector('input[type="tel"]');
     if (phoneField && phoneField.value) {
+      const cleanPhone = phoneField.value.replace(/[\s\-\+]/g, '').replace(/^91/, '');
       const phoneRegex = /^[6-9]\d{9}$/;
-      const cleanPhone = phoneField.value.replace(/\D/g, '');
-      if (!phoneRegex.test(cleanPhone)) {
+      if (cleanPhone.length > 0 && !phoneRegex.test(cleanPhone)) {
         isValid = false;
         phoneField.classList.add('error');
       }
