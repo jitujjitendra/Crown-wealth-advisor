@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Tickets | Crown Wealth Advisor Admin</title>
+  <link rel="stylesheet" href="admin-styles.css?v=2">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <img src="../assets/images/crown-logo.png" alt="Crown" onerror="this.outerHTML='<span style=&quot;color:#D4A574;font-weight:700;&quot;>Crown</span>'">
+        <div><h2>Crown Admin</h2><small>Wealth Advisor</small></div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <a href="dashboard.html"><span class="nav-icon">&#128200;</span> Dashboard</a>
+        <a href="lead-details.html"><span class="nav-icon">&#128101;</span> Leads</a>
+        <a href="support-tickets.html" class="active"><span class="nav-icon">&#127915;</span> Support Tickets</a>
+        <a href="assignments.html"><span class="nav-icon">&#128203;</span> Assignments</a>
+        <div class="sidebar-section">Content</div>
+        <a href="blog-write.html"><span class="nav-icon">&#9997;</span> Write Blog</a>
+        <a href="blog-topics.html" data-role="owner"><span class="nav-icon">&#128221;</span> Blog Topics</a>
+        <a href="blog-approval.html"><span class="nav-icon">&#9989;</span> Blog Approval</a>
+        <a href="blog-list.html"><span class="nav-icon">&#128220;</span> All Blogs</a>
+        <div class="sidebar-section">Management</div>
+        <a href="users.html" data-role="owner"><span class="nav-icon">&#128100;</span> Users</a>
+        <a href="analytics.html"><span class="nav-icon">&#128202;</span> Analytics</a>
+        <a href="notifications.html"><span class="nav-icon">&#128276;</span> Notifications</a>
+        <a href="announcements.html"><span class="nav-icon">&#128227;</span> Announcements <span class="nav-badge announcement-badge">0</span></a>
+        <a href="settings.html" data-role="owner"><span class="nav-icon">&#9881;</span> Settings</a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="../index.html"><span>&#127968;</span> View Website</a>
+        <a href="#" onclick="CWA_Admin.auth.logout();return false;"><span>&#128682;</span> Logout</a>
+      </div>
+    </aside>
+    <div class="admin-main">
+      <div class="admin-topbar">
+        <div class="topbar-left"><h1>Support Tickets</h1><p>Customer support center requests</p></div>
+        <div class="topbar-right">
+          <div class="topbar-user">
+            <div class="topbar-avatar"></div>
+            <div><span class="topbar-user-name"></span><br><small class="topbar-user-role text-muted"></small></div>
+          </div>
+        </div>
+      </div>
+      <div class="admin-content">
+        <div class="tab-nav" id="statusTabs">
+          <button class="tab-btn active" data-filter="all">All</button>
+          <button class="tab-btn" data-filter="new">New</button>
+          <button class="tab-btn" data-filter="assigned">Assigned</button>
+          <button class="tab-btn" data-filter="under_review">Under Review</button>
+          <button class="tab-btn" data-filter="documents_required">Docs Required</button>
+          <button class="tab-btn" data-filter="in_progress">In Progress</button>
+          <button class="tab-btn" data-filter="resolved">Resolved</button>
+          <button class="tab-btn" data-filter="closed">Closed</button>
+        </div>
+
+        <div class="admin-card">
+          <div class="card-body" style="padding:0;overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>ID</th><th>Name</th><th>Mobile</th><th>Insurance Co.</th><th>Issue Type</th><th>Status</th><th>Assigned</th><th>Date</th><th>Action</th></tr>
+              </thead>
+              <tbody id="ticketsTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-overlay" id="ticketModal">
+          <div class="modal" style="max-width:700px;">
+            <div class="modal-header">
+              <h3 id="modalTicketTitle">Ticket Details</h3>
+              <button class="modal-close" onclick="CWA_Admin.ui.hideModal('ticketModal')">&times;</button>
+            </div>
+            <div class="modal-body" id="modalTicketBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="admin.js?v=6"></script>
+  <script>
+    (async function() {
+      var me = await CWA_Admin.guardPage();
+      if (!me) return;
+      var esc = CWA_Admin.ui.escapeHtml;
+      var params = new URLSearchParams(window.location.search);
+      var ticketId = params.get('id');
+      var currentFilter = 'all';
+      var searchTerm = '';
+
+      // Inject search box
+      var tabs = document.getElementById('statusTabs');
+      if (tabs && !document.getElementById('ticketSearch')) {
+        var s = document.createElement('input');
+        s.type = 'text'; s.className = 'form-control'; s.id = 'ticketSearch';
+        s.placeholder = 'Search by name, mobile, email, company, issue...';
+        s.style.maxWidth = '320px'; s.style.margin = '0 0 16px';
+        tabs.parentNode.insertBefore(s, tabs.nextSibling);
+        var t = null;
+        s.addEventListener('input', function() {
+          searchTerm = this.value.trim();
+          clearTimeout(t); t = setTimeout(renderTickets, 250);
+        });
+      }
+
+      async function renderTickets() {
+        var tbody = document.getElementById('ticketsTable');
+        tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">Loading...</td></tr>';
+        try {
+          var status = currentFilter === 'all' ? '' : currentFilter;
+          var tickets = await CWA_Admin.tickets.list(status, searchTerm);
+          if (!tickets.length) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">No tickets found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = tickets.map(function(t) {
+            return '<tr>' +
+              '<td>' + esc(t.id) + '</td>' +
+              '<td><strong>' + esc(t.name) + '</strong></td>' +
+              '<td>' + esc(t.mobile) + '</td>' +
+              '<td>' + esc(t.insurance_company) + '</td>' +
+              '<td>' + esc(t.issue_type) + '</td>' +
+              '<td><span class="status-badge ' + esc(t.status) + '">' + esc(CWA_Admin.ticketStatusLabel(t.status)) + '</span></td>' +
+              '<td>' + (t.assigned_to ? esc(t.assigned_to) : '<em class="text-muted">Unassigned</em>') + '</td>' +
+              '<td>' + CWA_Admin.ui.formatDate(t.created_at) + '</td>' +
+              '<td><a class="btn btn-sm btn-outline" href="support-tickets.html?id=' + encodeURIComponent(t.id) + '">View</a></td>' +
+              '</tr>';
+          }).join('');
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="9" class="text-muted" style="padding:16px;">Error: ' + esc(e.message) + '</td></tr>';
+        }
+      }
+
+      document.querySelectorAll('#statusTabs .tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('#statusTabs .tab-btn').forEach(function(b) { b.classList.remove('active'); });
+          btn.classList.add('active');
+          currentFilter = btn.getAttribute('data-filter');
+          renderTickets();
+        });
+      });
+
+      async function renderDetail(id) {
+        var titleEl = document.getElementById('modalTicketTitle');
+        var bodyEl = document.getElementById('modalTicketBody');
+        var t;
+        try { t = await CWA_Admin.tickets.get(id); }
+        catch (e) {
+          titleEl.textContent = 'Ticket Details';
+          bodyEl.innerHTML = '<p class="text-muted">Could not load ticket: ' + esc(e.message) + '</p>';
+          CWA_Admin.ui.showModal('ticketModal');
+          return;
+        }
+        var usersList = [];
+        try { usersList = await CWA_Admin.users.list(); } catch (e) { usersList = []; }
+        var isAgent = CWA_Admin.isAgent();
+        var isFull = CWA_Admin.isFull();
+
+        titleEl.textContent = t.name + ' (Ticket #' + t.id + ')';
+        var assignOptions = usersList.map(function(u) {
+          return '<option value="' + esc(u.email) + '"' + (t.assigned_to === u.email ? ' selected' : '') + '>' + esc(u.name) + '</option>';
+        }).join('');
+        var commentsHtml = (t.comments || []).map(function(c) {
+          return '<div class="timeline-item"><strong>' + esc(c.by_user) + '</strong><p>' + esc(c.text) + '</p><span class="time">' + CWA_Admin.ui.formatDateTime(c.created_at) + '</span></div>';
+        }).join('');
+
+        bodyEl.innerHTML =
+          '<div class="form-row mb-3">' +
+            '<div class="form-group"><label>Name</label><p><strong>' + esc(t.name) + '</strong></p></div>' +
+            '<div class="form-group"><label>Mobile</label><p>' + esc(t.mobile) + '</p></div>' +
+            '<div class="form-group"><label>Email</label><p>' + esc(t.email) + '</p></div>' +
+            '<div class="form-group"><label>Insurance Company</label><p>' + esc(t.insurance_company) + '</p></div>' +
+            '<div class="form-group"><label>Policy Number</label><p>' + esc(t.policy_number || '-') + '</p></div>' +
+            '<div class="form-group"><label>Issue Type</label><p>' + esc(t.issue_type) + '</p></div>' +
+            '<div class="form-group"><label>Assigned</label><p>' + (t.assigned_to ? esc(t.assigned_to) : '-') + '</p></div>' +
+            '<div class="form-group"><label>Created</label><p>' + CWA_Admin.ui.formatDateTime(t.created_at) + '</p></div>' +
+          '</div>' +
+          (t.description ? '<div class="form-group mb-3"><label>Description</label><p>' + esc(t.description) + '</p></div>' : '') +
+          '<div class="form-row mb-3">' +
+            '<div class="form-group"><label>Status</label><select class="form-control" id="modalTicketStatus">' + CWA_Admin.ticketStatusOptions(t.status) + '</select></div>' +
+            (isAgent ? '' : '<div class="form-group"><label>Assign To</label><select class="form-control" id="modalTicketAssign"><option value="">Unassigned</option>' + assignOptions + '</select></div>') +
+            (isFull ? '<div class="form-group" style="display:flex;align-items:flex-end;"><button class="btn btn-danger" id="modalTicketDelete">Delete</button></div>' : '') +
+          '</div>' +
+          '<hr style="margin:16px 0;">' +
+          '<h4 style="margin-bottom:12px;">Timeline &amp; Comments</h4>' +
+          '<div class="timeline">' + (commentsHtml || '<p class="text-muted">No comments yet</p>') + '</div>' +
+          '<div class="form-group mt-3"><label>Add Comment</label><textarea class="form-control" id="modalTicketComment" placeholder="Type a comment..."></textarea></div>' +
+          '<button class="btn btn-success" id="modalTicketCommentBtn">Add Comment</button>';
+
+        document.getElementById('modalTicketStatus').addEventListener('change', async function() {
+          try { await CWA_Admin.tickets.setStatus(id, this.value); }
+          catch (e) { alert('Could not update status: ' + e.message); }
+        });
+        var assignEl = document.getElementById('modalTicketAssign');
+        if (assignEl) {
+          assignEl.addEventListener('change', async function() {
+            try { await CWA_Admin.tickets.assign(id, this.value); }
+            catch (e) { alert('Could not assign: ' + e.message); }
+          });
+        }
+        document.getElementById('modalTicketCommentBtn').addEventListener('click', async function() {
+          var text = document.getElementById('modalTicketComment').value.trim();
+          if (!text) return;
+          try { await CWA_Admin.tickets.comment(id, text); await renderDetail(id); }
+          catch (e) { alert('Could not add comment: ' + e.message); }
+        });
+        var delBtn = document.getElementById('modalTicketDelete');
+        if (delBtn) {
+          delBtn.addEventListener('click', async function() {
+            if (!confirm('Delete this ticket? This cannot be undone.')) return;
+            try { await CWA_Admin.tickets.remove(id); CWA_Admin.ui.hideModal('ticketModal'); await renderTickets(); }
+            catch (e) { alert('Could not delete: ' + e.message); }
+          });
+        }
+
+        CWA_Admin.ui.showModal('ticketModal');
+      }
+
+      await renderTickets();
+      if (ticketId) await renderDetail(ticketId);
+    })();
+  </script>
+</body>
+</html>

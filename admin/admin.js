@@ -59,7 +59,7 @@ var CWA_Admin = (function() {
 
   // ===== PAGE GUARD =====
   // Pages each role is allowed to open
-  var AGENT_PAGES = ['dashboard.html', 'lead-details.html', 'blog-write.html', 'index.html', ''];
+  var AGENT_PAGES = ['dashboard.html', 'lead-details.html', 'blog-write.html', 'support-tickets.html', 'index.html', ''];
 
   async function guardPage() {
     var user;
@@ -265,6 +265,60 @@ var CWA_Admin = (function() {
     }
   };
 
+  // ===== SUPPORT TICKETS MODULE =====
+  var tickets = {
+    list: async function(status, search) {
+      var extra = [];
+      if (status) extra.push('status=' + encodeURIComponent(status));
+      if (search) extra.push('search=' + encodeURIComponent(search));
+      var data = await apiQuery('support', 'list', extra);
+      return data.tickets;
+    },
+    get: async function(id) {
+      var data = await apiQuery('support', 'get', ['id=' + encodeURIComponent(id)]);
+      return data.ticket;
+    },
+    create: async function(payload) {
+      return await api('support', 'create', payload, 'POST');
+    },
+    setStatus: async function(id, status) {
+      return await api('support', 'status', { id: id, status: status }, 'POST');
+    },
+    assign: async function(id, to) {
+      return await api('support', 'assign', { id: id, assigned_to: to }, 'POST');
+    },
+    comment: async function(id, text) {
+      return await api('support', 'comment', { id: id, text: text }, 'POST');
+    },
+    remove: async function(id) {
+      return await api('support', 'delete', { id: id }, 'POST');
+    },
+    stats: async function() {
+      var data = await api('support', 'stats', null, 'GET');
+      return data.stats;
+    }
+  };
+
+  // ===== TICKET STATUS CONSTANTS =====
+  var TICKET_STATUSES = [
+    { value: 'new', label: 'New' },
+    { value: 'assigned', label: 'Assigned' },
+    { value: 'under_review', label: 'Under Review' },
+    { value: 'documents_required', label: 'Documents Required' },
+    { value: 'in_progress', label: 'In Progress' },
+    { value: 'resolved', label: 'Resolved' },
+    { value: 'closed', label: 'Closed' }
+  ];
+  function ticketStatusLabel(v) {
+    for (var i = 0; i < TICKET_STATUSES.length; i++) { if (TICKET_STATUSES[i].value === v) return TICKET_STATUSES[i].label; }
+    return v;
+  }
+  function ticketStatusOptions(selected) {
+    return TICKET_STATUSES.map(function(s) {
+      return '<option value="' + s.value + '"' + (s.value === selected ? ' selected' : '') + '>' + s.label + '</option>';
+    }).join('');
+  }
+
   // ===== LEAD STATUS CONSTANTS =====
   var STATUSES = [
     { value: 'new', label: 'New' },
@@ -392,7 +446,7 @@ var CWA_Admin = (function() {
       }
       // Agent: restrict sidebar to Dashboard + Leads + Write Blog only
       if (role === 'agent') {
-        var allowed = ['dashboard.html', 'lead-details.html', 'blog-write.html'];
+        var allowed = ['dashboard.html', 'lead-details.html', 'blog-write.html', 'support-tickets.html'];
         document.querySelectorAll('.sidebar-nav a').forEach(function(a) {
           var raw = a.getAttribute('href') || '';
           var href = raw.split('/').pop();
@@ -426,9 +480,13 @@ var CWA_Admin = (function() {
     announcements: announcements,
     settings: settings,
     topics: topics,
+    tickets: tickets,
     STATUSES: STATUSES,
     statusLabel: statusLabel,
     statusOptions: statusOptions,
+    TICKET_STATUSES: TICKET_STATUSES,
+    ticketStatusLabel: ticketStatusLabel,
+    ticketStatusOptions: ticketStatusOptions,
     analytics: analytics,
     ui: ui
   };
