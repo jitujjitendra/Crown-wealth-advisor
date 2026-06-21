@@ -312,66 +312,77 @@ body {
 }
 
 .admin-content {
-  padding: 32px;
+  padding: 28px;
+}
+
+/* Cards */
+.admin-card {
+  background: var(--admin-card);
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  border: 1px solid var(--admin-border);
+  margin-bottom: 24px;
+  overflow: hidden;
 }
 
 /* Stats Cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
 .stat-card {
   background: var(--admin-card);
-  border-radius: var(--admin-radius);
-  padding: 24px;
-  box-shadow: var(--admin-shadow);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   transition: var(--admin-transition);
+  border: 1px solid var(--admin-border);
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  border-color: transparent;
 }
 
 .stat-icon {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  flex-shrink: 0;
 }
 
-.stat-icon.total { background: #e3f2fd; color: #1976d2; }
-.stat-icon.success { background: #e8f5e9; color: #388e3c; }
-.stat-icon.wip { background: #fff3e0; color: #f57c00; }
-.stat-icon.rejected { background: #fce4ec; color: #d32f2f; }
+.stat-icon.total { background: linear-gradient(135deg, #e3f2fd, #bbdefb); color: #1565c0; }
+.stat-icon.success { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); color: #2e7d32; }
+.stat-icon.wip { background: linear-gradient(135deg, #fff3e0, #ffe0b2); color: #e65100; }
+.stat-icon.rejected { background: linear-gradient(135deg, #fce4ec, #f8bbd0); color: #c62828; }
 
 .stat-info h3 {
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 800;
   line-height: 1.2;
+  color: var(--admin-text);
 }
 
 .stat-info p {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  color: var(--admin-muted);
+  font-weight: 500;
+}
   color: var(--admin-muted);
 }
 
-/* Cards / Panels */
-.admin-card {
-  background: var(--admin-card);
-  border-radius: var(--admin-radius);
-  box-shadow: var(--admin-shadow);
-  margin-bottom: 24px;
-}
+/* Cards / Panels - see .admin-card definition above (line ~319) */
 
 .card-header {
   padding: 20px 24px;
@@ -541,10 +552,12 @@ textarea.form-control {
 
 /* Toggle Switch */
 .toggle-switch {
-  display: flex;
+.toggle-switch {
+  display: inline-flex;
   align-items: center;
   gap: 12px;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .toggle-switch input {
@@ -553,11 +566,13 @@ textarea.form-control {
 
 .toggle-slider {
   width: 44px;
+  min-width: 44px;
   height: 24px;
   background: #ccc;
   border-radius: 12px;
   position: relative;
   transition: var(--admin-transition);
+  flex-shrink: 0;
 }
 
 .toggle-slider::before {

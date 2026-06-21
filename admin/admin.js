@@ -457,7 +457,7 @@ var CWA_Admin = (function() {
       var roleEl = document.querySelector('.topbar-user-role');
       if (avatarEl) avatarEl.textContent = ui.initials(session.name);
       if (nameEl) nameEl.textContent = session.name;
-      if (roleEl) roleEl.textContent = session.role;
+      if (roleEl) roleEl.textContent = 'Admin';
 
       // Mobile menu toggle (inject once)
       if (!document.getElementById('mobileMenuBtn')) {
