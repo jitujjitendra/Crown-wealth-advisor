@@ -31,6 +31,15 @@ function agent_can_touch($user, $leadId) {
 
 // ---- PUBLIC: create lead from website forms ----
 if ($action === 'create') {
+    // Rate limit: max 10 form submissions per IP per 5 min
+    require_once __DIR__ . '/rate-limiter.php';
+    $rl = rate_limit_check('lead_create', 10, 300);
+    if ($rl['blocked']) fail('Too many submissions. Please wait a few minutes.', 429);
+
+    // reCAPTCHA check (if configured)
+    require_once __DIR__ . '/captcha.php';
+    if (!verify_captcha()) fail('Security verification failed. Please try again.', 403);
+
     $name = trim((string) param('name', ''));
     if ($name === '') $name = trim((string) param('fullName', ''));
     $mobile = trim((string) param('mobile', param('phone', '')));

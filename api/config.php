@@ -30,6 +30,11 @@ define('MAX_TICKET_UPLOAD_BYTES', 1100 * 1024);                // ~1.1 MB server
 define('OWNER_EMAIL', 'support@crownwealthadvisor.com');
 define('OWNER_WHATSAPP', '917428045423');
 
+// ===== RECAPTCHA (Google reCAPTCHA v3 — invisible) =====
+// Get keys from: https://www.google.com/recaptcha/admin (choose v3)
+define('RECAPTCHA_SITE_KEY', '');   // leave empty to disable captcha
+define('RECAPTCHA_SECRET_KEY', ''); // leave empty to disable captcha
+
 // ===== SESSION =====
 define('SESSION_NAME', 'cwa_admin_session');
 

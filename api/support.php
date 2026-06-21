@@ -49,6 +49,15 @@ function ticket_agent_can_touch($user, $ticketId) {
 
 // ---- PUBLIC: create a support ticket ----
 if ($action === 'create') {
+    // Rate limit: max 5 tickets per IP per 10 min
+    require_once __DIR__ . '/rate-limiter.php';
+    $rl = rate_limit_check('ticket_create', 5, 600);
+    if ($rl['blocked']) fail('Too many submissions. Please wait a few minutes.', 429);
+
+    // reCAPTCHA check (if configured)
+    require_once __DIR__ . '/captcha.php';
+    if (!verify_captcha()) fail('Security verification failed. Please try again.', 403);
+
     $name = trim((string) param('name', ''));
     $mobile = trim((string) param('mobile', ''));
     if ($name === '' && $mobile === '') fail('Name or mobile is required.');
