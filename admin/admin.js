@@ -299,6 +299,28 @@ var CWA_Admin = (function() {
     }
   };
 
+  // ===== PROMOTIONS MODULE =====
+  var promotions = {
+    active: async function() {
+      var data = await api('promotions', 'active', null, 'GET');
+      return data.promotions;
+    },
+    list: async function() {
+      var data = await api('promotions', 'list', null, 'GET');
+      return data.promotions;
+    },
+    save: async function(payload) {
+      var data = await api('promotions', 'save', payload, 'POST');
+      return data.id;
+    },
+    toggle: async function(id) {
+      return await api('promotions', 'toggle', { id: id }, 'POST');
+    },
+    remove: async function(id) {
+      return await api('promotions', 'delete', { id: id }, 'POST');
+    }
+  };
+
   // ===== TICKET STATUS CONSTANTS =====
   var TICKET_STATUSES = [
     { value: 'new', label: 'New' },
@@ -518,6 +540,7 @@ var CWA_Admin = (function() {
     settings: settings,
     topics: topics,
     tickets: tickets,
+    promotions: promotions,
     STATUSES: STATUSES,
     statusLabel: statusLabel,
     statusOptions: statusOptions,

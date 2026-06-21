@@ -394,6 +394,13 @@
         </div>
       </section>
 
+      <!-- Dynamic Promotions (Admin-controlled) -->
+      <section class="section" id="promotions" style="padding-top: 0; padding-bottom: 48px;">
+        <div class="container">
+          <div id="promoGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;"></div>
+        </div>
+      </section>
+
       <section class="section advantage-section" id="advantage" aria-labelledby="advantage-title">
         <div class="container advantage-panel">
           <div class="advantage-title-block">
@@ -737,6 +744,38 @@
       if (window.CWA_Announcements) {
         CWA_Announcements.renderAnnouncementBar();
       }
+
+      // Load homepage promotions from admin panel
+      (function() {
+        var grid = document.getElementById('promoGrid');
+        if (!grid) return;
+        var typeColors = {
+          service: { bg: 'linear-gradient(135deg, #fff5f5, #ffe8e8)', border: '#c9000b', icon: '🔥', badge: '#c9000b' },
+          offer: { bg: 'linear-gradient(135deg, #fffbf0, #fff3d6)', border: '#D4A574', icon: '🎁', badge: '#D4A574' },
+          blog: { bg: 'linear-gradient(135deg, #f0f7ff, #dbeafe)', border: '#1976d2', icon: '📰', badge: '#1976d2' },
+          hiring: { bg: 'linear-gradient(135deg, #f0fdf4, #dcfce7)', border: '#2e7d32', icon: '💼', badge: '#2e7d32' },
+          general: { bg: 'linear-gradient(135deg, #f8f8f8, #f0f0f0)', border: '#666', icon: '📢', badge: '#666' }
+        };
+        fetch('api/promotions.php?action=active')
+          .then(function(r) { return r.json(); })
+          .then(function(resp) {
+            if (!resp || !resp.success || !resp.promotions || !resp.promotions.length) { grid.style.display = 'none'; return; }
+            grid.innerHTML = resp.promotions.map(function(p) {
+              var c = typeColors[p.type] || typeColors.general;
+              var imgHtml = p.image ? '<img src="' + p.image + '" alt="" style="width:100%;max-height:140px;object-fit:cover;border-radius:8px 8px 0 0;margin-bottom:12px;">' : '';
+              return '<article style="border: 2px solid ' + c.border + '; border-radius: 14px; padding: 0; overflow:hidden; background: ' + c.bg + '; transition: transform 180ms ease, box-shadow 180ms ease;" onmouseover="this.style.transform=\'translateY(-4px)\';this.style.boxShadow=\'0 12px 32px rgba(0,0,0,0.12)\'" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'none\'">' +
+                imgHtml +
+                '<div style="padding: 20px 22px 24px;">' +
+                  '<span style="background:' + c.badge + ';color:#fff;font-size:0.72rem;font-weight:900;padding:3px 10px;border-radius:99px;display:inline-block;margin-bottom:10px;">' + c.icon + ' ' + (p.type || 'promo').toUpperCase() + '</span>' +
+                  '<h3 style="margin:0 0 8px;color:#1a1a1a;font-size:1.15rem;font-weight:900;">' + (p.title || '') + '</h3>' +
+                  '<p style="margin:0 0 16px;color:#555;font-size:0.92rem;line-height:1.5;">' + (p.description || '') + '</p>' +
+                  '<a href="' + (p.button_link || '#') + '" style="display:inline-flex;align-items:center;gap:6px;background:' + c.badge + ';color:#fff;padding:10px 20px;border-radius:8px;font-weight:800;font-size:0.88rem;text-decoration:none;transition:opacity 180ms;" onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">' + (p.button_text || 'Learn More') + ' <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;" viewBox="0 0 24 24"><path d="M5 12h13"/><path d="m13 6 6 6-6 6"/></svg></a>' +
+                '</div>' +
+              '</article>';
+            }).join('');
+          })
+          .catch(function() { grid.style.display = 'none'; });
+      })();
     </script>
   </body>
 </html>

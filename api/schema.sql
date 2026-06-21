@@ -129,6 +129,21 @@ CREATE TABLE IF NOT EXISTS support_ticket_comments (
   FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- ===== HOMEPAGE PROMOTIONS (Admin-controlled cards) =====
+CREATE TABLE IF NOT EXISTS promotions (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  title       VARCHAR(200) NOT NULL,
+  description VARCHAR(400) DEFAULT '',
+  button_text VARCHAR(80) DEFAULT 'Learn More',
+  button_link VARCHAR(255) DEFAULT '#',
+  type        ENUM('service','offer','blog','hiring','general') NOT NULL DEFAULT 'general',
+  image       VARCHAR(255) DEFAULT '',
+  active      TINYINT(1) NOT NULL DEFAULT 1,
+  priority    INT NOT NULL DEFAULT 0,
+  created_at  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX (active), INDEX (priority)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ===== ACTIVITY LOG =====
 CREATE TABLE IF NOT EXISTS activity_log (
   id         INT AUTO_INCREMENT PRIMARY KEY,

@@ -449,6 +449,11 @@ body {
 .status-badge.in_progress { background: #fff3e0; color: #ef6c00; }
 .status-badge.submitted { background: #fff8e1; color: #f57f17; }
 .status-badge.done { background: #e8f5e9; color: #2e7d32; }
+.status-badge.service { background: #fce4ec; color: #c62828; }
+.status-badge.offer { background: #fff8e1; color: #f57f17; }
+.status-badge.blog { background: #e3f2fd; color: #1565c0; }
+.status-badge.hiring { background: #e8f5e9; color: #2e7d32; }
+.status-badge.general { background: #eceff1; color: #546e7a; }
 .status-badge.under_review { background: #ede7f6; color: #5e35b1; }
 .status-badge.documents_required { background: #fffde7; color: #f9a825; }
 .status-badge.in_progress { background: #fff3e0; color: #ef6c00; }
