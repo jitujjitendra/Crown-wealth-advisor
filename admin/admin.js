@@ -436,6 +436,43 @@ var CWA_Admin = (function() {
       if (avatarEl) avatarEl.textContent = ui.initials(session.name);
       if (nameEl) nameEl.textContent = session.name;
       if (roleEl) roleEl.textContent = session.role;
+
+      // Mobile menu toggle (inject once)
+      if (!document.getElementById('mobileMenuBtn')) {
+        var topbar = document.querySelector('.admin-topbar');
+        var sidebar = document.querySelector('.admin-sidebar');
+        if (topbar && sidebar) {
+          // Add hamburger button to topbar
+          var btn = document.createElement('button');
+          btn.className = 'mobile-menu-btn';
+          btn.id = 'mobileMenuBtn';
+          btn.innerHTML = '<span></span><span></span><span></span>';
+          topbar.insertBefore(btn, topbar.firstChild);
+
+          // Add overlay
+          var overlay = document.createElement('div');
+          overlay.className = 'sidebar-overlay';
+          overlay.id = 'sidebarOverlay';
+          document.body.appendChild(overlay);
+
+          // Toggle logic
+          btn.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+          });
+          overlay.addEventListener('click', function() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+          });
+          // Close sidebar when any nav link is clicked (mobile)
+          sidebar.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+              sidebar.classList.remove('open');
+              overlay.classList.remove('active');
+            });
+          });
+        }
+      }
     },
     applyRole: function() {
       var role = currentUser ? currentUser.role : '';
