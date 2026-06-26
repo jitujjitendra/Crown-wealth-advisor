@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Write Blog | Crown Wealth Advisor Admin</title>
   <link rel="stylesheet" href="admin-styles.css?v=5">
-  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body>
   <div class="admin-layout">
@@ -95,7 +94,7 @@
             </div>
             <div class="form-group blog-editor-container">
               <label>Content</label>
-              <textarea id="blogContent" style="min-height:300px;"></textarea>
+              <textarea id="blogContent" class="form-control" style="min-height:350px;font-family:inherit;font-size:0.95rem;line-height:1.7;resize:vertical;" placeholder="Write your blog content here... You can use HTML tags like <b>bold</b>, <i>italic</i>, <h2>headings</h2> etc."></textarea>
             </div>
             <div style="display:flex;gap:12px;margin-top:20px;">
               <button class="btn btn-outline" onclick="saveBlog('draft')">Save Draft</button>
@@ -127,34 +126,14 @@
         return '../' + u.replace(/^\/+/, '');
       }
 
-      var loadedContent = null; // content to inject once TinyMCE is ready
+      var loadedContent = null;
 
-      // Init TinyMCE
-      if (typeof tinymce !== 'undefined') {
-        tinymce.init({
-          selector: '#blogContent',
-          height: 350,
-          menubar: false,
-          plugins: 'lists link image code',
-          toolbar: 'undo redo | bold italic underline | bullist numlist | link image | code',
-          init_instance_callback: function(editor) {
-            if (loadedContent !== null) editor.setContent(loadedContent);
-          }
-        });
-      }
-
+      // Simple textarea - no TinyMCE needed
       function setEditorContent(html) {
         loadedContent = html || '';
-        if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) {
-          tinymce.get('blogContent').setContent(loadedContent);
-        } else {
-          document.getElementById('blogContent').value = loadedContent;
-        }
+        document.getElementById('blogContent').value = loadedContent;
       }
       function getEditorContent() {
-        if (typeof tinymce !== 'undefined' && tinymce.get('blogContent')) {
-          return tinymce.get('blogContent').getContent();
-        }
         return document.getElementById('blogContent').value;
       }
 
