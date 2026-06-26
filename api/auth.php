@@ -22,11 +22,12 @@ if ($action === 'login') {
     $password = (string) param('password', '');
     if ($email === '' || $password === '') fail('Email and password are required.');
 
-    // Brute-force check: 5 attempts per 15 minutes per IP
-    $rl = rate_limit_check('login', 5, 900);
-    if ($rl['blocked']) {
-        fail('Too many failed login attempts. Please try again after ' . ceil($rl['retry_after'] / 60) . ' minutes.', 429);
-    }
+    // Rate limiter temporarily disabled for debugging
+    // require_once __DIR__ . '/rate-limiter.php';
+    // $rl = rate_limit_check('login', 5, 900);
+    // if ($rl['blocked']) {
+    //     fail('Too many failed login attempts. Please try again after ' . ceil($rl['retry_after'] / 60) . ' minutes.', 429);
+    // }
 
     $stmt = db()->prepare('SELECT id, name, email, password_hash, role, status FROM users WHERE email = ? LIMIT 1');
     $stmt->execute([$email]);
