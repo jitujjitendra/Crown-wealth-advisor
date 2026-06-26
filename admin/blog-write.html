@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Write Blog | Crown Wealth Advisor Admin</title>
   <link rel="stylesheet" href="admin-styles.css?v=5">
+  <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 </head>
 <body>
   <div class="admin-layout">
@@ -94,7 +95,8 @@
             </div>
             <div class="form-group blog-editor-container">
               <label>Content</label>
-              <textarea id="blogContent" class="form-control" style="min-height:350px;font-family:inherit;font-size:0.95rem;line-height:1.7;resize:vertical;" placeholder="Write your blog content here... You can use HTML tags like <b>bold</b>, <i>italic</i>, <h2>headings</h2> etc."></textarea>
+              <div id="blogEditor" style="min-height:300px;background:#fff;border-radius:8px;"></div>
+              <textarea id="blogContent" style="display:none;"></textarea>
             </div>
             <div style="display:flex;gap:12px;margin-top:20px;">
               <button class="btn btn-outline" onclick="saveBlog('draft')">Save Draft</button>
@@ -113,6 +115,7 @@
     </div>
   </div>
   <script src="admin.js?v=8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
   <script>
     (async function() {
       var me = await CWA_Admin.guardPage();
@@ -128,13 +131,28 @@
 
       var loadedContent = null;
 
-      // Simple textarea - no TinyMCE needed
+      // Quill Rich Text Editor (free, no API key)
+      var quill = new Quill('#blogEditor', {
+        theme: 'snow',
+        placeholder: 'Write your blog content here...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            ['link', 'image', 'blockquote'],
+            [{ 'align': [] }],
+            ['clean']
+          ]
+        }
+      });
+
       function setEditorContent(html) {
         loadedContent = html || '';
-        document.getElementById('blogContent').value = loadedContent;
+        quill.root.innerHTML = loadedContent;
       }
       function getEditorContent() {
-        return document.getElementById('blogContent').value;
+        return quill.root.innerHTML;
       }
 
       var imgStatus = document.getElementById('imgStatus');
