@@ -39,5 +39,5 @@ define('RECAPTCHA_SECRET_KEY', ''); // leave empty to disable captcha
 define('SESSION_NAME', 'cwa_admin_session');
 
 // Show errors only during setup; set to 0 in production
-ini_set('display_errors', 0);
+ini_set('display_errors', 1);
 error_reporting(E_ALL);
