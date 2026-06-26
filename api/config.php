@@ -1,13 +1,12 @@
 <?php
 /**
  * Crown Wealth Advisor - Database Configuration
- *
- * IMPORTANT (Hostinger setup):
- * 1. In hPanel go to Databases > MySQL Databases
- * 2. Create a database + user, note the name/user/password
- * 3. Fill the values below
- * 4. Import api/schema.sql via phpMyAdmin
  */
+
+// DEBUG: full error display to find login issue
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // ===== DATABASE CREDENTIALS (fill these on Hostinger) =====
 define('DB_HOST', 'localhost');                 // Hostinger usually 'localhost'
