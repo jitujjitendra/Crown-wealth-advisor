@@ -160,15 +160,22 @@ button {
 }
 
 .brand-copy strong {
-  color: var(--color-red-dark);
+  background: linear-gradient(135deg, #c5963a, #d4a84e, #b8860b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-size: clamp(1.35rem, 2vw, 1.95rem);
-  letter-spacing: 0;
+  letter-spacing: 0.04em;
 }
 
 .brand-copy span {
-  color: var(--color-black);
+  background: linear-gradient(135deg, #b8860b, #c5963a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-size: 0.92rem;
   font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .primary-nav {
@@ -1183,7 +1190,10 @@ button {
 
 .footer-logo .brand-copy strong,
 .footer-logo .brand-copy span {
-  color: var(--color-white);
+  background: linear-gradient(135deg, #d4a84e, #f0c75e, #c5963a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .footer-brand p {
